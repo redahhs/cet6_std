@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+  <meta name="theme-color" content="#000000">
+  <title>Daily Inspiration</title>
+  <link rel="stylesheet" href="./css/theme.css">
+  <link rel="stylesheet" href="./css/animation.css">
+  <link rel="stylesheet" href="./css/utilities.css">
+  <style>
+    body { background: #000; }
+    .bg-dim { background: linear-gradient(to top, rgba(0,0,0,0.95) 0%, rgba(0,0,0,0.4) 50%, rgba(0,0,0,0.8) 100%); }
+  </style>
+</head>
+<body class="dark h-screen w-screen overflow-hidden relative flex flex-col">
+
+  <!-- Background Image -->
+  <div id="bg-image" class="absolute inset-0 bg-cover bg-center transition-all duration-1000 ease-out scale-105"></div>
+  <div class="absolute inset-0 bg-dim"></div>
+
+  <!-- Top Bar -->
+  <header class="relative z-10 px-6 pt-12 pb-4 flex items-center justify-between">
+    <button onclick="history.back()" class="w-10 h-10 flex items-center justify-center rounded-full bg-white/10 backdrop-blur-md active:scale-95 transition-transform">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
+    </button>
+    <span class="text-xs font-semibold text-white/60 tracking-widest uppercase">Daily Quote</span>
+    <div class="w-10"></div> <!-- Spacer -->
+  </header>
+
+  <!-- Content Area -->
+  <main class="relative z-10 flex-1 flex flex-col justify-end px-8 pb-32">
+    <div id="quote-content" class="stagger-item">
+      <p id="quote-en" class="font-serif-elegant text-3xl leading-tight text-white mb-6 drop-shadow-lg"></p>
+      <p id="quote-zh" class="text-base text-white/70 leading-relaxed mb-4"></p>
+      <p id="quote-author" class="text-sm text-white/40 font-medium tracking-wide"></p>
+    </div>
+  </main>
+
+  <!-- Floating Action Bar -->
+  <footer class="absolute bottom-0 inset-x-0 z-20 px-6 pb-10" style="padding-bottom: max(24px, env(safe-area-inset-bottom));">
+    <div class="glass-card !bg-white/10 !border-white/10 p-4 flex justify-around items-center">
+      <button onclick="playQuote()" class="flex flex-col items-center gap-1 text-white/80 active:scale-90 transition-transform">
+        <div class="w-12 h-12 rounded-full bg-white/10 flex items-center justify-center">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor"><path d="M3 9v6h4l5 5V4L7 9H3zm13.5 3c0-1.77-1.02-3.29-2.5-4.03v8.05c1.48-.73 2.5-2.25 2.5-4.02z"/></svg>
+        </div>
+        <span class="text-[10px]">Listen</span>
+      </button>
+      
+      <button id="btn-save-quote" onclick="toggleSaveQuote()" class="flex flex-col items-center gap-1 text-white/80 active:scale-90 transition-transform">
+        <div class="w-12 h-12 rounded-full bg-white/10 flex items-center justify-center">
+          <svg id="icon-heart" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path></svg>
+        </div>
+        <span class="text-[10px]">Save</span>
+      </button>
+
+      <button onclick="shareQuote()" class="flex flex-col items-center gap-1 text-white/80 active:scale-90 transition-transform">
+        <div class="w-12 h-12 rounded-full bg-white/10 flex items-center justify-center">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="18" cy="5" r="3"></circle><circle cx="6" cy="12" r="3"></circle><circle cx="18" cy="19" r="3"></circle><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"></line><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"></line></svg>
+        </div>
+        <span class="text-[10px]">Share</span>
+      </button>
+    </div>
+  </footer>
+
+  <script src="./js/storage.js"></script>
+  <script src="./js/app.js"></script>
+  <script src="./js/quote.js"></script>
+</body>
+</html>

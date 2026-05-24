@@ -1,0 +1,14 @@
+/* iOS Standalone Mode Tweaks */
+body.is-ios-standalone {
+  /* Ensure bottom nav doesn't overlap home indicator */
+  padding-bottom: env(safe-area-inset-bottom); 
+}
+
+/* Hide scrollbar for cleaner look on Webkit */
+::-webkit-scrollbar {
+  display: none;
+}
+* {
+  -ms-overflow-style: none;  /* IE and Edge */
+  scrollbar-width: none;  /* Firefox */
+}

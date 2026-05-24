@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+  <meta name="theme-color" content="#0a0a0a">
+  <title>Vocabulary - CET6</title>
+  <link rel="stylesheet" href="./css/theme.css">
+  <link rel="stylesheet" href="./css/animation.css">
+  <link rel="stylesheet" href="./css/utilities.css">
+</head>
+<body class="dark overflow-hidden h-screen flex flex-col">
+
+  <!-- Top Bar -->
+  <header class="px-6 pt-12 pb-4 flex items-center justify-between z-10">
+    <button onclick="history.back()" class="w-10 h-10 flex items-center justify-center rounded-full bg-[var(--bg-secondary)] active:scale-95 transition-transform">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
+    </button>
+    <div class="text-center">
+      <h1 class="text-lg font-semibold">Focus Mode</h1>
+      <p class="text-xs text-[var(--text-secondary)]" id="progress-text">0 / 0</p>
+    </div>
+    <button onclick="location.href='notebook.html'" class="w-10 h-10 flex items-center justify-center rounded-full bg-[var(--bg-secondary)] active:scale-95 transition-transform">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"></path></svg>
+    </button>
+  </header>
+
+  <!-- Progress Bar -->
+  <div class="px-6 mb-6">
+    <div class="h-1 w-full bg-[var(--bg-secondary)] rounded-full overflow-hidden">
+      <div id="progress-bar" class="h-full bg-accent rounded-full transition-all duration-500 ease-out" style="width: 0%"></div>
+    </div>
+  </div>
+
+  <!-- Card Area -->
+  <main class="flex-1 relative px-6 flex items-center justify-center card-stack" id="card-container">
+    <!-- Cards will be injected here by JS -->
+    <div id="empty-state" class="hidden text-center text-[var(--text-secondary)]">
+      <p class="text-2xl mb-2">🎉</p>
+      <p class="font-medium">Session Complete</p>
+      <p class="text-sm mt-1">Take a breath. You did great.</p>
+    </div>
+  </main>
+
+  <!-- Action Buttons -->
+  <footer class="px-6 pb-10 pt-4 flex justify-center gap-8 items-center z-10" style="padding-bottom: max(24px, env(safe-area-inset-bottom));">
+    <!-- Forgot (Left) -->
+    <button id="btn-forgot" class="w-16 h-16 rounded-full bg-[var(--bg-secondary)] border border-red-500/20 flex items-center justify-center text-red-500 active:scale-90 transition-transform shadow-lg shadow-red-500/5">
+      <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+    </button>
+    
+    <!-- Fuzzy (Up) -->
+    <button id="btn-fuzzy" class="w-14 h-14 rounded-full bg-[var(--bg-secondary)] border border-yellow-500/20 flex items-center justify-center text-yellow-500 active:scale-90 transition-transform shadow-lg shadow-yellow-500/5">
+      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"></path><line x1="12" y1="17" x2="12.01" y2="17"></line></svg>
+    </button>
+
+    <!-- Known (Right) -->
+    <button id="btn-known" class="w-16 h-16 rounded-full bg-[var(--bg-secondary)] border border-green-500/20 flex items-center justify-center text-green-500 active:scale-90 transition-transform shadow-lg shadow-green-500/5">
+      <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
+    </button>
+  </footer>
+
+  <!-- Bottom Sheet for Details -->
+  <div id="detail-sheet" class="bottom-sheet fixed inset-x-0 bottom-0 bg-[var(--bg-secondary)] rounded-t-[32px] p-6 pb-10 z-50 shadow-2xl border-t border-white/5" style="padding-bottom: max(24px, env(safe-area-inset-bottom));">
+    <div class="w-12 h-1 bg-white/20 rounded-full mx-auto mb-6"></div>
+    <div id="sheet-content">
+      <!-- Injected by JS -->
+    </div>
+  </div>
+  <div id="sheet-backdrop" class="fixed inset-0 bg-black/60 backdrop-blur-sm z-40 hidden opacity-0 transition-opacity duration-300" onclick="closeSheet()"></div>
+
+  <script src="./js/storage.js"></script>
+  <script src="./js/app.js"></script>
+  <script src="./js/vocab.js"></script>
+</body>
+</html>
