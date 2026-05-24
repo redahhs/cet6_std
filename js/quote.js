@@ -18,7 +18,7 @@ async function loadQuote() {
     if (cached && cached.date === today) {
       currentQuote = cached.data;
     } else {
-      const res = await fetch('./data/quotes.json');
+      const res = await fetch('/data/quotes.json');
       const quotes = await res.json();
       // Pick a random quote for the day
       currentQuote = quotes[Math.floor(Math.random() * quotes.length)];

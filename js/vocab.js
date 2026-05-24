@@ -16,7 +16,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 
 async function loadWords() {
   try {
-    const res = await fetch('./data/words.json');
+    const res = await fetch('/data/words.json');
     wordsData = await res.json();
   } catch (e) {
     console.error("Failed to load words", e);

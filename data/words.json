@@ -1,0 +1,47 @@
+[
+  {
+    "id": "w001",
+    "word": "ubiquitous",
+    "phonetic": "/juːˈbɪkwɪtəs/",
+    "pos": "adj.",
+    "meaning": "无所不在的；普遍存在的",
+    "example": "Smartphones have become ubiquitous in modern society.",
+    "collocations": ["ubiquitous presence", "ubiquitous computing"]
+  },
+  {
+    "id": "w002",
+    "word": "ephemeral",
+    "phonetic": "/ɪˈfemərəl/",
+    "pos": "adj.",
+    "meaning": "短暂的；朝生暮死的",
+    "example": "Fame in the world of pop music is often ephemeral.",
+    "collocations": ["ephemeral beauty", "ephemeral nature"]
+  },
+  {
+    "id": "w003",
+    "word": "pragmatic",
+    "phonetic": "/præɡˈmætɪk/",
+    "pos": "adj.",
+    "meaning": "务实的；实用主义的",
+    "example": "We need to take a pragmatic approach to solving this problem.",
+    "collocations": ["pragmatic solution", "pragmatic approach"]
+  },
+  {
+    "id": "w004",
+    "word": "eloquent",
+    "phonetic": "/ˈeləkwənt/",
+    "pos": "adj.",
+    "meaning": "雄辩的；有口才的",
+    "example": "She made an eloquent plea for human rights.",
+    "collocations": ["eloquent speech", "eloquent speaker"]
+  },
+  {
+    "id": "w005",
+    "word": "resilient",
+    "phonetic": "/rɪˈzɪliənt/",
+    "pos": "adj.",
+    "meaning": "有弹性的；适应力强的",
+    "example": "Children are often highly resilient and can adapt to change quickly.",
+    "collocations": ["resilient economy", "highly resilient"]
+  }
+]
