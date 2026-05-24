@@ -4,10 +4,30 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
   <meta name="theme-color" content="#0a0a0a">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <title>Settings - CET6</title>
+  
+  <!-- 1. 核心设计系统 (深黑背景、毛玻璃、渐变文字全靠它) -->
   <link rel="stylesheet" href="./css/theme.css">
   <link rel="stylesheet" href="./css/animation.css">
-  <link rel="stylesheet" href="./css/utilities.css">
+  
+  <!-- 2. 恢复 Tailwind CDN (确保所有排版和布局完美生效) -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          colors: {
+            primary: '#0a0a0a',
+            accent: '#5e5ce6',
+            surface: '#1c1c1e'
+          }
+        }
+      }
+    }
+  </script>
   <style>
     /* iOS Style Grouped List */
     .settings-group {
@@ -95,6 +115,7 @@
     </div>
   </div>
 
+  <script src="./js/haptics.js"></script>
   <script src="./js/storage.js"></script>
   <script src="./js/app.js"></script>
   <script src="./js/settings.js"></script>
