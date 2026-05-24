@@ -10,7 +10,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 
 async function loadDict() {
   try {
-    const res = await fetch('/data/words.json');
+    const res = await fetch('./data/words.json');
     const words = await res.json();
     words.forEach(w => localDict[w.word.toLowerCase()] = w);
   } catch (e) { console.error("Dict load failed", e); }
@@ -18,7 +18,7 @@ async function loadDict() {
 
 async function loadArticles() {
   try {
-    const res = await fetch('/data/reading.json');
+    const res = await fetch('./data/reading.json');
     articles = await res.json();
     renderList();
     // Auto open first article for demo
