@@ -5,189 +5,161 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
   <meta name="theme-color" content="#0a0a0a">
   <title>Focus Mode - CET6</title>
-  <link rel="stylesheet" href="./css/theme.css">
-  <link rel="stylesheet" href="./css/animation.css">
   <style>
-    /* 针对 vocab 页面的特定样式，确保万无一失 */
-    body {
-      background-color: #0a0a0a !important;
-      color: #f5f5f7;
-      margin: 0;
-      padding: 0;
-      height: 100vh;
-      height: 100dvh;
-      overflow: hidden;
-      display: flex;
-      flex-direction: column;
-      font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Inter", "PingFang SC", sans-serif;
+    :root {
+      --bg-primary: #0a0a0a;
+      --bg-secondary: #121212;
+      --text-primary: #f5f5f7;
+      --text-secondary: #86868b;
+      --accent: #5e5ce6;
+      --glass-bg: rgba(28, 28, 30, 0.65);
+      --glass-border: rgba(255, 255, 255, 0.08);
     }
-    .v-header {
-      padding: 60px 24px 16px;
+    * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; margin: 0; padding: 0; }
+    body {
+      background: var(--bg-primary);
+      color: var(--text-primary);
+      font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Inter", sans-serif;
+      height: 100vh; height: 100dvh;
+      display: flex; flex-direction: column;
+      overflow: hidden;
+    }
+    .header { padding: 60px 24px 16px; display: flex; justify-content: space-between; align-items: center; z-index: 10; }
+    .icon-btn { width: 40px; height: 40px; border-radius: 50%; background: var(--bg-secondary); border: none; color: var(--text-primary); display: flex; align-items: center; justify-content: center; }
+    
+    /* 🌟 排序控件样式 (iOS Segmented Control 风格) */
+    .sort-control {
       display: flex;
-      justify-content: space-between;
-      align-items: center;
+      background: rgba(255, 255, 255, 0.05);
+      border-radius: 12px;
+      padding: 4px;
+      margin: 0 24px 16px;
+      position: relative;
       z-index: 10;
     }
-    .v-btn-icon {
-      width: 40px;
-      height: 40px;
-      border-radius: 50%;
-      background: rgba(255,255,255,0.05);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      color: #f5f5f7;
+    .sort-btn {
+      flex: 1;
+      padding: 8px 0;
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--text-secondary);
+      border-radius: 8px;
       border: none;
+      background: transparent;
+      transition: all 0.3s cubic-bezier(0.25, 1, 0.5, 1);
+      letter-spacing: 0.05em;
       cursor: pointer;
     }
-    .v-progress-bar {
-      height: 4px;
-      background: rgba(255,255,255,0.05);
-      border-radius: 2px;
-      overflow: hidden;
-      margin: 0 24px 24px;
+    .sort-btn.active {
+      background: var(--accent);
+      color: #ffffff;
+      box-shadow: 0 4px 12px rgba(94, 92, 230, 0.4);
     }
-    .v-progress-fill {
-      height: 100%;
-      background: #5e5ce6;
-      border-radius: 2px;
-      transition: width 0.4s ease;
-    }
-    .v-card-area {
-      flex: 1;
-      position: relative;
-      padding: 0 24px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-    }
-    .v-card {
-      position: absolute;
-      inset: 0;
-      background: rgba(255, 255, 255, 0.03);
-      border: 1px solid rgba(255, 255, 255, 0.08);
+
+    .progress-bar { height: 4px; background: var(--bg-secondary); margin: 0 24px 24px; border-radius: 2px; overflow: hidden; }
+    .progress-fill { height: 100%; background: var(--accent); transition: width 0.4s ease-out; width: 0%; }
+    
+    .card-area { flex: 1; position: relative; padding: 0 24px; }
+    .card-container { position: absolute; inset: 0; margin: 0 24px; }
+    
+    .vocab-card {
+      position: absolute; inset: 0;
+      background: var(--glass-bg);
+      border: 1px solid var(--glass-border);
       border-radius: 24px;
-      backdrop-filter: blur(20px);
-      -webkit-backdrop-filter: blur(20px);
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      padding: 32px;
-      text-align: center;
-      touch-action: none;
-      user-select: none;
+      backdrop-filter: blur(24px); -webkit-backdrop-filter: blur(24px);
+      display: flex; flex-direction: column; align-items: center; justify-content: center;
+      padding: 32px; text-align: center;
+      touch-action: none; user-select: none;
       box-shadow: 0 10px 30px rgba(0,0,0,0.2);
     }
-    .v-actions {
-      padding: 24px;
-      padding-bottom: max(24px, env(safe-area-inset-bottom));
-      display: flex;
-      justify-content: center;
-      gap: 32px;
-      align-items: center;
-      z-index: 10;
-    }
-    .v-action-btn {
-      width: 64px;
-      height: 64px;
-      border-radius: 50%;
-      background: rgba(255,255,255,0.05);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      border: 1px solid rgba(255,255,255,0.1);
-      cursor: pointer;
-      transition: transform 0.2s;
-    }
-    .v-action-btn:active { transform: scale(0.9); }
-    .v-action-btn.forgot { color: #ff453a; border-color: rgba(255,69,58,0.3); }
-    .v-action-btn.fuzzy { color: #ffd60a; border-color: rgba(255,214,10,0.3); }
-    .v-action-btn.known { color: #30d158; border-color: rgba(48,209,88,0.3); }
+    .pos { font-size: 12px; font-weight: 600; color: var(--accent); letter-spacing: 0.1em; margin-bottom: 16px; text-transform: uppercase; }
+    .word { font-size: 42px; font-weight: 700; margin-bottom: 16px; background: linear-gradient(135deg, #fff 0%, #a1a1aa 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+    .meaning { font-size: 18px; color: var(--text-secondary); margin-bottom: 32px; }
     
+    .empty-state { position: absolute; inset: 0; display: none; flex-direction: column; align-items: center; justify-content: center; text-align: center; color: var(--text-secondary); }
+    .empty-state h2 { color: var(--text-primary); font-size: 24px; margin-bottom: 8px; }
+
+    .footer { padding: 24px; padding-bottom: max(24px, env(safe-area-inset-bottom)); display: flex; justify-content: center; gap: 32px; z-index: 10; }
+    .action-btn { width: 64px; height: 64px; border-radius: 50%; background: var(--bg-secondary); border: 1px solid rgba(255,255,255,0.05); display: flex; align-items: center; justify-content: center; }
+    .action-btn.forgot { color: #ff453a; border-color: rgba(255,69,58,0.2); }
+    .action-btn.fuzzy { color: #ffd60a; border-color: rgba(255,214,10,0.2); }
+    .action-btn.known { color: #30d158; border-color: rgba(48,209,88,0.2); }
+
     /* Bottom Sheet */
-    .v-sheet {
-      position: fixed;
-      left: 0; right: 0; bottom: 0;
-      background: #1c1c1e;
-      border-top: 1px solid rgba(255,255,255,0.1);
-      border-radius: 24px 24px 0 0;
-      padding: 24px;
+    .backdrop { position: fixed; inset: 0; background: rgba(0,0,0,0.6); backdrop-filter: blur(4px); z-index: 40; opacity: 0; pointer-events: none; transition: opacity 0.3s; }
+    .backdrop.active { opacity: 1; pointer-events: auto; }
+    .sheet {
+      position: fixed; left: 0; right: 0; bottom: 0;
+      background: #1c1c1e; border-top: 1px solid var(--glass-border);
+      border-radius: 24px 24px 0 0; padding: 24px;
       padding-bottom: max(24px, env(safe-area-inset-bottom));
-      transform: translateY(100%);
+      z-index: 50; transform: translateY(100%);
       transition: transform 0.4s cubic-bezier(0.25, 1, 0.5, 1);
-      z-index: 100;
-      max-height: 70vh;
-      overflow-y: auto;
+      max-height: 70vh; overflow-y: auto;
     }
-    .v-sheet.open { transform: translateY(0); }
-    .v-backdrop {
-      position: fixed;
-      inset: 0;
-      background: rgba(0,0,0,0.6);
-      backdrop-filter: blur(4px);
-      z-index: 90;
-      opacity: 0;
-      pointer-events: none;
-      transition: opacity 0.3s;
-    }
-    .v-backdrop.open { opacity: 1; pointer-events: auto; }
-    
-    .v-loading { color: #86868b; font-size: 14px; }
+    .sheet.active { transform: translateY(0); }
+    .sheet-handle { width: 36px; height: 4px; background: rgba(255,255,255,0.2); border-radius: 2px; margin: 0 auto 24px; }
+    .sheet h3 { font-size: 28px; font-weight: 700; margin-bottom: 8px; }
+    .sheet .pos { font-size: 14px; color: var(--text-secondary); margin-bottom: 24px; text-transform: none; letter-spacing: normal; }
+    .sheet .label { font-size: 12px; color: var(--text-secondary); text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 8px; }
+    .sheet .meaning { font-size: 18px; color: var(--text-primary); margin-bottom: 24px; }
+    .phrase-item { background: rgba(255,255,255,0.05); padding: 12px; border-radius: 12px; margin-bottom: 8px; }
+    .phrase-item .en { font-weight: 500; color: var(--text-primary); margin-bottom: 4px; }
+    .phrase-item .zh { font-size: 14px; color: var(--text-secondary); }
   </style>
 </head>
 <body>
-  <!-- Header -->
-  <header class="v-header">
-    <button class="v-btn-icon" onclick="history.back()">
+  <header class="header">
+    <button class="icon-btn" onclick="history.back()">
       <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
     </button>
     <div style="text-align: center;">
       <div style="font-size: 16px; font-weight: 600;">Focus Mode</div>
-      <div id="v-progress-text" style="font-size: 12px; color: #86868b; margin-top: 2px;">0 / 0</div>
+      <div id="progress-text" style="font-size: 12px; color: var(--text-secondary);">0 / 0</div>
     </div>
-    <button class="v-btn-icon" onclick="location.href='./notebook.html'">
+    <button class="icon-btn" onclick="location.href='notebook.html'">
       <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"></path></svg>
     </button>
   </header>
 
-  <!-- Progress -->
-  <div class="v-progress-bar">
-    <div id="v-progress-fill" class="v-progress-fill" style="width: 0%"></div>
+  <!-- 🌟 排序控件 -->
+  <div class="sort-control">
+    <button class="sort-btn active" data-sort="default" onclick="changeSort('default')">DEFAULT</button>
+    <button class="sort-btn" data-sort="random" onclick="changeSort('random')">RANDOM</button>
+    <button class="sort-btn" data-sort="az" onclick="changeSort('az')">A - Z</button>
   </div>
 
-  <!-- Card Area -->
-  <main class="v-card-area" id="v-card-area">
-    <div id="v-loading" class="v-loading">Loading words...</div>
-    <div id="v-empty" style="display: none; text-align: center; color: #86868b;">
+  <div class="progress-bar"><div id="progress-fill" class="progress-fill"></div></div>
+  
+  <div class="card-area">
+    <div id="card-container" class="card-container"></div>
+    <div id="empty-state" class="empty-state">
       <div style="font-size: 48px; margin-bottom: 16px;">🎉</div>
-      <div style="font-size: 20px; font-weight: 600; color: #f5f5f7;">Session Complete</div>
-      <div style="font-size: 14px; margin-top: 8px;">Take a breath. You did great.</div>
+      <h2>Session Complete</h2>
+      <p>Take a breath. You did great.</p>
     </div>
-  </main>
+  </div>
 
-  <!-- Actions -->
-  <footer class="v-actions">
-    <button id="btn-forgot" class="v-action-btn forgot">
+  <footer class="footer">
+    <button id="btn-forgot" class="action-btn forgot">
       <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
     </button>
-    <button id="btn-fuzzy" class="v-action-btn fuzzy">
+    <button id="btn-fuzzy" class="action-btn fuzzy">
       <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10"></circle><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"></path><line x1="12" y1="17" x2="12.01" y2="17"></line></svg>
     </button>
-    <button id="btn-known" class="v-action-btn known">
+    <button id="btn-known" class="action-btn known">
       <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"></polyline></svg>
     </button>
   </footer>
 
-  <!-- Bottom Sheet -->
-  <div id="v-backdrop" class="v-backdrop" onclick="closeSheet()"></div>
-  <div id="v-sheet" class="v-sheet">
-    <div style="width: 48px; height: 4px; background: rgba(255,255,255,0.2); border-radius: 2px; margin: 0 auto 24px;"></div>
-    <div id="v-sheet-content"></div>
+  <div id="backdrop" class="backdrop" onclick="closeSheet()"></div>
+  <div id="sheet" class="sheet">
+    <div class="sheet-handle"></div>
+    <div id="sheet-content"></div>
   </div>
 
   <script src="./js/storage.js"></script>
-  <script src="./js/app.js"></script>
   <script src="./js/vocab.js"></script>
 </body>
 </html>
