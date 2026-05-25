@@ -4,52 +4,35 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
   <meta name="theme-color" content="#0a0a0a">
-  <meta name="mobile-web-app-capable" content="yes">
-  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <title>Notebook - CET6</title>
-  
-  <!-- 1. 核心设计系统 (深黑背景、毛玻璃、渐变文字全靠它) -->
   <link rel="stylesheet" href="./css/theme.css">
   <link rel="stylesheet" href="./css/animation.css">
-  
-  <!-- 2. 恢复 Tailwind CDN (确保所有排版和布局完美生效) -->
-  <script src="https://cdn.tailwindcss.com"></script>
-  <script>
-    tailwind.config = {
-      darkMode: 'class',
-      theme: {
-        extend: {
-          colors: {
-            primary: '#0a0a0a',
-            accent: '#5e5ce6',
-            surface: '#1c1c1e'
-          }
-        }
-      }
-    }
-  </script>
+  <style>
+    body { background: var(--bg-primary); color: var(--text-primary); }
+    .tab-container { background: var(--bg-secondary); }
+    .tab-btn { color: var(--text-secondary); }
+    .tab-btn.active { background: var(--accent); color: white; box-shadow: 0 2px 8px rgba(94, 92, 230, 0.3); }
+    .list-item { background: var(--bg-secondary); border: 1px solid var(--glass-border); }
+    .swipe-actions { background: #ff3b30; }
+  </style>
 </head>
 <body class="dark">
-
-  <div id="app-container" class="px-6 pt-12 pb-24 max-w-2xl mx-auto">
+  <div class="px-6 pt-12 pb-24 max-w-2xl mx-auto">
     <header class="mb-8 flex items-center justify-between">
-      <h1 class="text-3xl font-bold text-gradient">Notebook</h1>
+      <h1 class="text-2xl font-bold text-white">Notebook</h1>
       <a href="settings.html" class="w-10 h-10 flex items-center justify-center rounded-full bg-[var(--bg-secondary)] active:scale-95 transition-transform">
-        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg>
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg>
       </a>
     </header>
 
-    <!-- Tabs -->
-    <div class="flex gap-2 mb-6 bg-[var(--bg-secondary)] p-1 rounded-xl">
-      <button id="tab-words" class="flex-1 py-2 rounded-lg text-sm font-medium transition-all bg-accent text-white" onclick="switchTab('words')">Words</button>
-      <button id="tab-quotes" class="flex-1 py-2 rounded-lg text-sm font-medium transition-all text-[var(--text-secondary)]" onclick="switchTab('quotes')">Quotes</button>
+    <div class="tab-container flex p-1 rounded-xl mb-6">
+      <button id="tab-words" class="tab-btn active flex-1 py-2 rounded-lg text-sm font-medium transition-all" onclick="switchTab('words')">Words</button>
+      <button id="tab-quotes" class="tab-btn flex-1 py-2 rounded-lg text-sm font-medium transition-all" onclick="switchTab('quotes')">Quotes</button>
     </div>
 
-    <!-- Content Lists -->
     <div id="list-words" class="space-y-3"></div>
     <div id="list-quotes" class="space-y-3 hidden"></div>
     
-    <!-- Empty State -->
     <div id="empty-state" class="hidden text-center mt-20 text-[var(--text-tertiary)]">
       <p class="text-4xl mb-4">📭</p>
       <p class="font-medium">Your notebook is empty.</p>
@@ -57,17 +40,8 @@
     </div>
   </div>
 
-  <!-- Bottom Nav -->
-  <nav class="fixed bottom-0 left-0 right-0 glass-card !rounded-none !border-t !border-x-0 !border-b-0 px-6 py-3 flex justify-around items-center z-50" style="padding-bottom: max(12px, env(safe-area-inset-bottom));">
-    <a href="index.html" class="nav-item flex flex-col items-center gap-1 text-[var(--text-secondary)]"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path><polyline points="9 22 9 12 15 12 15 22"></polyline></svg><span class="text-[10px] font-medium">Home</span></a>
-    <a href="vocab.html" class="nav-item flex flex-col items-center gap-1 text-[var(--text-secondary)]"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"></path></svg><span class="text-[10px] font-medium">Vocab</span></a>
-    <a href="reading.html" class="nav-item flex flex-col items-center gap-1 text-[var(--text-secondary)]"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"></path><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"></path></svg><span class="text-[10px] font-medium">Read</span></a>
-    <a href="notebook.html" class="nav-item flex flex-col items-center gap-1 text-accent"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"></path></svg><span class="text-[10px] font-medium">Saved</span></a>
-  </nav>
-
-  <script src="./js/haptics.js"></script>
   <script src="./js/storage.js"></script>
-  <script src="./js/app.js"></script>
+  <script src="./js/haptics.js"></script>
   <script src="./js/notebook.js"></script>
 </body>
 </html>
