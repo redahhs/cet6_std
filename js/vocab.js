@@ -1,12 +1,13 @@
 /**
- * Vocabulary Engine (Bug-Fixed Version)
+ * Vocabulary Engine (Single Card Focus Mode)
+ * 彻底移除重影，打造极致沉浸感
  */
 
 let wordsData = [];
 let currentIndex = 0;
 let startX = 0, startY = 0, currentX = 0, currentY = 0, isDragging = false;
 let activeCard = null;
-let hasMoved = false; // 核心修复：防止滑动后误触 click
+let hasMoved = false; 
 
 document.addEventListener('DOMContentLoaded', async () => {
   await loadWords();
@@ -27,7 +28,7 @@ function renderCards() {
   const container = document.getElementById('card-container');
   const emptyState = document.getElementById('empty-state');
   
-  container.innerHTML = ''; // 只清空卡片容器，不影响 empty-state
+  container.innerHTML = ''; 
   
   if (currentIndex >= wordsData.length) {
     emptyState.classList.remove('hidden');
@@ -37,40 +38,31 @@ function renderCards() {
     emptyState.classList.add('hidden');
   }
 
-  const limit = Math.min(currentIndex + 2, wordsData.length);
-  for (let i = limit - 1; i >= currentIndex; i--) {
-    const word = wordsData[i];
-    const isTop = i === currentIndex;
-    const offset = i - currentIndex;
-    
-    const card = document.createElement('div');
-    // 修复：使用 inset-0 撑满带 mx-6 的容器，保证左右留白
-    card.className = `vocab-card glass-card absolute inset-0 flex flex-col items-center justify-center p-8 cursor-pointer ${isTop ? 'z-20' : 'z-10'}`;
-    card.style.transform = `scale(${1 - offset * 0.05}) translateY(${offset * 20}px)`;
-    card.style.opacity = isTop ? 1 : 0.6;
-    card.dataset.id = word.id;
-    
-    card.innerHTML = `
-      <span class="text-xs font-semibold text-[#5e5ce6] tracking-widest uppercase mb-4">${word.pos}</span>
-      <h2 class="text-5xl font-bold text-gradient font-serif-elegant mb-3 text-center">${word.word}</h2>
-      <p class="text-lg text-gray-400 mb-8">${word.phonetic}</p>
-      <button class="w-14 h-14 rounded-full bg-white/5 flex items-center justify-center text-white/80 active:scale-90 transition-transform pulse-soft" onclick="event.stopPropagation(); playAudio('${word.word}')">
-        <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor"><path d="M3 9v6h4l5 5V4L7 9H3zm13.5 3c0-1.77-1.02-3.29-2.5-4.03v8.05c1.48-.73 2.5-2.25 2.5-4.02zM14 3.23v2.06c2.89.86 5 3.54 5 6.71s-2.11 5.85-5 6.71v2.06c4.01-.91 7-4.49 7-8.77s-2.99-7.86-7-8.77z"/></svg>
-      </button>
-      <p class="absolute bottom-8 text-xs text-gray-500">Swipe or tap for details</p>
-    `;
+  // 🌟 核心修复：只渲染当前这一张卡片，彻底杜绝重影！
+  const word = wordsData[currentIndex];
+  const card = document.createElement('div');
+  
+  // 添加入场动画类名
+  card.className = 'vocab-card glass-card absolute inset-0 flex flex-col items-center justify-center p-8 cursor-pointer z-20 animate-card-enter';
+  card.dataset.id = word.id;
+  
+  card.innerHTML = `
+    <span class="text-xs font-semibold text-[#5e5ce6] tracking-widest uppercase mb-4">${word.pos}</span>
+    <h2 class="text-5xl font-bold text-gradient font-serif-elegant mb-3 text-center">${word.word}</h2>
+    <p class="text-lg text-gray-400 mb-8">${word.phonetic}</p>
+    <button class="w-14 h-14 rounded-full bg-white/5 flex items-center justify-center text-white/80 active:scale-90 transition-transform pulse-soft" onclick="event.stopPropagation(); playAudio('${word.word}')">
+      <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor"><path d="M3 9v6h4l5 5V4L7 9H3zm13.5 3c0-1.77-1.02-3.29-2.5-4.03v8.05c1.48-.73 2.5-2.25 2.5-4.02zM14 3.23v2.06c2.89.86 5 3.54 5 6.71s-2.11 5.85-5 6.71v2.06c4.01-.91 7-4.49 7-8.77s-2.99-7.86-7-8.77z"/></svg>
+    </button>
+    <p class="absolute bottom-8 text-xs text-gray-500">Swipe or tap for details</p>
+  `;
 
-    if (isTop) {
-      activeCard = card;
-      // 核心修复：点击事件加入 hasMoved 判断
-      card.addEventListener('click', () => {
-        if (!hasMoved) openSheet(word);
-      });
-      attachTouchEvents(card);
-    }
+  activeCard = card;
+  card.addEventListener('click', () => {
+    if (!hasMoved) openSheet(word);
+  });
+  attachTouchEvents(card);
 
-    container.appendChild(card);
-  }
+  container.appendChild(card);
   updateProgress();
 }
 
@@ -98,10 +90,12 @@ function getY(e) { return e.touches ? e.touches[0].clientY : e.clientY; }
 
 function touchStart(e) {
   isDragging = true;
-  hasMoved = false; // 重置移动状态
+  hasMoved = false; 
   startX = getX(e);
   startY = getY(e);
   activeCard.classList.add('swiping');
+  // 移除入场动画，防止与拖拽冲突
+  activeCard.classList.remove('animate-card-enter'); 
 }
 
 function touchMove(e) {
@@ -111,7 +105,6 @@ function touchMove(e) {
   currentX = getX(e) - startX;
   currentY = getY(e) - startY;
   
-  // 只要移动超过 5px，就认为是滑动，锁定 click 事件
   if (Math.abs(currentX) > 5 || Math.abs(currentY) > 5) {
     hasMoved = true;
   }

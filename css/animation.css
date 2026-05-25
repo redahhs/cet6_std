@@ -60,3 +60,20 @@
   100% { box-shadow: 0 0 0 0 rgba(94, 92, 230, 0); }
 }
 .fab-pulse { animation: fab-pulse 2s infinite; }
+/* 单卡片极简入场动画 (Scale & Fade) */
+@keyframes cardEnter {
+  0% { 
+    opacity: 0; 
+    transform: scale(0.92) translateY(15px); 
+    filter: blur(4px);
+  }
+  100% { 
+    opacity: 1; 
+    transform: scale(1) translateY(0); 
+    filter: blur(0);
+  }
+}
+
+.animate-card-enter {
+  animation: cardEnter 0.4s var(--ease-spring) forwards;
+}
