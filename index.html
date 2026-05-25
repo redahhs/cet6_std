@@ -3,153 +3,121 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-  <meta name="theme-color" content="#050505">
-  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="theme-color" content="#0a0a0a">
   <title>CET6 Immersive</title>
-  <link rel="stylesheet" href="./css/theme.css">
-  <link rel="stylesheet" href="./css/animation.css">
-  <link rel="stylesheet" href="./css/utilities.css">
   <style>
-    /* 首页专属高级动效与样式 */
-    .home-bg-orb {
-      position: fixed;
-      width: 60vw;
-      height: 60vw;
-      max-width: 400px;
-      max-height: 400px;
-      background: radial-gradient(circle, rgba(94, 92, 230, 0.15) 0%, rgba(5, 5, 5, 0) 70%);
-      filter: blur(60px);
-      top: -10%;
-      right: -20%;
-      z-index: 0;
-      pointer-events: none;
-      animation: orbFloat 10s ease-in-out infinite alternate;
+    :root {
+      --bg: #0a0a0a;
+      --card: rgba(255, 255, 255, 0.03);
+      --border: rgba(255, 255, 255, 0.08);
+      --text-main: #f5f5f7;
+      --text-sub: #86868b;
+      --accent: #5e5ce6;
     }
-    @keyframes orbFloat {
-      0% { transform: translate(0, 0) scale(1); }
-      100% { transform: translate(-30px, 40px) scale(1.1); }
-    }
-    .stat-card {
-      background: rgba(255, 255, 255, 0.03);
-      border: 1px solid rgba(255, 255, 255, 0.05);
-      backdrop-filter: blur(20px);
-      -webkit-backdrop-filter: blur(20px);
-    }
-    .widget-card {
-      background: linear-gradient(145deg, rgba(30, 30, 32, 0.8), rgba(20, 20, 22, 0.6));
-      border: 1px solid rgba(255, 255, 255, 0.08);
-      backdrop-filter: blur(30px);
-      -webkit-backdrop-filter: blur(30px);
-      box-shadow: 0 10px 30px rgba(0,0,0,0.4);
-    }
-    .nav-grid-item {
-      transition: all 0.3s cubic-bezier(0.25, 1, 0.5, 1);
-    }
-    .nav-grid-item:active {
-      transform: scale(0.96);
-      background: rgba(255, 255, 255, 0.08);
-    }
+    body { background: var(--bg); color: var(--text-main); font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Inter", sans-serif; margin: 0; padding-bottom: 100px; min-height: 100vh; }
+    
+    /* Background Glow */
+    .glow { position: fixed; top: -20%; right: -20%; width: 60vw; height: 60vw; background: radial-gradient(circle, rgba(94, 92, 230, 0.15) 0%, transparent 70%); filter: blur(60px); pointer-events: none; z-index: 0; }
+
+    /* Layout */
+    .container { max-width: 600px; margin: 0 auto; padding: 60px 24px 24px; position: relative; z-index: 1; }
+    
+    /* Header */
+    .date { font-size: 12px; color: var(--text-sub); text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 8px; }
+    .greeting { font-size: 32px; font-weight: 700; margin: 0 0 32px; background: linear-gradient(135deg, #fff 0%, #a1a1aa 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+
+    /* Stats Grid */
+    .stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin-bottom: 24px; }
+    .stat-card { background: var(--card); border: 1px solid var(--border); border-radius: 20px; padding: 16px; backdrop-filter: blur(20px); }
+    .stat-label { font-size: 11px; color: var(--text-sub); text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 8px; }
+    .stat-value { font-size: 24px; font-weight: 600; display: flex; align-items: baseline; gap: 4px; }
+    .stat-unit { font-size: 12px; color: var(--accent); }
+
+    /* Daily Focus Card */
+    .focus-card { background: var(--card); border: 1px solid var(--border); border-radius: 28px; padding: 24px; backdrop-filter: blur(20px); margin-bottom: 24px; position: relative; overflow: hidden; cursor: pointer; transition: transform 0.2s; }
+    .focus-card:active { transform: scale(0.98); }
+    .focus-tag { font-size: 11px; font-weight: 600; color: var(--accent); letter-spacing: 0.1em; text-transform: uppercase; margin-bottom: 16px; }
+    .focus-word { font-family: "New York", "Playfair Display", serif; font-size: 32px; font-weight: 700; margin: 0 0 8px; }
+    .focus-meaning { font-size: 15px; color: var(--text-sub); margin: 0; }
+    .focus-audio { position: absolute; top: 24px; right: 24px; width: 32px; height: 32px; border-radius: 50%; background: rgba(255,255,255,0.05); display: flex; align-items: center; justify-content: center; color: var(--text-sub); }
+
+    /* Nav Grid */
+    .nav-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; }
+    .nav-item { background: var(--card); border: 1px solid var(--border); border-radius: 20px; padding: 20px; text-decoration: none; color: var(--text-main); display: flex; flex-direction: column; gap: 12px; transition: transform 0.2s, background 0.2s; }
+    .nav-item:active { transform: scale(0.98); background: rgba(255,255,255,0.06); }
+    .nav-icon { width: 36px; height: 36px; border-radius: 10px; display: flex; align-items: center; justify-content: center; }
+    .nav-icon.purple { background: rgba(94, 92, 230, 0.15); color: #5e5ce6; }
+    .nav-icon.green { background: rgba(48, 209, 88, 0.15); color: #30d158; }
+    .nav-icon.orange { background: rgba(255, 159, 10, 0.15); color: #ff9f0a; }
+    .nav-icon.pink { background: rgba(255, 55, 95, 0.15); color: #ff375f; }
+    .nav-title { font-size: 16px; font-weight: 600; margin: 0; }
+    .nav-sub { font-size: 12px; color: var(--text-sub); margin: 0; }
+
+    /* Bottom Nav */
+    .bottom-nav { position: fixed; bottom: 0; left: 0; right: 0; background: rgba(20, 20, 20, 0.8); backdrop-filter: blur(20px); border-top: 1px solid var(--border); display: flex; justify-content: space-around; padding: 12px 0 max(12px, env(safe-area-inset-bottom)); z-index: 100; }
+    .nav-link { display: flex; flex-direction: column; align-items: center; gap: 4px; color: var(--text-sub); text-decoration: none; font-size: 10px; font-weight: 500; }
+    .nav-link.active { color: var(--accent); }
   </style>
 </head>
-<body class="dark overflow-x-hidden">
-  <div class="home-bg-orb"></div>
+<body>
+  <div class="glow"></div>
+  
+  <div class="container">
+    <div class="date" id="date-text"></div>
+    <h1 class="greeting" id="greeting-text"></h1>
 
-  <div id="app-container" class="relative z-10 px-6 pt-14 pb-24 max-w-xl mx-auto">
-    
-    <!-- Header: 动态问候 -->
-    <header class="mb-8">
-      <p class="text-xs font-medium tracking-widest text-[var(--text-tertiary)] uppercase mb-2" id="greeting-date">Loading...</p>
-      <h1 class="text-4xl font-bold text-gradient leading-tight" id="greeting-text">Ready to focus?</h1>
-    </header>
-
-    <!-- Stats Grid: 极简数据面板 -->
-    <section class="grid grid-cols-3 gap-3 mb-8">
-      <div class="stat-card rounded-2xl p-4 flex flex-col justify-between h-24">
-        <span class="text-[10px] font-semibold text-[var(--text-tertiary)] uppercase tracking-wider">Streak</span>
-        <div class="flex items-baseline gap-1">
-          <span class="text-2xl font-bold text-white" id="stat-streak">0</span>
-          <span class="text-xs text-accent">days</span>
-        </div>
+    <div class="stats">
+      <div class="stat-card">
+        <div class="stat-label">Streak</div>
+        <div class="stat-value"><span id="stat-streak">0</span><span class="stat-unit">days</span></div>
       </div>
-      <div class="stat-card rounded-2xl p-4 flex flex-col justify-between h-24">
-        <span class="text-[10px] font-semibold text-[var(--text-tertiary)] uppercase tracking-wider">Mastered</span>
-        <div class="flex items-baseline gap-1">
-          <span class="text-2xl font-bold text-white" id="stat-mastered">0</span>
-        </div>
+      <div class="stat-card">
+        <div class="stat-label">Mastered</div>
+        <div class="stat-value"><span id="stat-mastered">0</span></div>
       </div>
-      <div class="stat-card rounded-2xl p-4 flex flex-col justify-between h-24">
-        <span class="text-[10px] font-semibold text-[var(--text-tertiary)] uppercase tracking-wider">Fuzzy</span>
-        <div class="flex items-baseline gap-1">
-          <span class="text-2xl font-bold text-yellow-500" id="stat-fuzzy">0</span>
-        </div>
+      <div class="stat-card">
+        <div class="stat-label">Fuzzy</div>
+        <div class="stat-value" style="color: #ffd60a"><span id="stat-fuzzy">0</span></div>
       </div>
-    </section>
+    </div>
 
-    <!-- Daily Word Widget: 首页单词预览 -->
-    <section class="widget-card rounded-3xl p-6 mb-8 relative overflow-hidden group cursor-pointer" onclick="location.href='vocab.html'">
-      <div class="flex justify-between items-start mb-4">
-        <span class="text-[10px] font-bold text-accent tracking-widest uppercase">Today's Focus</span>
-        <button class="w-8 h-8 rounded-full bg-white/5 flex items-center justify-center text-white/60 active:scale-90 transition-transform" onclick="event.stopPropagation(); playAudio(document.getElementById('preview-word').textContent)">
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M3 9v6h4l5 5V4L7 9H3z"/></svg>
-        </button>
+    <div class="focus-card" onclick="location.href='vocab.html'">
+      <div class="focus-tag">Daily Focus</div>
+      <h2 class="focus-word" id="focus-word"></h2>
+      <p class="focus-meaning" id="focus-meaning"></p>
+      <div class="focus-audio" onclick="event.stopPropagation(); playAudio(document.getElementById('focus-word').textContent)">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M3 9v6h4l5 5V4L7 9H3z"/></svg>
       </div>
-      <h2 class="text-3xl font-serif-elegant font-bold text-white mb-2" id="preview-word">...</h2>
-      <p class="text-sm text-[var(--text-secondary)] leading-relaxed" id="preview-meaning">Loading your daily word...</p>
-      <div class="mt-4 flex flex-wrap gap-2" id="preview-phrases"></div>
-    </section>
+    </div>
 
-    <!-- Navigation Grid: 宫格导航 -->
-    <section class="grid grid-cols-2 gap-4 mb-8">
-      <a href="vocab.html" class="nav-grid-item widget-card rounded-2xl p-5 flex flex-col gap-3">
-        <div class="w-10 h-10 rounded-xl bg-accent/10 flex items-center justify-center text-accent">
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"></path></svg>
-        </div>
-        <div>
-          <h3 class="text-base font-semibold text-white">Vocabulary</h3>
-          <p class="text-xs text-[var(--text-tertiary)] mt-1">Swipe & Learn</p>
-        </div>
+    <div class="nav-grid">
+      <a href="vocab.html" class="nav-item">
+        <div class="nav-icon purple"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"></path></svg></div>
+        <div><h3 class="nav-title">Vocabulary</h3><p class="nav-sub">Swipe & Learn</p></div>
       </a>
-      <a href="quote.html" class="nav-grid-item widget-card rounded-2xl p-5 flex flex-col gap-3">
-        <div class="w-10 h-10 rounded-xl bg-purple-500/10 flex items-center justify-center text-purple-400">
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 21v-4a4 4 0 1 1 4 4h-4z"></path><path d="M21 3v4a4 4 0 1 1-4-4h4z"></path></svg>
-        </div>
-        <div>
-          <h3 class="text-base font-semibold text-white">Daily Quote</h3>
-          <p class="text-xs text-[var(--text-tertiary)] mt-1">Inspiration</p>
-        </div>
+      <a href="quote.html" class="nav-item">
+        <div class="nav-icon orange"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 21v-4a4 4 0 1 1 4 4h-4z"></path><path d="M21 3v4a4 4 0 1 1-4-4h4z"></path></svg></div>
+        <div><h3 class="nav-title">Quotes</h3><p class="nav-sub">Inspiration</p></div>
       </a>
-      <a href="reading.html" class="nav-grid-item widget-card rounded-2xl p-5 flex flex-col gap-3">
-        <div class="w-10 h-10 rounded-xl bg-emerald-500/10 flex items-center justify-center text-emerald-400">
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"></path><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"></path></svg>
-        </div>
-        <div>
-          <h3 class="text-base font-semibold text-white">Deep Read</h3>
-          <p class="text-xs text-[var(--text-tertiary)] mt-1">Immersive</p>
-        </div>
+      <a href="reading.html" class="nav-item">
+        <div class="nav-icon green"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"></path><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"></path></svg></div>
+        <div><h3 class="nav-title">Reading</h3><p class="nav-sub">Deep Dive</p></div>
       </a>
-      <a href="notebook.html" class="nav-grid-item widget-card rounded-2xl p-5 flex flex-col gap-3">
-        <div class="w-10 h-10 rounded-xl bg-rose-500/10 flex items-center justify-center text-rose-400">
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"></path></svg>
-        </div>
-        <div>
-          <h3 class="text-base font-semibold text-white">Notebook</h3>
-          <p class="text-xs text-[var(--text-tertiary)] mt-1">Saved Items</p>
-        </div>
+      <a href="notebook.html" class="nav-item">
+        <div class="nav-icon pink"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"></path></svg></div>
+        <div><h3 class="nav-title">Notebook</h3><p class="nav-sub">Saved Items</p></div>
       </a>
-    </section>
-
+    </div>
   </div>
 
-  <!-- Bottom Nav (Reused) -->
-  <nav class="fixed bottom-0 left-0 right-0 glass-card !rounded-none !border-t !border-x-0 !border-b-0 px-6 py-3 flex justify-around items-center z-50" style="padding-bottom: max(12px, env(safe-area-inset-bottom));">
-    <a href="index.html" class="nav-item flex flex-col items-center gap-1 text-accent"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path><polyline points="9 22 9 12 15 12 15 22"></polyline></svg><span class="text-[10px] font-medium">Home</span></a>
-    <a href="vocab.html" class="nav-item flex flex-col items-center gap-1 text-[var(--text-secondary)]"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"></path></svg><span class="text-[10px] font-medium">Vocab</span></a>
-    <a href="reading.html" class="nav-item flex flex-col items-center gap-1 text-[var(--text-secondary)]"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"></path><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"></path></svg><span class="text-[10px] font-medium">Read</span></a>
-    <a href="notebook.html" class="nav-item flex flex-col items-center gap-1 text-[var(--text-secondary)]"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"></path></svg><span class="text-[10px] font-medium">Saved</span></a>
+  <nav class="bottom-nav">
+    <a href="index.html" class="nav-link active"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path><polyline points="9 22 9 12 15 12 15 22"></polyline></svg>Home</a>
+    <a href="vocab.html" class="nav-link"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"></path></svg>Vocab</a>
+    <a href="reading.html" class="nav-link"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"></path><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"></path></svg>Read</a>
+    <a href="notebook.html" class="nav-link"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"></path></svg>Saved</a>
   </nav>
 
   <script src="./js/storage.js"></script>
-  <script src="./js/app.js"></script>
   <script src="./js/index.js"></script>
 </body>
 </html>

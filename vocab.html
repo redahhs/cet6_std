@@ -4,89 +4,107 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
   <meta name="theme-color" content="#0a0a0a">
-  <meta name="mobile-web-app-capable" content="yes">
-  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-  <title>Vocabulary - CET6</title>
-  
-  <!-- 1. 核心设计系统 (深黑背景、毛玻璃、渐变文字全靠它) -->
+  <title>Focus Mode - CET6</title>
   <link rel="stylesheet" href="./css/theme.css">
-  <link rel="stylesheet" href="./css/animation.css">
-  
-  <!-- 2. 恢复 Tailwind CDN (确保所有排版和布局完美生效) -->
-  <script src="https://cdn.tailwindcss.com"></script>
-  <script>
-    tailwind.config = {
-      darkMode: 'class',
-      theme: {
-        extend: {
-          colors: {
-            primary: '#0a0a0a',
-            accent: '#5e5ce6',
-            surface: '#1c1c1e'
-          }
-        }
-      }
-    }
-  </script>
-</head>
-<body class="dark overflow-hidden flex flex-col h-dvh">
+  <style>
+    body { background: #0a0a0a; color: #f5f5f7; font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Inter", sans-serif; margin: 0; overflow: hidden; height: 100vh; display: flex; flex-direction: column; }
+    
+    /* Header */
+    .v-header { padding: 60px 24px 16px; display: flex; justify-content: space-between; align-items: center; z-index: 10; }
+    .v-back, .v-note { width: 40px; height: 40px; border-radius: 50%; background: rgba(255,255,255,0.05); display: flex; align-items: center; justify-content: center; color: #fff; border: none; }
+    .v-title { text-align: center; }
+    .v-title h1 { font-size: 16px; font-weight: 600; margin: 0; }
+    .v-title p { font-size: 12px; color: #86868b; margin: 4px 0 0; }
 
-  <!-- Header (z-index: var(--z-header)) -->
-  <header class="vocab-header px-6 pt-12 pb-4 flex items-center justify-between" style="z-index: var(--z-header);">
-    <button onclick="history.back()" class="w-10 h-10 flex items-center justify-center rounded-full bg-[#1c1c1e] active:scale-95 transition-transform">
-      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
+    /* Progress */
+    .v-progress { padding: 0 24px 24px; }
+    .v-progress-bar { height: 4px; background: rgba(255,255,255,0.05); border-radius: 2px; overflow: hidden; }
+    .v-progress-fill { height: 100%; background: #5e5ce6; transition: width 0.4s ease; }
+
+    /* Card Stack */
+    .v-stack { flex: 1; position: relative; padding: 0 24px; }
+    .v-card {
+      position: absolute; inset: 24px;
+      background: rgba(255, 255, 255, 0.04);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      border-radius: 32px;
+      backdrop-filter: blur(24px); -webkit-backdrop-filter: blur(24px);
+      box-shadow: 0 20px 40px rgba(0,0,0,0.4);
+      display: flex; flex-direction: column; align-items: center; justify-content: center;
+      text-align: center; padding: 32px;
+      touch-action: none; user-select: none;
+      transition: transform 0.4s cubic-bezier(0.25, 1, 0.5, 1), opacity 0.4s ease;
+    }
+    .v-card.swiping { transition: none; }
+    .v-pos { font-size: 12px; font-weight: 600; color: #5e5ce6; letter-spacing: 0.1em; text-transform: uppercase; margin-bottom: 16px; }
+    .v-word { font-family: "New York", "Playfair Display", serif; font-size: 42px; font-weight: 700; margin: 0 0 16px; background: linear-gradient(135deg, #fff 0%, #a1a1aa 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+    .v-meaning { font-size: 18px; color: #d1d1d6; margin: 0 0 32px; line-height: 1.5; }
+    .v-hint { font-size: 12px; color: #48484a; position: absolute; bottom: 32px; }
+
+    /* Actions */
+    .v-actions { padding: 24px; padding-bottom: max(24px, env(safe-area-inset-bottom)); display: flex; justify-content: center; gap: 32px; z-index: 10; }
+    .v-btn { width: 56px; height: 56px; border-radius: 50%; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.05); display: flex; align-items: center; justify-content: center; }
+    .v-btn.forgot { color: #ff453a; border-color: rgba(255,69,58,0.2); }
+    .v-btn.fuzzy { color: #ffd60a; border-color: rgba(255,214,10,0.2); }
+    .v-btn.known { color: #30d158; border-color: rgba(48,209,88,0.2); }
+
+    /* Bottom Sheet */
+    .v-sheet {
+      position: fixed; inset: auto 0 0 0;
+      background: #1c1c1e; border-top: 1px solid rgba(255,255,255,0.08);
+      border-radius: 24px 24px 0 0;
+      padding: 24px; padding-bottom: max(24px, env(safe-area-inset-bottom));
+      transform: translateY(100%); transition: transform 0.4s cubic-bezier(0.25, 1, 0.5, 1);
+      z-index: 100; max-height: 70vh; overflow-y: auto;
+    }
+    .v-sheet.open { transform: translateY(0); }
+    .v-sheet-handle { width: 36px; height: 4px; background: rgba(255,255,255,0.2); border-radius: 2px; margin: 0 auto 24px; }
+    .v-sheet h3 { font-family: "New York", serif; font-size: 24px; margin: 0 0 8px; }
+    .v-sheet .pos { font-size: 14px; color: #86868b; margin-bottom: 24px; }
+    .v-sheet .section-title { font-size: 11px; color: #48484a; text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 12px; }
+    .v-sheet .phrase { background: rgba(255,255,255,0.05); padding: 12px 16px; border-radius: 12px; margin-bottom: 8px; }
+    .v-sheet .phrase p { margin: 0; font-size: 15px; }
+    .v-sheet .phrase .zh { color: #86868b; font-size: 13px; margin-top: 4px; }
+
+    .v-backdrop { position: fixed; inset: 0; background: rgba(0,0,0,0.6); backdrop-filter: blur(4px); z-index: 90; opacity: 0; pointer-events: none; transition: opacity 0.3s; }
+    .v-backdrop.open { opacity: 1; pointer-events: auto; }
+
+    /* Empty State */
+    .v-empty { text-align: center; color: #86868b; margin-top: 20vh; }
+    .v-empty .icon { font-size: 48px; margin-bottom: 16px; }
+  </style>
+</head>
+<body>
+  <header class="v-header">
+    <button class="v-back" onclick="history.back()">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
     </button>
-    <div class="text-center">
-      <h1 class="text-lg font-semibold">Focus Mode</h1>
-      <p class="text-xs text-gray-400" id="vocab-progress-text">0 / 0</p>
+    <div class="v-title">
+      <h1>Focus Mode</h1>
+      <p id="v-progress-text">0 / 0</p>
     </div>
-    <button onclick="location.href='notebook.html'" class="w-10 h-10 flex items-center justify-center rounded-full bg-[#1c1c1e] active:scale-95 transition-transform">
-      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"></path></svg>
+    <button class="v-note" onclick="location.href='notebook.html'">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"></path></svg>
     </button>
   </header>
 
-  <div class="px-6 mb-6">
-    <div class="h-1 w-full bg-[#1c1c1e] rounded-full overflow-hidden">
-      <div id="vocab-progress-bar" class="h-full bg-[#5e5ce6] rounded-full transition-[width] duration-500 ease-out" style="width: 0%"></div>
-    </div>
-  </div>
+  <div class="v-progress"><div class="v-progress-bar"><div id="v-progress-fill" class="v-progress-fill"></div></div></div>
 
-  <!-- Card Area (Fix 10: 限制最大宽度 max-w-md，防止平板/大屏卡片被拉宽) -->
-  <main class="flex-1 relative flex items-center justify-center vocab-stack px-6">
-    <div id="vocab-card-container" class="absolute inset-0 mx-auto w-full max-w-md"></div>
-    
-    <div id="vocab-empty-state" class="hidden text-center text-gray-400" style="z-index: var(--z-card);">
-      <p class="text-4xl mb-4">🎉</p>
-      <p class="font-medium text-xl text-white">Session Complete</p>
-      <p class="text-sm mt-2">Take a breath. You did great.</p>
-    </div>
-  </main>
+  <main class="v-stack" id="v-stack"></main>
 
-  <!-- Action Buttons (Fix 9: 考虑 safe-area) -->
-  <footer class="vocab-footer px-6 pb-10 pt-4 flex justify-center gap-8 items-center" style="z-index: var(--z-header); padding-bottom: max(24px, env(safe-area-inset-bottom));">
-    <button id="vocab-btn-forgot" class="w-16 h-16 rounded-full bg-[#1c1c1e] border border-red-500/20 flex items-center justify-center text-red-500 active:scale-90 transition-transform shadow-lg shadow-red-500/5">
-      <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
-    </button>
-    <button id="vocab-btn-fuzzy" class="w-14 h-14 rounded-full bg-[#1c1c1e] border border-yellow-500/20 flex items-center justify-center text-yellow-500 active:scale-90 transition-transform shadow-lg shadow-yellow-500/5">
-      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"></path><line x1="12" y1="17" x2="12.01" y2="17"></line></svg>
-    </button>
-    <button id="vocab-btn-known" class="w-16 h-16 rounded-full bg-[#1c1c1e] border border-green-500/20 flex items-center justify-center text-green-500 active:scale-90 transition-transform shadow-lg shadow-green-500/5">
-      <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
-    </button>
+  <footer class="v-actions">
+    <button class="v-btn forgot" id="btn-forgot"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg></button>
+    <button class="v-btn fuzzy" id="btn-fuzzy"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10"></circle><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"></path><line x1="12" y1="17" x2="12.01" y2="17"></line></svg></button>
+    <button class="v-btn known" id="btn-known"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"></polyline></svg></button>
   </footer>
 
-  <!-- Backdrop (Fix 4: 统一 z-index) -->
-  <div id="vocab-sheet-backdrop" class="fixed inset-0 bg-black/60 backdrop-blur-sm hidden opacity-0 transition-opacity duration-300" style="z-index: var(--z-backdrop);"></div>
-
-  <!-- Sheet (Fix 8: class 隔离, Fix 9: safe-area) -->
-  <div id="vocab-detail-sheet" class="vocab-sheet fixed inset-x-0 bottom-0 bg-[#121212] rounded-t-[32px] p-6 pb-10 shadow-2xl border-t border-white/5" style="z-index: var(--z-sheet); padding-bottom: max(24px, env(safe-area-inset-bottom));">
-    <div class="w-12 h-1 bg-white/20 rounded-full mx-auto mb-6"></div>
-    <div id="vocab-sheet-content" class="max-h-[60vh] overflow-y-auto"></div>
+  <div class="v-backdrop" id="v-backdrop" onclick="closeSheet()"></div>
+  <div class="v-sheet" id="v-sheet">
+    <div class="v-sheet-handle"></div>
+    <div id="v-sheet-content"></div>
   </div>
 
-  <script src="./js/haptics.js"></script>
   <script src="./js/storage.js"></script>
-  <script src="./js/app.js"></script>
   <script src="./js/vocab.js"></script>
 </body>
 </html>
