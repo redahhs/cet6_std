@@ -1,10 +1,8 @@
 let wordsData = [];
-let originalWordsData = [];
 let currentIndex = 0;
-let currentSort = 'default';
-
-// Touch variables
-let startX = 0, startY = 0, currentX = 0, currentY = 0, isDragging = false, hasMoved = false;
+let isDragging = false;
+let hasMoved = false;
+let startX = 0, startY = 0, currentX = 0, currentY = 0;
 let activeCard = null;
 
 document.addEventListener('DOMContentLoaded', async () => {
@@ -13,82 +11,72 @@ document.addEventListener('DOMContentLoaded', async () => {
 });
 
 async function loadWords() {
+  const loadingEl = document.getElementById('v-loading');
+  const emptyEl = document.getElementById('v-empty');
+  
   try {
     const res = await fetch('./data/words.json');
-    const data = await res.json();
-    originalWordsData = data;
-    applySorting();
+    if (!res.ok) throw new Error('Network response was not ok');
+    const rawData = await res.json();
+    
+    // 数据映射，适配你的 words.json 格式
+    wordsData = rawData.map(item => ({
+      id: item.word,
+      word: item.word,
+      pos: item.translations && item.translations[0] ? item.translations[0].type : '',
+      meaning: item.translations ? item.translations.map(t => t.translation).join('；') : '暂无释义',
+      phrases: item.phrases || []
+    }));
+    
+    loadingEl.style.display = 'none';
+    renderCards();
   } catch (e) {
-    console.error("Failed to load words", e);
+    console.error('Failed to load words:', e);
+    loadingEl.textContent = 'Failed to load words. Please check network.';
   }
 }
-
-function applySorting() {
-  if (currentSort === 'random') {
-    wordsData = [...originalWordsData].sort(() => Math.random() - 0.5);
-  } else if (currentSort === 'az') {
-    wordsData = [...originalWordsData].sort((a, b) => a.word.localeCompare(b.word));
-  } else {
-    wordsData = [...originalWordsData];
-  }
-  currentIndex = 0;
-  renderCards();
-  
-  // Update UI
-  document.querySelectorAll('.sort-btn').forEach(btn => {
-    btn.classList.toggle('active', btn.dataset.sort === currentSort);
-  });
-}
-
-window.setSortMode = function(mode) {
-  currentSort = mode;
-  applySorting();
-  if (window.Haptics) Haptics.light();
-};
 
 function renderCards() {
-  const container = document.getElementById('v-card-container');
-  const emptyState = document.getElementById('v-empty-state');
-  container.innerHTML = '';
+  const area = document.getElementById('v-card-area');
+  const emptyEl = document.getElementById('v-empty');
+  
+  // 清除旧卡片
+  const oldCards = area.querySelectorAll('.v-card');
+  oldCards.forEach(c => c.remove());
   
   if (currentIndex >= wordsData.length) {
-    emptyState.classList.remove('hidden');
+    emptyEl.style.display = 'block';
     updateProgress();
     return;
   }
-  emptyState.classList.add('hidden');
-
-  const word = wordsData[currentIndex];
-  const card = document.createElement('div');
-  card.className = 'vocab-card glass-card absolute inset-0 flex flex-col items-center justify-center p-8 cursor-pointer animate-card-enter';
-  card.dataset.id = word.id;
   
-  // 获取释义
-  const meaning = word.translations ? word.translations.map(t => t.translation).join('；') : '暂无释义';
-  const pos = word.translations && word.translations[0] ? word.translations[0].type : '';
-
+  emptyEl.style.display = 'none';
+  const word = wordsData[currentIndex];
+  
+  const card = document.createElement('div');
+  card.className = 'v-card';
   card.innerHTML = `
-    <span class="text-xs font-semibold text-[var(--accent)] tracking-widest uppercase mb-4">${pos}</span>
-    <h2 class="text-5xl font-bold text-gradient font-serif-elegant mb-4 text-center">${word.word}</h2>
-    <button class="w-16 h-16 rounded-full bg-white/5 flex items-center justify-center text-white/80 active:scale-90 transition-transform pulse-soft mb-8" onclick="event.stopPropagation(); playAudio('${word.word}')">
-      <svg width="28" height="28" viewBox="0 0 24 24" fill="currentColor"><path d="M3 9v6h4l5 5V4L7 9H3zm13.5 3c0-1.77-1.02-3.29-2.5-4.03v8.05c1.48-.73 2.5-2.25 2.5-4.02z"/></svg>
+    <div style="font-size: 12px; font-weight: 600; color: #5e5ce6; letter-spacing: 0.1em; text-transform: uppercase; margin-bottom: 16px;">${word.pos}</div>
+    <div style="font-size: 42px; font-weight: 700; background: linear-gradient(135deg, #fff 0%, #a1a1aa 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; margin-bottom: 16px;">${word.word}</div>
+    <button onclick="event.stopPropagation(); playAudio('${word.word}')" style="width: 56px; height: 56px; border-radius: 50%; background: rgba(255,255,255,0.05); display: flex; align-items: center; justify-content: center; color: #f5f5f7; border: none; cursor: pointer; margin-bottom: 32px;">
+      <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor"><path d="M3 9v6h4l5 5V4L7 9H3zm13.5 3c0-1.77-1.02-3.29-2.5-4.03v8.05c1.48-.73 2.5-2.25 2.5-4.02z"/></svg>
     </button>
-    <p class="text-lg text-[var(--text-secondary)] text-center mb-8">${meaning}</p>
-    <p class="absolute bottom-8 text-xs text-[var(--text-tertiary)]">Swipe or tap for details</p>
+    <div style="font-size: 14px; color: #86868b;">Swipe or tap for details</div>
   `;
-
+  
   activeCard = card;
   card.addEventListener('click', () => {
     if (!hasMoved) openSheet(word);
   });
-  
   attachTouchEvents(card);
-  container.appendChild(card);
+  area.appendChild(card);
   updateProgress();
 }
 
 function updateProgress() {
   document.getElementById('v-progress-text').textContent = `${currentIndex} / ${wordsData.length}`;
+  const percent = wordsData.length > 0 ? (currentIndex / wordsData.length) * 100 : 0;
+  document.getElementById('v-progress-fill').style.width = `${percent}%`;
 }
 
 function attachTouchEvents(card) {
@@ -110,7 +98,7 @@ function touchStart(e) {
   hasMoved = false;
   startX = getX(e);
   startY = getY(e);
-  activeCard.classList.add('swiping');
+  activeCard.style.transition = 'none';
 }
 
 function touchMove(e) {
@@ -139,7 +127,7 @@ function touchMove(e) {
 function touchEnd() {
   if (!isDragging) return;
   isDragging = false;
-  activeCard.classList.remove('swiping');
+  activeCard.style.transition = 'transform 0.4s cubic-bezier(0.25, 1, 0.5, 1), opacity 0.4s ease';
   
   if (currentX > 100) flyOut('right');
   else if (currentX < -100) flyOut('left');
@@ -154,15 +142,23 @@ function flyOut(direction) {
   const word = wordsData[currentIndex];
   let mastery = 0;
   
-  if (direction === 'right') { activeCard.classList.add('fly-right'); mastery = 3; } 
-  else if (direction === 'left') { activeCard.classList.add('fly-left'); mastery = 0; } 
-  else if (direction === 'up') { activeCard.classList.add('fly-up'); mastery = 1; }
-
+  if (direction === 'right') {
+    activeCard.style.transform = 'translateX(150%) rotate(30deg)';
+    activeCard.style.opacity = '0';
+    mastery = 3;
+  } else if (direction === 'left') {
+    activeCard.style.transform = 'translateX(-150%) rotate(-30deg)';
+    activeCard.style.opacity = '0';
+    mastery = 0;
+  } else if (direction === 'up') {
+    activeCard.style.transform = 'translateY(-150%) scale(0.8)';
+    activeCard.style.opacity = '0';
+    mastery = 1;
+  }
+  
   const progress = Store.get(DB_KEYS.VOCAB_PROGRESS) || {};
   progress[word.id] = { mastery, lastReview: Date.now() };
   Store.set(DB_KEYS.VOCAB_PROGRESS, progress);
-  
-  if (window.Haptics) Haptics.medium();
   
   setTimeout(() => {
     currentIndex++;
@@ -171,76 +167,63 @@ function flyOut(direction) {
 }
 
 function setupControls() {
-  document.getElementById('btn-forgot').onclick = () => activeCard && flyOut('left');
-  document.getElementById('btn-known').onclick = () => activeCard && flyOut('right');
-  document.getElementById('btn-fuzzy').onclick = () => activeCard && flyOut('up');
+  document.getElementById('btn-forgot').addEventListener('click', () => activeCard && flyOut('left'));
+  document.getElementById('btn-known').addEventListener('click', () => activeCard && flyOut('right'));
+  document.getElementById('btn-fuzzy').addEventListener('click', () => activeCard && flyOut('up'));
 }
 
 function openSheet(word) {
   const sheet = document.getElementById('v-sheet');
   const backdrop = document.getElementById('v-backdrop');
   const content = document.getElementById('v-sheet-content');
-  
   const isSaved = Store.isWordSaved(word.id);
-  const meaning = word.translations ? word.translations.map(t => t.translation).join('；') : '暂无释义';
-  const pos = word.translations && word.translations[0] ? word.translations[0].type : '';
-  const phrases = word.phrases || [];
-
+  
   content.innerHTML = `
-    <div class="flex justify-between items-start mb-6">
+    <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 24px;">
       <div>
-        <h3 class="text-3xl font-bold font-serif-elegant text-white">${word.word}</h3>
-        <p class="text-[var(--text-secondary)] mt-1">${pos}</p>
+        <div style="font-size: 28px; font-weight: 700; color: #f5f5f7;">${word.word}</div>
+        <div style="font-size: 14px; color: #86868b; margin-top: 4px;">${word.pos}</div>
       </div>
-      <button onclick="toggleSave('${word.id}', this)" class="w-10 h-10 rounded-full bg-white/5 flex items-center justify-center ${isSaved ? 'text-[var(--accent)]' : 'text-white/40'}">
+      <button onclick="toggleSave('${word.id}', this)" style="width: 40px; height: 40px; border-radius: 50%; background: rgba(255,255,255,0.05); display: flex; align-items: center; justify-content: center; color: ${isSaved ? '#5e5ce6' : '#86868b'}; border: none; cursor: pointer;">
         <svg width="20" height="20" viewBox="0 0 24 24" fill="${isSaved ? 'currentColor' : 'none'}" stroke="currentColor" stroke-width="2"><path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"></path></svg>
       </button>
     </div>
-    <div class="space-y-6">
-      <div>
-        <p class="text-xs uppercase tracking-wider text-[var(--text-tertiary)] mb-2">Meaning</p>
-        <p class="text-lg text-white">${meaning}</p>
-      </div>
-      ${phrases.length > 0 ? `
-      <div>
-        <p class="text-xs uppercase tracking-wider text-[var(--text-tertiary)] mb-3">Phrases</p>
-        <div class="space-y-2">
-          ${phrases.slice(0, 5).map(p => `
-            <div class="bg-white/5 p-3 rounded-xl">
-              <p class="text-white font-medium">${p.phrase}</p>
-              <p class="text-sm text-[var(--text-secondary)] mt-1">${p.translation}</p>
-            </div>
-          `).join('')}
-        </div>
-      </div>
-      ` : ''}
+    <div style="margin-bottom: 24px;">
+      <div style="font-size: 12px; color: #86868b; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 8px;">Meaning</p>
+      <div style="font-size: 16px; color: #f5f5f7;">${word.meaning}</div>
     </div>
+    ${word.phrases.length > 0 ? `
+    <div>
+      <div style="font-size: 12px; color: #86868b; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 12px;">Phrases</div>
+      <div style="display: flex; flex-direction: column; gap: 8px;">
+        ${word.phrases.slice(0, 5).map(p => `
+          <div style="background: rgba(255,255,255,0.05); padding: 12px; border-radius: 12px;">
+            <div style="font-size: 15px; font-weight: 500; color: #f5f5f7;">${p.phrase}</div>
+            <div style="font-size: 13px; color: #86868b; margin-top: 4px;">${p.translation}</div>
+          </div>
+        `).join('')}
+      </div>
+    </div>
+    ` : ''}
   `;
   
-  sheet.classList.remove('translate-y-full');
-  backdrop.classList.remove('hidden');
-  setTimeout(() => backdrop.classList.add('opacity-100'), 10);
-  if (window.Haptics) Haptics.light();
+  sheet.classList.add('open');
+  backdrop.classList.add('open');
 }
 
-window.closeSheet = function() {
-  document.getElementById('v-sheet').classList.add('translate-y-full');
-  const backdrop = document.getElementById('v-backdrop');
-  backdrop.classList.remove('opacity-100');
-  setTimeout(() => backdrop.classList.add('hidden'), 300);
-};
+function closeSheet() {
+  document.getElementById('v-sheet').classList.remove('open');
+  document.getElementById('v-backdrop').classList.remove('open');
+}
 
-window.toggleSave = function(wordId, btn) {
+function toggleSave(wordId, btn) {
   if (Store.isWordSaved(wordId)) {
     Store.unsaveWord(wordId);
-    btn.classList.remove('text-[var(--accent)]');
-    btn.classList.add('text-white/40');
+    btn.style.color = '#86868b';
     btn.querySelector('svg').setAttribute('fill', 'none');
   } else {
     Store.saveWord(wordId);
-    btn.classList.add('text-[var(--accent)]');
-    btn.classList.remove('text-white/40');
+    btn.style.color = '#5e5ce6';
     btn.querySelector('svg').setAttribute('fill', 'currentColor');
-    if (window.Haptics) Haptics.success();
   }
-};
+}

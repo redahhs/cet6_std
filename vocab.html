@@ -7,112 +7,186 @@
   <title>Focus Mode - CET6</title>
   <link rel="stylesheet" href="./css/theme.css">
   <link rel="stylesheet" href="./css/animation.css">
-  <link rel="stylesheet" href="./css/utilities.css">
   <style>
-    /* 排序控件样式 */
-    .sort-control {
+    /* 针对 vocab 页面的特定样式，确保万无一失 */
+    body {
+      background-color: #0a0a0a !important;
+      color: #f5f5f7;
+      margin: 0;
+      padding: 0;
+      height: 100vh;
+      height: 100dvh;
+      overflow: hidden;
       display: flex;
-      background: rgba(255, 255, 255, 0.03);
-      border-radius: 12px;
-      padding: 4px;
-      margin-bottom: 24px;
+      flex-direction: column;
+      font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Inter", "PingFang SC", sans-serif;
     }
-    .sort-btn {
-      flex: 1;
-      padding: 8px 0;
-      text-align: center;
-      font-size: 12px;
-      font-weight: 600;
-      color: var(--text-secondary);
-      border-radius: 8px;
-      transition: all 0.3s ease;
+    .v-header {
+      padding: 60px 24px 16px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      z-index: 10;
+    }
+    .v-btn-icon {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      background: rgba(255,255,255,0.05);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #f5f5f7;
+      border: none;
       cursor: pointer;
     }
-    .sort-btn.active {
-      background: var(--accent);
-      color: white;
-      box-shadow: 0 4px 12px rgba(94, 92, 230, 0.3);
+    .v-progress-bar {
+      height: 4px;
+      background: rgba(255,255,255,0.05);
+      border-radius: 2px;
+      overflow: hidden;
+      margin: 0 24px 24px;
     }
+    .v-progress-fill {
+      height: 100%;
+      background: #5e5ce6;
+      border-radius: 2px;
+      transition: width 0.4s ease;
+    }
+    .v-card-area {
+      flex: 1;
+      position: relative;
+      padding: 0 24px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .v-card {
+      position: absolute;
+      inset: 0;
+      background: rgba(255, 255, 255, 0.03);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      border-radius: 24px;
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 32px;
+      text-align: center;
+      touch-action: none;
+      user-select: none;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+    }
+    .v-actions {
+      padding: 24px;
+      padding-bottom: max(24px, env(safe-area-inset-bottom));
+      display: flex;
+      justify-content: center;
+      gap: 32px;
+      align-items: center;
+      z-index: 10;
+    }
+    .v-action-btn {
+      width: 64px;
+      height: 64px;
+      border-radius: 50%;
+      background: rgba(255,255,255,0.05);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border: 1px solid rgba(255,255,255,0.1);
+      cursor: pointer;
+      transition: transform 0.2s;
+    }
+    .v-action-btn:active { transform: scale(0.9); }
+    .v-action-btn.forgot { color: #ff453a; border-color: rgba(255,69,58,0.3); }
+    .v-action-btn.fuzzy { color: #ffd60a; border-color: rgba(255,214,10,0.3); }
+    .v-action-btn.known { color: #30d158; border-color: rgba(48,209,88,0.3); }
+    
+    /* Bottom Sheet */
+    .v-sheet {
+      position: fixed;
+      left: 0; right: 0; bottom: 0;
+      background: #1c1c1e;
+      border-top: 1px solid rgba(255,255,255,0.1);
+      border-radius: 24px 24px 0 0;
+      padding: 24px;
+      padding-bottom: max(24px, env(safe-area-inset-bottom));
+      transform: translateY(100%);
+      transition: transform 0.4s cubic-bezier(0.25, 1, 0.5, 1);
+      z-index: 100;
+      max-height: 70vh;
+      overflow-y: auto;
+    }
+    .v-sheet.open { transform: translateY(0); }
+    .v-backdrop {
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.6);
+      backdrop-filter: blur(4px);
+      z-index: 90;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.3s;
+    }
+    .v-backdrop.open { opacity: 1; pointer-events: auto; }
+    
+    .v-loading { color: #86868b; font-size: 14px; }
   </style>
 </head>
-<body class="dark overflow-hidden flex flex-col" style="height: 100vh; height: 100dvh;">
-
+<body>
   <!-- Header -->
-  <header class="px-6 pt-12 pb-2 flex items-center justify-between z-10">
-    <button onclick="history.back()" class="w-10 h-10 flex items-center justify-center rounded-full bg-white/5 active:scale-95 transition-transform">
+  <header class="v-header">
+    <button class="v-btn-icon" onclick="history.back()">
       <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
     </button>
-    <div class="text-center">
-      <h1 class="text-lg font-semibold">Focus Mode</h1>
-      <p class="text-xs text-[var(--text-secondary)]" id="v-progress-text">0 / 0</p>
+    <div style="text-align: center;">
+      <div style="font-size: 16px; font-weight: 600;">Focus Mode</div>
+      <div id="v-progress-text" style="font-size: 12px; color: #86868b; margin-top: 2px;">0 / 0</div>
     </div>
-    <button onclick="location.href='./notebook.html'" class="w-10 h-10 flex items-center justify-center rounded-full bg-white/5 active:scale-95 transition-transform">
+    <button class="v-btn-icon" onclick="location.href='./notebook.html'">
       <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"></path></svg>
     </button>
   </header>
 
-  <!-- Sort Control -->
-  <div class="px-6">
-    <div class="sort-control">
-      <div class="sort-btn active" data-sort="default" onclick="setSortMode('default')">DEFAULT</div>
-      <div class="sort-btn" data-sort="random" onclick="setSortMode('random')">RANDOM</div>
-      <div class="sort-btn" data-sort="az" onclick="setSortMode('az')">A - Z</div>
-    </div>
+  <!-- Progress -->
+  <div class="v-progress-bar">
+    <div id="v-progress-fill" class="v-progress-fill" style="width: 0%"></div>
   </div>
 
   <!-- Card Area -->
-  <main class="flex-1 relative px-6" style="min-height: 300px;">
-    <div id="v-card-container" class="absolute inset-0 mx-6"></div>
-    <div id="v-empty-state" class="hidden absolute inset-0 flex flex-col items-center justify-center text-center text-[var(--text-secondary)]">
-      <p class="text-5xl mb-4">🎉</p>
-      <p class="text-xl font-semibold text-white">Session Complete</p>
-      <p class="text-sm mt-2">Take a breath. You did great.</p>
+  <main class="v-card-area" id="v-card-area">
+    <div id="v-loading" class="v-loading">Loading words...</div>
+    <div id="v-empty" style="display: none; text-align: center; color: #86868b;">
+      <div style="font-size: 48px; margin-bottom: 16px;">🎉</div>
+      <div style="font-size: 20px; font-weight: 600; color: #f5f5f7;">Session Complete</div>
+      <div style="font-size: 14px; margin-top: 8px;">Take a breath. You did great.</div>
     </div>
   </main>
 
-  <!-- Action Buttons (恢复底部的三个大按钮) -->
-  <footer class="px-6 pb-24 pt-4 flex justify-center gap-8 items-center z-10">
-    <button id="btn-forgot" class="w-16 h-16 rounded-full bg-white/5 border border-red-500/20 flex items-center justify-center text-red-500 active:scale-90 transition-transform shadow-lg shadow-red-500/5">
+  <!-- Actions -->
+  <footer class="v-actions">
+    <button id="btn-forgot" class="v-action-btn forgot">
       <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
     </button>
-    <button id="btn-fuzzy" class="w-14 h-14 rounded-full bg-white/5 border border-yellow-500/20 flex items-center justify-center text-yellow-500 active:scale-90 transition-transform shadow-lg shadow-yellow-500/5">
+    <button id="btn-fuzzy" class="v-action-btn fuzzy">
       <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10"></circle><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"></path><line x1="12" y1="17" x2="12.01" y2="17"></line></svg>
     </button>
-    <button id="btn-known" class="w-16 h-16 rounded-full bg-white/5 border border-green-500/20 flex items-center justify-center text-green-500 active:scale-90 transition-transform shadow-lg shadow-green-500/5">
+    <button id="btn-known" class="v-action-btn known">
       <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"></polyline></svg>
     </button>
   </footer>
 
-  <!-- Bottom Sheet for Details -->
-  <div id="v-backdrop" class="fixed inset-0 bg-black/60 backdrop-blur-sm z-40 hidden opacity-0 transition-opacity duration-300" onclick="closeSheet()"></div>
-  <div id="v-sheet" class="fixed inset-x-0 bottom-0 bg-[#1c1c1e] rounded-t-[32px] p-6 pb-10 z-50 shadow-2xl border-t border-white/5 translate-y-full transition-transform duration-300" style="padding-bottom: max(24px, env(safe-area-inset-bottom));">
-    <div class="w-12 h-1 bg-white/20 rounded-full mx-auto mb-6"></div>
-    <div id="v-sheet-content" class="max-h-[60vh] overflow-y-auto"></div>
+  <!-- Bottom Sheet -->
+  <div id="v-backdrop" class="v-backdrop" onclick="closeSheet()"></div>
+  <div id="v-sheet" class="v-sheet">
+    <div style="width: 48px; height: 4px; background: rgba(255,255,255,0.2); border-radius: 2px; margin: 0 auto 24px;"></div>
+    <div id="v-sheet-content"></div>
   </div>
 
-  <!-- Bottom Nav -->
-  <nav class="fixed bottom-0 left-0 right-0 bg-[rgba(20,20,20,0.8)] backdrop-blur-xl border-t border-white/5 flex justify-around items-center z-50" style="padding-bottom: max(12px, env(safe-area-inset-bottom));">
-    <a href="./index.html" class="flex flex-col items-center gap-1 text-[var(--text-secondary)] py-2">
-      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path><polyline points="9 22 9 12 15 12 15 22"></polyline></svg>
-      <span class="text-[10px] font-medium">Home</span>
-    </a>
-    <a href="./vocab.html" class="flex flex-col items-center gap-1 text-[var(--accent)] py-2">
-      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"></path></svg>
-      <span class="text-[10px] font-medium">Vocab</span>
-    </a>
-    <a href="./reading.html" class="flex flex-col items-center gap-1 text-[var(--text-secondary)] py-2">
-      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"></path><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"></path></svg>
-      <span class="text-[10px] font-medium">Read</span>
-    </a>
-    <a href="./notebook.html" class="flex flex-col items-center gap-1 text-[var(--text-secondary)] py-2">
-      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"></path></svg>
-      <span class="text-[10px] font-medium">Saved</span>
-    </a>
-  </nav>
-
-  <!-- 确保正确引入 app.js 以解决 playAudio 报错 -->
   <script src="./js/storage.js"></script>
-  <script src="./js/haptics.js"></script>
   <script src="./js/app.js"></script>
   <script src="./js/vocab.js"></script>
 </body>
