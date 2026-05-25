@@ -4,118 +4,65 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
   <meta name="theme-color" content="#0a0a0a">
-  <meta name="mobile-web-app-capable" content="yes">
-  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <title>Settings - CET6</title>
-  
-  <!-- 1. 核心设计系统 (深黑背景、毛玻璃、渐变文字全靠它) -->
   <link rel="stylesheet" href="./css/theme.css">
-  <link rel="stylesheet" href="./css/animation.css">
-  
-  <!-- 2. 恢复 Tailwind CDN (确保所有排版和布局完美生效) -->
-  <script src="https://cdn.tailwindcss.com"></script>
-  <script>
-    tailwind.config = {
-      darkMode: 'class',
-      theme: {
-        extend: {
-          colors: {
-            primary: '#0a0a0a',
-            accent: '#5e5ce6',
-            surface: '#1c1c1e'
-          }
-        }
-      }
-    }
-  </script>
+  <link rel="stylesheet" href="./css/utilities.css">
   <style>
-    /* iOS Style Grouped List */
-    .settings-group {
-      background: var(--bg-secondary);
-      border-radius: var(--radius-md);
-      overflow: hidden;
-      margin-bottom: 24px;
-    }
-    .settings-item {
-      padding: 16px;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      border-bottom: 1px solid rgba(255,255,255,0.05);
-    }
+    body { background-color: #0a0a0a; color: #f5f5f7; font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Inter", sans-serif; margin: 0; }
+    .settings-group { background: #1c1c1e; border-radius: 16px; overflow: hidden; margin-bottom: 24px; }
+    .settings-item { padding: 16px; display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid rgba(255,255,255,0.05); }
     .settings-item:last-child { border-bottom: none; }
     .settings-item:active { background: rgba(255,255,255,0.03); }
     
-    /* Custom Range Slider */
-    input[type="range"] {
-      -webkit-appearance: none;
-      width: 120px;
-      height: 4px;
-      background: rgba(255,255,255,0.1);
-      border-radius: 2px;
-      outline: none;
-    }
-    input[type="range"]::-webkit-slider-thumb {
-      -webkit-appearance: none;
-      width: 20px;
-      height: 20px;
-      background: var(--accent);
-      border-radius: 50%;
-      cursor: pointer;
-      box-shadow: 0 2px 8px rgba(94, 92, 230, 0.4);
-    }
+    input[type="range"] { -webkit-appearance: none; width: 120px; height: 4px; background: rgba(255,255,255,0.1); border-radius: 2px; outline: none; }
+    input[type="range"]::-webkit-slider-thumb { -webkit-appearance: none; width: 20px; height: 20px; background: #5e5ce6; border-radius: 50%; cursor: pointer; box-shadow: 0 2px 8px rgba(94, 92, 230, 0.4); }
   </style>
 </head>
-<body class="dark">
-
-  <div id="app-container" class="px-6 pt-12 pb-24 max-w-2xl mx-auto">
+<body>
+  <div class="px-6 pt-12 pb-24 max-w-2xl mx-auto" style="padding-bottom: max(24px, env(safe-area-inset-bottom));">
     <header class="mb-8 flex items-center gap-4">
-      <button onclick="history.back()" class="w-10 h-10 flex items-center justify-center rounded-full bg-[var(--bg-secondary)] active:scale-95 transition-transform">
-        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
+      <button onclick="history.back()" class="w-10 h-10 flex items-center justify-center rounded-full bg-[#1c1c1e] active:scale-95 transition-transform">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
       </button>
-      <h1 class="text-2xl font-bold">Settings</h1>
+      <h1 class="text-2xl font-bold text-white">Settings</h1>
     </header>
 
-    <!-- Audio Settings -->
-    <h2 class="text-xs font-semibold text-[var(--text-tertiary)] uppercase tracking-wider mb-3 px-2">Audio</h2>
+    <h2 class="text-xs font-semibold text-[#86868b] uppercase tracking-wider mb-3 px-2">Audio</h2>
     <div class="settings-group">
       <div class="settings-item">
-        <span class="text-[var(--text-primary)]">Speech Speed</span>
+        <span class="text-white">Speech Speed</span>
         <div class="flex items-center gap-3">
-          <span id="speed-val" class="text-sm text-[var(--text-secondary)] w-8 text-right">0.9x</span>
+          <span id="speed-val" class="text-sm text-[#86868b] w-8 text-right">0.9x</span>
           <input type="range" id="speed-slider" min="0.5" max="1.5" step="0.1" value="0.9">
         </div>
       </div>
     </div>
 
-    <!-- Data Settings -->
-    <h2 class="text-xs font-semibold text-[var(--text-tertiary)] uppercase tracking-wider mb-3 px-2">Data</h2>
+    <h2 class="text-xs font-semibold text-[#86868b] uppercase tracking-wider mb-3 px-2">Data</h2>
     <div class="settings-group">
       <div class="settings-item cursor-pointer" onclick="exportData()">
-        <span class="text-[var(--text-primary)]">Export Progress</span>
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-[var(--text-tertiary)]"><polyline points="9 18 15 12 9 6"></polyline></svg>
+        <span class="text-white">Export Progress</span>
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="text-[#86868b]"><polyline points="9 18 15 12 9 6"></polyline></svg>
       </div>
       <div class="settings-item cursor-pointer" onclick="clearData()">
         <span class="text-red-500">Clear All Data</span>
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-red-500/60"><polyline points="9 18 15 12 9 6"></polyline></svg>
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="text-red-500/60"><polyline points="9 18 15 12 9 6"></polyline></svg>
       </div>
     </div>
 
-    <!-- About -->
-    <h2 class="text-xs font-semibold text-[var(--text-tertiary)] uppercase tracking-wider mb-3 px-2">About</h2>
+    <h2 class="text-xs font-semibold text-[#86868b] uppercase tracking-wider mb-3 px-2">About</h2>
     <div class="settings-group">
       <div class="settings-item">
-        <span class="text-[var(--text-primary)]">Version</span>
-        <span class="text-[var(--text-secondary)]">1.0.0 (PWA)</span>
+        <span class="text-white">Version</span>
+        <span class="text-[#86868b]">1.0.0 (PWA)</span>
       </div>
       <div class="settings-item">
-        <span class="text-[var(--text-primary)]">Design</span>
-        <span class="text-[var(--text-secondary)]">Deep Focus System</span>
+        <span class="text-white">Design</span>
+        <span class="text-[#86868b]">Deep Focus System</span>
       </div>
     </div>
   </div>
 
-  <script src="./js/haptics.js"></script>
   <script src="./js/storage.js"></script>
   <script src="./js/app.js"></script>
   <script src="./js/settings.js"></script>

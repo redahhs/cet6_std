@@ -20,7 +20,7 @@ function initSettings() {
 
 function clearData() {
   if (confirm('Are you sure you want to clear all learning progress and saved items? This cannot be undone.')) {
-    localStorage.clear();
+    Store.clearAll();
     alert('All data cleared.');
     location.reload();
   }
@@ -30,7 +30,7 @@ function exportData() {
   const data = {
     progress: Store.get(DB_KEYS.VOCAB_PROGRESS),
     savedWords: Store.get(DB_KEYS.SAVED_WORDS),
-    savedQuotes: Store.get('cet6_saved_quotes')
+    savedQuotes: Store.get(DB_KEYS.SAVED_QUOTES)
   };
   
   const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });

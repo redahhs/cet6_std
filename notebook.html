@@ -6,42 +6,34 @@
   <meta name="theme-color" content="#0a0a0a">
   <title>Notebook - CET6</title>
   <link rel="stylesheet" href="./css/theme.css">
-  <link rel="stylesheet" href="./css/animation.css">
+  <link rel="stylesheet" href="./css/utilities.css">
   <style>
-    body { background: var(--bg-primary); color: var(--text-primary); }
-    .tab-container { background: var(--bg-secondary); }
-    .tab-btn { color: var(--text-secondary); }
-    .tab-btn.active { background: var(--accent); color: white; box-shadow: 0 2px 8px rgba(94, 92, 230, 0.3); }
-    .list-item { background: var(--bg-secondary); border: 1px solid var(--glass-border); }
-    .swipe-actions { background: #ff3b30; }
+    body { background-color: #0a0a0a; color: #f5f5f7; font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Inter", sans-serif; margin: 0; }
+    .swipe-container { position: relative; overflow: hidden; border-radius: 16px; margin-bottom: 12px; }
+    .swipe-content { position: relative; z-index: 2; transition: transform 0.3s cubic-bezier(0.25, 1, 0.5, 1); background: #1c1c1e; padding: 16px; border-radius: 16px; }
+    .swipe-actions { position: absolute; top: 0; right: 0; bottom: 0; width: 80px; background: #ff3b30; display: flex; align-items: center; justify-content: center; color: white; font-weight: 600; z-index: 1; border-top-right-radius: 16px; border-bottom-right-radius: 16px; }
   </style>
 </head>
-<body class="dark">
-  <div class="px-6 pt-12 pb-24 max-w-2xl mx-auto">
+<body>
+  <div class="px-6 pt-12 pb-24 max-w-2xl mx-auto" style="padding-bottom: max(24px, env(safe-area-inset-bottom));">
     <header class="mb-8 flex items-center justify-between">
       <h1 class="text-2xl font-bold text-white">Notebook</h1>
-      <a href="settings.html" class="w-10 h-10 flex items-center justify-center rounded-full bg-[var(--bg-secondary)] active:scale-95 transition-transform">
+      <a href="settings.html" class="w-10 h-10 flex items-center justify-center rounded-full bg-[#1c1c1e] active:scale-95 transition-transform">
         <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg>
       </a>
     </header>
 
-    <div class="tab-container flex p-1 rounded-xl mb-6">
-      <button id="tab-words" class="tab-btn active flex-1 py-2 rounded-lg text-sm font-medium transition-all" onclick="switchTab('words')">Words</button>
-      <button id="tab-quotes" class="tab-btn flex-1 py-2 rounded-lg text-sm font-medium transition-all" onclick="switchTab('quotes')">Quotes</button>
-    </div>
-
     <div id="list-words" class="space-y-3"></div>
-    <div id="list-quotes" class="space-y-3 hidden"></div>
     
-    <div id="empty-state" class="hidden text-center mt-20 text-[var(--text-tertiary)]">
+    <div id="empty-state" class="hidden text-center mt-20 text-[#86868b]">
       <p class="text-4xl mb-4">📭</p>
-      <p class="font-medium">Your notebook is empty.</p>
-      <p class="text-sm mt-1">Save words and quotes to see them here.</p>
+      <p class="font-medium text-white">Your notebook is empty.</p>
+      <p class="text-sm mt-1">Save words from reading or vocab to see them here.</p>
     </div>
   </div>
 
   <script src="./js/storage.js"></script>
-  <script src="./js/haptics.js"></script>
+  <script src="./js/app.js"></script>
   <script src="./js/notebook.js"></script>
 </body>
 </html>
