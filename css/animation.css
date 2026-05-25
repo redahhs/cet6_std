@@ -77,3 +77,33 @@
 .animate-card-enter {
   animation: cardEnter 0.4s var(--ease-spring) forwards;
 }
+
+/* =========================================
+   Vocab Card Animation Engine (Optimized)
+   ========================================= */
+
+/* 严格限制 transition 属性，防止 all 导致掉帧 */
+.vocab-card {
+  transition: transform 0.4s var(--ease-spring), opacity 0.4s var(--ease-spring), box-shadow 0.2s ease;
+  will-change: transform, opacity;
+  touch-action: none;
+}
+
+.vocab-card.swiping { transition: none; }
+
+/* 确保 fly 动画仅使用 transform/opacity */
+.vocab-card.fly-left { animation: flyLeft 0.5s var(--ease-smooth) forwards; }
+.vocab-card.fly-right { animation: flyRight 0.5s var(--ease-smooth) forwards; }
+.vocab-card.fly-up { animation: flyUp 0.5s var(--ease-smooth) forwards; }
+
+@keyframes flyLeft { to { transform: translateX(-150%) rotate(-30deg); opacity: 0; } }
+@keyframes flyRight { to { transform: translateX(150%) rotate(30deg); opacity: 0; } }
+@keyframes flyUp { to { transform: translateY(-150%) scale(0.8); opacity: 0; } }
+
+/* 底部抽屉隔离与硬件加速 */
+.vocab-sheet {
+  transform: translateY(100%);
+  transition: transform 0.4s var(--ease-spring);
+  will-change: transform;
+}
+.vocab-sheet.open { transform: translateY(0); }
