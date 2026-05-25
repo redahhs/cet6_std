@@ -72,10 +72,10 @@
     </button>
   </footer>
 
-  <div id="vocab-backdrop" style="position:fixed;inset:0;background:rgba(0,0,0,0.6);backdrop-filter:blur(4px);z-index:40;opacity:0;pointer-events:none;transition:opacity 0.3s;"></div>
-  <div id="vocab-sheet" style="position:fixed;left:0;right:0;bottom:0;background:#1c1c1e;border-top:1px solid rgba(255,255,255,0.08);border-radius:24px 24px 0 0;padding:24px;z-index:50;transform:translateY(100%);transition:transform 0.4s cubic-bezier(0.25,1,0.5,1);max-height:70vh;overflow-y:auto;">
-    <div style="width:48px;height:4px;background:rgba(255,255,255,0.2);border-radius:2px;margin:0 auto 24px;"></div>
-    <div id="vocab-sheet-content"></div>
+  <div id="v-backdrop" style="position:fixed;inset:0;background:rgba(0,0,0,0.6);backdrop-filter:blur(4px);z-index:40;opacity:0;pointer-events:none;transition:opacity 0.3s;" onclick="window.closeSheet()"></div>
+  <div id="v-sheet" style="position:fixed;left:0;right:0;bottom:0;background:#1c1c1e;border-top:1px solid rgba(255,255,255,0.08);border-radius:24px 24px 0 0;padding:24px;z-index:50;transform:translateY(100%);transition:transform 0.4s cubic-bezier(0.25,1,0.5,1);max-height:70vh;overflow-y:auto;padding-bottom:max(24px, env(safe-area-inset-bottom));">
+    <div style="width:48px;height:4px;background:rgba(255,255,255,0.2);border-radius:2px;margin:0 auto 24px;cursor:pointer;" onclick="window.closeSheet()"></div>
+    <div id="v-sheet-content"></div>
   </div>
 
   <script src="./js/storage.js"></script>

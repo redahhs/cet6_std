@@ -10,7 +10,7 @@ let activeCard = null;
 document.addEventListener('DOMContentLoaded', async () => {
   await loadWords();
   setupControls();
-  setupSortButtons();
+  setupSortButtons(); // 修复：补上排序按钮的事件绑定
 });
 
 async function loadWords() {
@@ -188,9 +188,9 @@ function setupControls() {
 }
 
 function openSheet(word) {
-  const sheet = document.getElementById('vocab-sheet');
-  const backdrop = document.getElementById('vocab-backdrop');
-  const content = document.getElementById('vocab-sheet-content');
+  const sheet = document.getElementById('v-sheet');
+  const backdrop = document.getElementById('v-backdrop');
+  const content = document.getElementById('v-sheet-content');
   const isSaved = window.Store && window.DB_KEYS ? Store.isWordSaved(word.id) : false;
 
   content.innerHTML = `
@@ -221,15 +221,24 @@ function openSheet(word) {
   `;
 
   sheet.style.transform = 'translateY(0)';
+  sheet.classList.add('open');
   backdrop.style.opacity = '1';
   backdrop.style.pointerEvents = 'auto';
 }
 
+// 全局挂载，修复 HTML 中 onclick 找不到函数的问题
 window.closeSheet = function() {
-  document.getElementById('vocab-sheet').style.transform = 'translateY(100%)';
-  const backdrop = document.getElementById('vocab-backdrop');
-  backdrop.style.opacity = '0';
-  backdrop.style.pointerEvents = 'none';
+  const sheet = document.getElementById('v-sheet');
+  const backdrop = document.getElementById('v-backdrop');
+  
+  if (sheet) sheet.classList.remove('open');
+  if (backdrop) {
+    backdrop.style.opacity = '0';
+    backdrop.style.pointerEvents = 'none';
+    setTimeout(() => {
+      if (sheet) sheet.style.transform = 'translateY(100%)';
+    }, 300);
+  }
 };
 
 window.toggleSave = function(wordId, btn) {
