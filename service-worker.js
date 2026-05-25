@@ -1,25 +1,23 @@
-const CACHE_NAME = 'cet6-immersive-v2';
-const OFFLINE_URL = '/offline.html';
+const CACHE_NAME = 'cet6-immersive-v3';
+const OFFLINE_URL = './offline.html';
 
-// Core assets to pre-cache on install
+// 预缓存核心资源
 const PRECACHE_ASSETS = [
-  '/',
-  '/index.html',
-  '/vocab.html',
-  '/quote.html',
-  '/reading.html',
-  '/notebook.html',
-  '/settings.html',
-  '/offline.html',
-  '/css/theme.css',
-  '/css/utilities.css',
-  '/css/animation.css',
-  '/js/app.js',
-  '/js/storage.js',
-  '/manifest.json'
+  './',
+  './index.html',
+  './vocab.html',
+  './quote.html',
+  './reading.html',
+  './notebook.html',
+  './settings.html',
+  './offline.html',
+  './css/theme.css',
+  './css/utilities.css',
+  './css/animation.css',
+  './js/app.js',
+  './js/storage.js'
 ];
 
-// 1. Install: Pre-cache core shell
 self.addEventListener('install', (event) => {
   event.waitUntil(
     caches.open(CACHE_NAME).then((cache) => cache.addAll(PRECACHE_ASSETS))
@@ -27,7 +25,6 @@ self.addEventListener('install', (event) => {
   self.skipWaiting();
 });
 
-// 2. Activate: Clean up old caches
 self.addEventListener('activate', (event) => {
   event.waitUntil(
     caches.keys().then((keys) => 
@@ -37,7 +34,6 @@ self.addEventListener('activate', (event) => {
   self.clients.claim();
 });
 
-// 3. Fetch: Smart Routing Strategy
 self.addEventListener('fetch', (event) => {
   if (event.request.method !== 'GET') return;
 
@@ -46,49 +42,39 @@ self.addEventListener('fetch', (event) => {
       const cache = await caches.open(CACHE_NAME);
       const url = new URL(event.request.url);
 
-      // Strategy A: Network-first for HTML navigation (with offline fallback)
+      // HTML: Network First, fallback to cache
       if (event.request.mode === 'navigate') {
         try {
           const networkResponse = await fetch(event.request);
-          // Update cache with fresh copy
           cache.put(event.request, networkResponse.clone());
           return networkResponse;
         } catch (error) {
           const cachedResponse = await cache.match(event.request);
           if (cachedResponse) return cachedResponse;
-          // Final fallback
           return cache.match(OFFLINE_URL);
         }
       }
 
-      // Strategy B: Stale-while-revalidate for JSON data (Words, Quotes, Articles)
-      if (url.pathname.startsWith('/data/')) {
+      // JSON Data: Stale-while-revalidate
+      if (url.pathname.includes('/data/')) {
         const cachedResponse = await cache.match(event.request);
         const fetchPromise = fetch(event.request).then((networkResponse) => {
-          cache.put(event.request, networkResponse.clone());
+          if (networkResponse.ok) cache.put(event.request, networkResponse.clone());
           return networkResponse;
         }).catch(() => cachedResponse);
-        
         return cachedResponse || fetchPromise;
       }
 
-      // Strategy C: Cache-first for static assets (CSS, JS, Fonts, Images)
+      // Assets (CSS, JS, Fonts): Cache First
       const cachedResponse = await cache.match(event.request);
       if (cachedResponse) return cachedResponse;
 
       try {
         const networkResponse = await fetch(event.request);
-        // Cache successful responses
-        if (networkResponse.status === 200) {
-          cache.put(event.request, networkResponse.clone());
-        }
+        if (networkResponse.ok) cache.put(event.request, networkResponse.clone());
         return networkResponse;
       } catch (error) {
-        // If it's an image, return a placeholder or fail silently
-        if (event.request.destination === 'image') {
-          return new Response('', { status: 404 });
-        }
-        throw error;
+        return new Response('Offline', { status: 503 });
       }
     })()
   );

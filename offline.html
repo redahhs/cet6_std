@@ -4,29 +4,9 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
   <meta name="theme-color" content="#0a0a0a">
-  <meta name="mobile-web-app-capable" content="yes">
-  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <title>Offline - CET6</title>
-  
-  <!-- 1. 核心设计系统 (深黑背景、毛玻璃、渐变文字全靠它) -->
   <link rel="stylesheet" href="./css/theme.css">
-  
-  <!-- 2. 恢复 Tailwind CDN (确保所有排版和布局完美生效) -->
-  <script src="https://cdn.tailwindcss.com"></script>
-  <script>
-    tailwind.config = {
-      darkMode: 'class',
-      theme: {
-        extend: {
-          colors: {
-            primary: '#0a0a0a',
-            accent: '#5e5ce6',
-            surface: '#1c1c1e'
-          }
-        }
-      }
-    }
-  </script>
+  <link rel="stylesheet" href="./css/utilities.css">
   <style>
     body { display: flex; align-items: center; justify-content: center; height: 100vh; text-align: center; padding: 2rem; }
   </style>
@@ -35,8 +15,8 @@
   <div>
     <div class="text-5xl mb-6">📡</div>
     <h1 class="text-2xl font-bold mb-2 text-gradient">You are offline</h1>
-    <p class="text-[var(--text-secondary)] text-sm leading-relaxed max-w-xs mx-auto">
-      Please check your connection. Your saved words and daily quotes are still available in your notebook.
+    <p class="text-[#86868b] text-sm leading-relaxed max-w-xs mx-auto">
+      Please check your connection. Your saved words and notes are still available.
     </p>
     <button onclick="location.reload()" class="btn-primary mt-8 max-w-xs mx-auto">Retry</button>
   </div>

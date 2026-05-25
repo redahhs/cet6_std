@@ -1,82 +1,111 @@
-/**
- * Store & LocalStorage Manager
- * 统一状态管理，支持版本控制与持久化
- */
+const DB_VERSION = 2;
+const DB_PREFIX = 'cet6_v2_';
 
-const APP_STORAGE_KEY = "cet6_app_state_v2";
-const APP_VERSION = 2;
-
-const defaultState = {
-  version: APP_VERSION,
-  vocab: {
-    currentIndex: 0,
-    favorites: [],
-    learned: [],
-    reviewQueue: []
-  },
-  settings: {
-    theme: "dark",
-    autoPlayAudio: true,
-    ttsSpeed: 0.9
-  },
-  progress: {
-    todayWords: 0,
-    totalLearned: 0,
-    streak: 12 // Mock data
-  }
+const DB_KEYS = {
+  VOCAB_PROGRESS: 'vocab_progress',
+  SAVED_WORDS: 'saved_words',
+  DAILY_QUOTE: 'daily_quote_cache',
+  SAVED_QUOTES: 'saved_quotes',
+  SETTINGS: 'settings',
+  META: 'meta'
 };
 
-class Store {
+class StorageManager {
   constructor() {
-    this.state = this._loadState();
-    this.listeners = new Set();
+    this._checkMigration();
   }
 
-  _loadState() {
+  _checkMigration() {
+    const meta = this.get(DB_KEYS.META) || { version: 1 };
+    if (meta.version < DB_VERSION) {
+      this._migrate(meta.version);
+      this.set(DB_KEYS.META, { version: DB_VERSION, lastUpdated: Date.now() });
+    }
+  }
+
+  _migrate(fromVersion) {
+    if (fromVersion < 2) {
+      const oldKeys = {
+        'cet6_vocab_progress': DB_KEYS.VOCAB_PROGRESS,
+        'cet6_saved_words': DB_KEYS.SAVED_WORDS,
+        'cet6_daily_quote_cache': DB_KEYS.DAILY_QUOTE,
+        'cet6_saved_quotes': DB_KEYS.SAVED_QUOTES,
+        'cet6_settings': DB_KEYS.SETTINGS
+      };
+      Object.entries(oldKeys).forEach(([oldKey, newKey]) => {
+        const oldData = localStorage.getItem(oldKey);
+        if (oldData) {
+          localStorage.setItem(DB_PREFIX + newKey, oldData);
+          localStorage.removeItem(oldKey);
+        }
+      });
+    }
+  }
+
+  _getKey(key) { return DB_PREFIX + key; }
+
+  get(key) {
     try {
-      const raw = localStorage.getItem(APP_STORAGE_KEY);
-      if (!raw) return { ...defaultState };
-      
-      const parsed = JSON.parse(raw);
-      // 版本控制：如果版本不匹配，重置或迁移
-      if (parsed.version !== APP_VERSION) {
-        console.warn('[Storage] Version mismatch, resetting state.');
-        return { ...defaultState };
+      const item = localStorage.getItem(this._getKey(key));
+      return item ? JSON.parse(item) : null;
+    } catch (e) { return null; }
+  }
+
+  set(key, value) {
+    try {
+      localStorage.setItem(this._getKey(key), JSON.stringify(value));
+      return true;
+    } catch (e) {
+      if (e.name === 'QuotaExceededError') {
+        console.warn('Storage full');
       }
-      return parsed;
-    } catch (e) {
-      console.error('[Storage Error] Failed to parse state:', e);
-      return { ...defaultState };
+      return false;
     }
   }
 
-  getState() {
-    return this.state;
+  remove(key) { localStorage.removeItem(this._getKey(key)); }
+
+  clearAll() {
+    Object.keys(localStorage).forEach(key => {
+      if (key.startsWith(DB_PREFIX)) localStorage.removeItem(key);
+    });
   }
 
-  setState(updater) {
-    const newState = typeof updater === 'function' ? updater(this.state) : updater;
-    this.state = { ...this.state, ...newState, version: APP_VERSION };
-    this._persist();
-    this._notify();
-  }
-
-  _persist() {
-    try {
-      localStorage.setItem(APP_STORAGE_KEY, JSON.stringify(this.state));
-    } catch (e) {
-      console.error('[Storage Error] Failed to persist state:', e);
+  saveWord(wordId) {
+    const saved = this.get(DB_KEYS.SAVED_WORDS) || [];
+    if (!saved.includes(wordId)) {
+      saved.push(wordId);
+      this.set(DB_KEYS.SAVED_WORDS, saved);
     }
   }
 
-  subscribe(listener) {
-    this.listeners.add(listener);
-    return () => this.listeners.delete(listener);
+  unsaveWord(wordId) {
+    let saved = this.get(DB_KEYS.SAVED_WORDS) || [];
+    saved = saved.filter(id => id !== wordId);
+    this.set(DB_KEYS.SAVED_WORDS, saved);
   }
 
-  _notify() {
-    this.listeners.forEach(listener => listener(this.state));
+  isWordSaved(wordId) {
+    const saved = this.get(DB_KEYS.SAVED_WORDS) || [];
+    return saved.includes(wordId);
+  }
+  
+  exportData() {
+    const data = {
+      progress: this.get(DB_KEYS.VOCAB_PROGRESS),
+      savedWords: this.get(DB_KEYS.SAVED_WORDS),
+      savedQuotes: this.get(DB_KEYS.SAVED_QUOTES),
+      settings: this.get(DB_KEYS.SETTINGS)
+    };
+    const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `cet6-backup-${new Date().toISOString().split('T')[0]}.json`;
+    a.click();
+    URL.revokeObjectURL(url);
   }
 }
 
-window.Store = new Store();
+window.Store = new StorageManager();
+window.DB_KEYS = DB_KEYS;
