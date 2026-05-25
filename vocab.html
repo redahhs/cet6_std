@@ -45,6 +45,12 @@
     <button class="sort-btn" data-sort="az">A - Z</button>
   </div>
 
+  <!-- A-Z 字母索引导航 (追加) -->
+  <div class="alpha-nav" id="alpha-nav" style="display: flex; overflow-x: auto; gap: 6px; padding: 0 24px 16px; -webkit-overflow-scrolling: touch;">
+    <button class="alpha-btn active" data-letter="ALL" style="padding: 6px 12px; border-radius: 8px; font-size: 12px; font-weight: 600; background: var(--accent); color: white; border: none;">ALL</button>
+    <!-- A-Z 按钮将由 JS 动态生成 -->
+  </div>
+
   <div style="padding: 0 24px 16px;">
     <div style="height:4px;background:rgba(255,255,255,0.05);border-radius:2px;overflow:hidden;">
       <div id="vocab-progress-bar" style="height:100%;background:#5e5ce6;width:0%;transition:width 0.4s;"></div>

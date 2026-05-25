@@ -24,6 +24,9 @@ function initPWA() {
 }
 
 function initGlobalUI() {
+  const savedTheme = localStorage.getItem('cet6_theme') || 'dark';
+  document.documentElement.setAttribute('data-theme', savedTheme);
+
   const path = window.location.pathname;
   const currentPage = path.split('/').pop() || 'index.html';
   const navItems = document.querySelectorAll('.nav-item');

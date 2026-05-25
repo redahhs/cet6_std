@@ -16,6 +16,16 @@ function initSettings() {
     settings.ttsSpeed = val;
     Store.set(DB_KEYS.SETTINGS, settings);
   });
+
+  const themeToggle = document.getElementById('theme-toggle');
+  const currentTheme = localStorage.getItem('cet6_theme') || 'dark';
+  themeToggle.checked = currentTheme === 'dark';
+
+  themeToggle.addEventListener('change', (e) => {
+    const newTheme = e.target.checked ? 'dark' : 'light';
+    document.documentElement.setAttribute('data-theme', newTheme);
+    localStorage.setItem('cet6_theme', newTheme);
+  });
 }
 
 function clearData() {
