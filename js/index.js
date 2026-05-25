@@ -1,43 +1,90 @@
 /**
  * Home Dashboard Logic
- * Aggregates stats and renders preview cards
+ * 动态计算数据，渲染高级感 Widget
  */
 
 document.addEventListener('DOMContentLoaded', async () => {
+  setGreeting();
   updateStats();
-  renderDailyQuotePreview();
+  await renderDailyWord();
 });
 
-function updateStats() {
-  // Calculate Streak (Mock logic for now: count consecutive days with progress)
-  // In a real app, this would parse timestamps from VOCAB_PROGRESS
-  const progress = Store.get(DB_KEYS.VOCAB_PROGRESS) || {};
-  const masteredCount = Object.values(progress).filter(p => p.mastery === 3).length;
+function setGreeting() {
+  const now = new Date();
+  const hours = now.getHours();
+  let greeting = "Good Evening";
+  if (hours < 12) greeting = "Good Morning";
+  else if (hours < 18) greeting = "Good Afternoon";
   
-  // Update DOM
-  document.querySelector('.grid div:nth-child(1) span.text-3xl').textContent = '12'; // Mock streak
-  document.querySelector('.grid div:nth-child(2) span.text-3xl').textContent = masteredCount;
+  document.getElementById('greeting-text').textContent = greeting;
+  
+  const options = { weekday: 'long', month: 'long', day: 'numeric' };
+  document.getElementById('greeting-date').textContent = now.toLocaleDateString('en-US', options);
 }
 
-async function renderDailyQuotePreview() {
-  try {
-    const cached = Store.get(DB_KEYS.DAILY_QUOTE);
-    const today = new Date().toISOString().split('T')[0];
-    let quote;
+function updateStats() {
+  const progress = Store.get(DB_KEYS.VOCAB_PROGRESS) || {};
+  const values = Object.values(progress);
+  
+  const mastered = values.filter(v => v.mastery === 3).length;
+  const fuzzy = values.filter(v => v.mastery === 1).length;
+  
+  // 计算连续打卡天数 (简单模拟算法)
+  let streak = 0;
+  const today = new Date().setHours(0,0,0,0);
+  let checkDate = today;
+  
+  // 如果今天还没学，从昨天开始算
+  const todayHasRecord = values.some(v => new Date(v.lastReview).setHours(0,0,0,0) === today);
+  if (!todayHasRecord) {
+    checkDate -= 86400000; 
+  }
 
-    if (cached && cached.date === today) {
-      quote = cached.data;
+  while(true) {
+    const hasRecord = values.some(v => new Date(v.lastReview).setHours(0,0,0,0) === checkDate);
+    if (hasRecord) {
+      streak++;
+      checkDate -= 86400000;
     } else {
-      const res = await fetch('/data/quotes.json');
-      const quotes = await res.json();
-      quote = quotes[0]; // Default to first for preview
+      break;
+    }
+  }
+
+  document.getElementById('stat-streak').textContent = streak;
+  document.getElementById('stat-mastered').textContent = mastered;
+  document.getElementById('stat-fuzzy').textContent = fuzzy;
+}
+
+async function renderDailyWord() {
+  try {
+    const res = await fetch('./data/words.json');
+    const rawData = await res.json();
+    
+    // 每天基于日期生成一个固定的随机种子，保证同一天刷新看到的是同一个词
+    const today = new Date().toISOString().split('T')[0];
+    const seed = today.split('').reduce((a, b) => a + b.charCodeAt(0), 0);
+    const word = rawData[seed % rawData.length];
+
+    document.getElementById('preview-word').textContent = word.word;
+    
+    // 拼接释义
+    const meaning = word.translations?.map(t => t.translation).join('；') || '';
+    document.getElementById('preview-meaning').textContent = meaning;
+
+    // 渲染短语搭配
+    const phrasesContainer = document.getElementById('preview-phrases');
+    phrasesContainer.innerHTML = '';
+    if (word.phrases && word.phrases.length > 0) {
+      // 最多展示3个
+      word.phrases.slice(0, 3).forEach(p => {
+        const tag = document.createElement('span');
+        tag.className = 'px-2 py-1 rounded-md bg-white/5 text-xs text-[var(--text-secondary)]';
+        tag.textContent = p.phrase;
+        phrasesContainer.appendChild(tag);
+      });
     }
 
-    const previewText = document.querySelector('#app-container section p.text-xl');
-    if (previewText && quote) {
-      previewText.textContent = `"${quote.en.substring(0, 60)}..."`;
-    }
   } catch (e) {
-    console.warn("Quote preview failed", e);
+    console.error("Failed to load daily word", e);
   }
 }

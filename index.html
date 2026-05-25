@@ -3,96 +3,151 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-  <meta name="theme-color" content="#0a0a0a">
+  <meta name="theme-color" content="#050505">
   <meta name="mobile-web-app-capable" content="yes">
-  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <title>CET6 Immersive</title>
-  
-  <!-- 1. 核心设计系统 (深黑背景、毛玻璃、渐变文字全靠它) -->
   <link rel="stylesheet" href="./css/theme.css">
   <link rel="stylesheet" href="./css/animation.css">
-  
-  <!-- 2. 恢复 Tailwind CDN (确保所有排版和布局完美生效) -->
-  <script src="https://cdn.tailwindcss.com"></script>
-  <script>
-    tailwind.config = {
-      darkMode: 'class',
-      theme: {
-        extend: {
-          colors: {
-            primary: '#0a0a0a',
-            accent: '#5e5ce6',
-            surface: '#1c1c1e'
-          }
-        }
-      }
+  <link rel="stylesheet" href="./css/utilities.css">
+  <style>
+    /* 首页专属高级动效与样式 */
+    .home-bg-orb {
+      position: fixed;
+      width: 60vw;
+      height: 60vw;
+      max-width: 400px;
+      max-height: 400px;
+      background: radial-gradient(circle, rgba(94, 92, 230, 0.15) 0%, rgba(5, 5, 5, 0) 70%);
+      filter: blur(60px);
+      top: -10%;
+      right: -20%;
+      z-index: 0;
+      pointer-events: none;
+      animation: orbFloat 10s ease-in-out infinite alternate;
     }
-  </script>
+    @keyframes orbFloat {
+      0% { transform: translate(0, 0) scale(1); }
+      100% { transform: translate(-30px, 40px) scale(1.1); }
+    }
+    .stat-card {
+      background: rgba(255, 255, 255, 0.03);
+      border: 1px solid rgba(255, 255, 255, 0.05);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+    }
+    .widget-card {
+      background: linear-gradient(145deg, rgba(30, 30, 32, 0.8), rgba(20, 20, 22, 0.6));
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      backdrop-filter: blur(30px);
+      -webkit-backdrop-filter: blur(30px);
+      box-shadow: 0 10px 30px rgba(0,0,0,0.4);
+    }
+    .nav-grid-item {
+      transition: all 0.3s cubic-bezier(0.25, 1, 0.5, 1);
+    }
+    .nav-grid-item:active {
+      transform: scale(0.96);
+      background: rgba(255, 255, 255, 0.08);
+    }
+  </style>
 </head>
-<body class="dark">
+<body class="dark overflow-x-hidden">
+  <div class="home-bg-orb"></div>
 
-  <div id="app-container" class="px-6 pt-12 pb-6">
-    <!-- Header -->
-    <header class="mb-10">
-      <p class="text-[var(--text-secondary)] text-sm font-medium tracking-wide uppercase mb-1">Good Evening</p>
-      <h1 class="text-3xl font-bold text-gradient leading-tight">Ready to focus?</h1>
+  <div id="app-container" class="relative z-10 px-6 pt-14 pb-24 max-w-xl mx-auto">
+    
+    <!-- Header: 动态问候 -->
+    <header class="mb-8">
+      <p class="text-xs font-medium tracking-widest text-[var(--text-tertiary)] uppercase mb-2" id="greeting-date">Loading...</p>
+      <h1 class="text-4xl font-bold text-gradient leading-tight" id="greeting-text">Ready to focus?</h1>
     </header>
 
-    <!-- Daily Quote Preview Card -->
-    <section class="glass-card p-6 mb-6 relative overflow-hidden group cursor-pointer" onclick="location.href='quote.html'">
-      <div class="absolute top-0 right-0 w-32 h-32 bg-accent/10 rounded-full blur-3xl -mr-10 -mt-10 transition-all group-hover:bg-accent/20"></div>
-      <span class="text-xs font-semibold text-accent tracking-widest uppercase mb-3 block">Daily Inspiration</span>
-      <p class="text-xl font-light leading-relaxed mb-2 text-[var(--text-primary)]">"The only way to do great work is to love what you do."</p>
-      <p class="text-sm text-[var(--text-secondary)]">— Steve Jobs</p>
+    <!-- Stats Grid: 极简数据面板 -->
+    <section class="grid grid-cols-3 gap-3 mb-8">
+      <div class="stat-card rounded-2xl p-4 flex flex-col justify-between h-24">
+        <span class="text-[10px] font-semibold text-[var(--text-tertiary)] uppercase tracking-wider">Streak</span>
+        <div class="flex items-baseline gap-1">
+          <span class="text-2xl font-bold text-white" id="stat-streak">0</span>
+          <span class="text-xs text-accent">days</span>
+        </div>
+      </div>
+      <div class="stat-card rounded-2xl p-4 flex flex-col justify-between h-24">
+        <span class="text-[10px] font-semibold text-[var(--text-tertiary)] uppercase tracking-wider">Mastered</span>
+        <div class="flex items-baseline gap-1">
+          <span class="text-2xl font-bold text-white" id="stat-mastered">0</span>
+        </div>
+      </div>
+      <div class="stat-card rounded-2xl p-4 flex flex-col justify-between h-24">
+        <span class="text-[10px] font-semibold text-[var(--text-tertiary)] uppercase tracking-wider">Fuzzy</span>
+        <div class="flex items-baseline gap-1">
+          <span class="text-2xl font-bold text-yellow-500" id="stat-fuzzy">0</span>
+        </div>
+      </div>
     </section>
 
-    <!-- Quick Stats Grid -->
-    <div class="grid grid-cols-2 gap-4 mb-6">
-      <div class="glass-card p-5 flex flex-col justify-between min-h-[120px]">
-        <span class="text-[var(--text-secondary)] text-xs uppercase tracking-wider">Streak</span>
-        <div class="flex items-end gap-1">
-          <span class="text-3xl font-bold text-[var(--text-primary)]">12</span>
-          <span class="text-sm text-accent mb-1">days</span>
-        </div>
+    <!-- Daily Word Widget: 首页单词预览 -->
+    <section class="widget-card rounded-3xl p-6 mb-8 relative overflow-hidden group cursor-pointer" onclick="location.href='vocab.html'">
+      <div class="flex justify-between items-start mb-4">
+        <span class="text-[10px] font-bold text-accent tracking-widest uppercase">Today's Focus</span>
+        <button class="w-8 h-8 rounded-full bg-white/5 flex items-center justify-center text-white/60 active:scale-90 transition-transform" onclick="event.stopPropagation(); playAudio(document.getElementById('preview-word').textContent)">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M3 9v6h4l5 5V4L7 9H3z"/></svg>
+        </button>
       </div>
-      <div class="glass-card p-5 flex flex-col justify-between min-h-[120px]">
-        <span class="text-[var(--text-secondary)] text-xs uppercase tracking-wider">Words</span>
-        <div class="flex items-end gap-1">
-          <span class="text-3xl font-bold text-[var(--text-primary)]">847</span>
-          <span class="text-sm text-success mb-1">mastered</span>
-        </div>
-      </div>
-    </div>
+      <h2 class="text-3xl font-serif-elegant font-bold text-white mb-2" id="preview-word">...</h2>
+      <p class="text-sm text-[var(--text-secondary)] leading-relaxed" id="preview-meaning">Loading your daily word...</p>
+      <div class="mt-4 flex flex-wrap gap-2" id="preview-phrases"></div>
+    </section>
 
-    <!-- Continue Learning Button -->
-    <button class="btn-primary flex items-center justify-center gap-2 mt-4" onclick="location.href='vocab.html'">
-      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polygon points="5 3 19 12 5 21 5 3"></polygon></svg>
-      Continue Vocabulary
-    </button>
+    <!-- Navigation Grid: 宫格导航 -->
+    <section class="grid grid-cols-2 gap-4 mb-8">
+      <a href="vocab.html" class="nav-grid-item widget-card rounded-2xl p-5 flex flex-col gap-3">
+        <div class="w-10 h-10 rounded-xl bg-accent/10 flex items-center justify-center text-accent">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"></path></svg>
+        </div>
+        <div>
+          <h3 class="text-base font-semibold text-white">Vocabulary</h3>
+          <p class="text-xs text-[var(--text-tertiary)] mt-1">Swipe & Learn</p>
+        </div>
+      </a>
+      <a href="quote.html" class="nav-grid-item widget-card rounded-2xl p-5 flex flex-col gap-3">
+        <div class="w-10 h-10 rounded-xl bg-purple-500/10 flex items-center justify-center text-purple-400">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 21v-4a4 4 0 1 1 4 4h-4z"></path><path d="M21 3v4a4 4 0 1 1-4-4h4z"></path></svg>
+        </div>
+        <div>
+          <h3 class="text-base font-semibold text-white">Daily Quote</h3>
+          <p class="text-xs text-[var(--text-tertiary)] mt-1">Inspiration</p>
+        </div>
+      </a>
+      <a href="reading.html" class="nav-grid-item widget-card rounded-2xl p-5 flex flex-col gap-3">
+        <div class="w-10 h-10 rounded-xl bg-emerald-500/10 flex items-center justify-center text-emerald-400">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"></path><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"></path></svg>
+        </div>
+        <div>
+          <h3 class="text-base font-semibold text-white">Deep Read</h3>
+          <p class="text-xs text-[var(--text-tertiary)] mt-1">Immersive</p>
+        </div>
+      </a>
+      <a href="notebook.html" class="nav-grid-item widget-card rounded-2xl p-5 flex flex-col gap-3">
+        <div class="w-10 h-10 rounded-xl bg-rose-500/10 flex items-center justify-center text-rose-400">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"></path></svg>
+        </div>
+        <div>
+          <h3 class="text-base font-semibold text-white">Notebook</h3>
+          <p class="text-xs text-[var(--text-tertiary)] mt-1">Saved Items</p>
+        </div>
+      </a>
+    </section>
+
   </div>
 
-  <!-- Bottom Navigation (Glass) -->
+  <!-- Bottom Nav (Reused) -->
   <nav class="fixed bottom-0 left-0 right-0 glass-card !rounded-none !border-t !border-x-0 !border-b-0 px-6 py-3 flex justify-around items-center z-50" style="padding-bottom: max(12px, env(safe-area-inset-bottom));">
-    <a href="index.html" class="nav-item flex flex-col items-center gap-1 text-[var(--text-secondary)] transition-colors duration-200 [&.active]:text-accent">
-      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path><polyline points="9 22 9 12 15 12 15 22"></polyline></svg>
-      <span class="text-[10px] font-medium">Home</span>
-    </a>
-    <a href="vocab.html" class="nav-item flex flex-col items-center gap-1 text-[var(--text-secondary)] transition-colors duration-200 [&.active]:text-accent">
-      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"></path></svg>
-      <span class="text-[10px] font-medium">Vocab</span>
-    </a>
-    <a href="reading.html" class="nav-item flex flex-col items-center gap-1 text-[var(--text-secondary)] transition-colors duration-200 [&.active]:text-accent">
-      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"></path><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"></path></svg>
-      <span class="text-[10px] font-medium">Read</span>
-    </a>
-    <a href="notebook.html" class="nav-item flex flex-col items-center gap-1 text-[var(--text-secondary)] transition-colors duration-200 [&.active]:text-accent">
-      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"></path></svg>
-      <span class="text-[10px] font-medium">Saved</span>
-    </a>
+    <a href="index.html" class="nav-item flex flex-col items-center gap-1 text-accent"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path><polyline points="9 22 9 12 15 12 15 22"></polyline></svg><span class="text-[10px] font-medium">Home</span></a>
+    <a href="vocab.html" class="nav-item flex flex-col items-center gap-1 text-[var(--text-secondary)]"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"></path></svg><span class="text-[10px] font-medium">Vocab</span></a>
+    <a href="reading.html" class="nav-item flex flex-col items-center gap-1 text-[var(--text-secondary)]"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"></path><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"></path></svg><span class="text-[10px] font-medium">Read</span></a>
+    <a href="notebook.html" class="nav-item flex flex-col items-center gap-1 text-[var(--text-secondary)]"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"></path></svg><span class="text-[10px] font-medium">Saved</span></a>
   </nav>
 
-  <!-- Scripts -->
-  <script src="./js/haptics.js"></script>
   <script src="./js/storage.js"></script>
   <script src="./js/app.js"></script>
   <script src="./js/index.js"></script>
