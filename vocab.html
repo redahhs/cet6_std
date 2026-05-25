@@ -4,164 +4,81 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
   <meta name="theme-color" content="#0a0a0a">
-  <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><rect width=%22100%22 height=%22100%22 fill=%22%230a0a0a%22/><text x=%2250%22 y=%2265%22 font-family=%22Arial%22 font-size=%2245%22 font-weight=%22bold%22 fill=%22%235e5ce6%22 text-anchor=%22middle%22>C6</text></svg>">
-  <title>Focus Mode</title>
+  <title>Focus Mode - CET6</title>
+  <link rel="stylesheet" href="./css/theme.css">
+  <link rel="stylesheet" href="./css/animation.css">
   <style>
-    :root {
-      --bg: #0a0a0a; --card-bg: rgba(28, 28, 30, 0.65); --border: rgba(255, 255, 255, 0.08);
-      --text-main: #f5f5f7; --text-sub: #86868b; --accent: #5e5ce6;
-      --red: #ff453a; --green: #30d158; --yellow: #ffd60a;
-    }
-    * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
-    body { background: var(--bg); color: var(--text-main); font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", sans-serif; height: 100dvh; display: flex; flex-direction: column; overflow: hidden; }
+    /* 兜底样式：确保即使外部 CSS 加载失败，基础框架依然稳固 */
+    body { background: #0a0a0a; color: #f5f5f7; font-family: -apple-system, sans-serif; margin: 0; height: 100vh; display: flex; flex-direction: column; overflow: hidden; }
+    .glass-card { background: rgba(28,28,30,0.65); backdrop-filter: blur(24px); border: 1px solid rgba(255,255,255,0.08); border-radius: 24px; }
     
-    .header { padding: 60px 24px 16px; display: flex; justify-content: space-between; align-items: center; }
-    .icon-btn { width: 40px; height: 40px; border-radius: 50%; background: rgba(255,255,255,0.05); display: flex; align-items: center; justify-content: center; color: #fff; border: none; }
-    .title { text-align: center; }
-    .title h1 { font-size: 16px; font-weight: 600; }
-    .title p { font-size: 12px; color: var(--text-sub); margin-top: 4px; }
-    
-    .progress-bar { height: 4px; background: rgba(255,255,255,0.05); margin: 0 24px 24px; border-radius: 2px; overflow: hidden; }
-    .progress-fill { height: 100%; background: var(--accent); transition: width 0.4s ease; width: 0%; }
-
-    .card-area { flex: 1; position: relative; padding: 0 24px; display: flex; align-items: center; justify-content: center; }
-    .card {
-      position: absolute; inset: 0; background: var(--card-bg); border: 1px solid var(--border);
-      border-radius: 24px; backdrop-filter: blur(24px); -webkit-backdrop-filter: blur(24px);
-      display: flex; flex-direction: column; align-items: center; justify-content: center;
-      padding: 32px; text-align: center; touch-action: none; user-select: none;
-      transition: transform 0.4s cubic-bezier(0.25, 1, 0.5, 1), opacity 0.4s ease;
-      box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+    /* 排序控件样式 (Segmented Control) */
+    .vocab-sort-control {
+      display: flex; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.08);
+      border-radius: 12px; padding: 4px; margin: 0 24px 16px;
     }
-    .card.swiping { transition: none; }
-    .word { font-size: 42px; font-weight: 700; margin-bottom: 12px; background: linear-gradient(135deg, #fff, #a1a1aa); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
-    .pos { font-size: 14px; color: var(--accent); margin-bottom: 8px; text-transform: uppercase; letter-spacing: 0.05em; }
-    .meaning { font-size: 20px; color: var(--text-sub); margin-bottom: 32px; }
-    .hint { position: absolute; bottom: 32px; font-size: 12px; color: var(--text-sub); }
-
-    .actions { padding: 24px; padding-bottom: max(24px, env(safe-area-inset-bottom)); display: flex; justify-content: center; gap: 32px; }
-    .action-btn { width: 64px; height: 64px; border-radius: 50%; background: rgba(255,255,255,0.05); display: flex; align-items: center; justify-content: center; border: 1px solid var(--border); transition: transform 0.2s; }
-    .action-btn:active { transform: scale(0.9); }
-    .btn-forgot { color: var(--red); border-color: rgba(255,69,58,0.3); }
-    .btn-fuzzy { color: var(--yellow); border-color: rgba(255,214,10,0.3); }
-    .btn-known { color: var(--green); border-color: rgba(48,209,88,0.3); }
-
-    .backdrop { position: fixed; inset: 0; background: rgba(0,0,0,0.6); backdrop-filter: blur(4px); z-index: 40; opacity: 0; pointer-events: none; transition: opacity 0.3s; }
-    .backdrop.active { opacity: 1; pointer-events: auto; }
-    .sheet {
-      position: fixed; left: 0; right: 0; bottom: 0; background: #1c1c1e; border-top: 1px solid var(--border);
-      border-radius: 24px 24px 0 0; padding: 24px; padding-bottom: max(24px, env(safe-area-inset-bottom));
-      z-index: 50; transform: translateY(100%); transition: transform 0.4s cubic-bezier(0.25, 1, 0.5, 1);
-      max-height: 70vh; overflow-y: auto;
+    .sort-btn {
+      flex: 1; padding: 8px 0; font-size: 13px; font-weight: 600; color: #86868b;
+      border: none; background: transparent; border-radius: 8px; cursor: pointer; transition: all 0.2s ease;
     }
-    .sheet.active { transform: translateY(0); }
-    .sheet-handle { width: 36px; height: 4px; background: rgba(255,255,255,0.2); border-radius: 2px; margin: 0 auto 24px; }
-    .sheet h3 { font-size: 28px; font-weight: 700; margin-bottom: 8px; }
-    .sheet .pos { font-size: 14px; color: var(--text-sub); margin-bottom: 16px; }
-    .sheet .meaning { font-size: 18px; color: var(--text-main); margin-bottom: 24px; }
-    .phrase { background: rgba(255,255,255,0.05); padding: 12px; border-radius: 12px; margin-bottom: 8px; }
-    .phrase .en { font-size: 15px; font-weight: 500; color: var(--text-main); margin-bottom: 4px; }
-    .phrase .zh { font-size: 13px; color: var(--text-sub); }
-    .empty { text-align: center; color: var(--text-sub); }
-    .empty .icon { font-size: 48px; margin-bottom: 16px; }
+    .sort-btn.active { background: #5e5ce6; color: #fff; box-shadow: 0 4px 12px rgba(94,92,230,0.3); }
   </style>
 </head>
 <body>
-  <div class="header">
-    <button class="icon-btn" onclick="history.back()"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 12H5M12 19l-7-7 7-7"/></svg></button>
-    <div class="title"><h1>Focus Mode</h1><p id="progress-text">0 / 0</p></div>
-    <button class="icon-btn" onclick="location.href='notebook.html'"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"></path></svg></button>
+  <header style="padding: 60px 24px 16px; display: flex; justify-content: space-between; align-items: center;">
+    <button onclick="history.back()" style="width:40px;height:40px;border-radius:50%;background:rgba(255,255,255,0.05);border:none;color:#fff;">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
+    </button>
+    <div style="text-align:center;">
+      <h1 style="font-size:18px;margin:0;">Focus Mode</h1>
+      <p id="vocab-progress-text" style="font-size:12px;color:#86868b;margin:4px 0 0;">0 / 0</p>
+    </div>
+    <button onclick="location.href='./notebook.html'" style="width:40px;height:40px;border-radius:50%;background:rgba(255,255,255,0.05);border:none;color:#fff;">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"></path></svg>
+    </button>
+  </header>
+
+  <!-- 🌟 新增：排序控件 -->
+  <div class="vocab-sort-control">
+    <button class="sort-btn active" data-sort="default">Default</button>
+    <button class="sort-btn" data-sort="random">Random</button>
+    <button class="sort-btn" data-sort="az">A - Z</button>
   </div>
 
-  <div class="progress-bar"><div class="progress-fill" id="progress-fill"></div></div>
-  <div class="card-area" id="card-area"></div>
-
-  <div class="actions">
-    <button class="action-btn btn-forgot" id="btn-forgot"><svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg></button>
-    <button class="action-btn btn-fuzzy" id="btn-fuzzy"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10"></circle><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"></path><line x1="12" y1="17" x2="12.01" y2="17"></line></svg></button>
-    <button class="action-btn btn-known" id="btn-known"><svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"></polyline></svg></button>
+  <div style="padding: 0 24px 16px;">
+    <div style="height:4px;background:rgba(255,255,255,0.05);border-radius:2px;overflow:hidden;">
+      <div id="vocab-progress-bar" style="height:100%;background:#5e5ce6;width:0%;transition:width 0.4s;"></div>
+    </div>
   </div>
 
-  <div class="backdrop" id="backdrop" onclick="closeSheet()"></div>
-  <div class="sheet" id="sheet"><div class="sheet-handle"></div><div id="sheet-content"></div></div>
+  <main style="flex:1;position:relative;padding:0 24px;" id="vocab-main">
+    <div id="vocab-card-container" style="position:absolute;inset:0;"></div>
+    <div id="vocab-empty-state" style="display:none;text-align:center;color:#86868b;">
+      <p style="font-size:48px;margin-bottom:16px;">🎉</p>
+      <p style="font-size:20px;color:#fff;">Session Complete</p>
+      <p>Take a breath. You did great.</p>
+    </div>
+  </main>
 
-  <script>
-    let words = [], currentIndex = 0, startX = 0, startY = 0, currentX = 0, currentY = 0, isDragging = false, hasMoved = false, activeCard = null;
+  <footer style="padding: 16px 24px 32px; display: flex; justify-content: center; gap: 32px;">
+    <button id="vocab-btn-forgot" style="width:64px;height:64px;border-radius:50%;background:rgba(255,255,255,0.05);border:1px solid rgba(239,68,68,0.2);color:#ef4444;">
+      <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+    </button>
+    <button id="vocab-btn-fuzzy" style="width:56px;height:56px;border-radius:50%;background:rgba(255,255,255,0.05);border:1px solid rgba(234,179,8,0.2);color:#eab308;">
+      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10"></circle><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"></path><line x1="12" y1="17" x2="12.01" y2="17"></line></svg>
+    </button>
+    <button id="vocab-btn-known" style="width:64px;height:64px;border-radius:50%;background:rgba(255,255,255,0.05);border:1px solid rgba(34,197,94,0.2);color:#22c55e;">
+      <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"></polyline></svg>
+    </button>
+  </footer>
 
-    document.addEventListener('DOMContentLoaded', async () => {
-      try {
-        const res = await fetch('./data/words.json');
-        const data = await res.json();
-        words = data.map(w => ({
-          id: w.word, word: w.word,
-          pos: w.translations?.[0]?.type || 'n.',
-          meaning: w.translations?.map(t => t.translation).join('；') || '暂无释义',
-          phrases: w.phrases || []
-        }));
-        renderCard();
-      } catch (e) { console.error('Load words failed', e); }
-    });
+  <div id="vocab-backdrop" style="position:fixed;inset:0;background:rgba(0,0,0,0.6);backdrop-filter:blur(4px);z-index:40;opacity:0;pointer-events:none;transition:opacity 0.3s;"></div>
+  <div id="vocab-sheet" style="position:fixed;left:0;right:0;bottom:0;background:#1c1c1e;border-top:1px solid rgba(255,255,255,0.08);border-radius:24px 24px 0 0;padding:24px;z-index:50;transform:translateY(100%);transition:transform 0.4s cubic-bezier(0.25,1,0.5,1);max-height:70vh;overflow-y:auto;">
+    <div style="width:48px;height:4px;background:rgba(255,255,255,0.2);border-radius:2px;margin:0 auto 24px;"></div>
+    <div id="vocab-sheet-content"></div>
+  </div>
 
-    function renderCard() {
-      const area = document.getElementById('card-area');
-      area.innerHTML = '';
-      document.getElementById('progress-text').textContent = `${currentIndex} / ${words.length}`;
-      document.getElementById('progress-fill').style.width = `${(currentIndex / words.length) * 100}%`;
-
-      if (currentIndex >= words.length) {
-        area.innerHTML = '<div class="empty"><div class="icon">🎉</div><div>Session Complete</div><div style="margin-top:8px; font-size:14px;">Take a breath. You did great.</p></div>';
-        return;
-      }
-
-      const w = words[currentIndex];
-      const card = document.createElement('div');
-      card.className = 'card';
-      card.innerHTML = `<div class="pos">${w.pos}</div><div class="word">${w.word}</div><div class="meaning">${w.meaning}</div><div class="hint">Tap for phrases</div>`;
-      
-      activeCard = card;
-      card.addEventListener('click', () => { if(!hasMoved) openSheet(w); });
-      card.addEventListener('touchstart', touchStart, {passive: true});
-      card.addEventListener('touchmove', touchMove, {passive: false});
-      card.addEventListener('touchend', touchEnd, {passive: true});
-      area.appendChild(card);
-    }
-
-    function touchStart(e) { isDragging = true; hasMoved = false; startX = e.touches[0].clientX; startY = e.touches[0].clientY; activeCard.classList.add('swiping'); }
-    function touchMove(e) {
-      if (!isDragging) return; e.preventDefault();
-      currentX = e.touches[0].clientX - startX; currentY = e.touches[0].clientY - startY;
-      if (Math.abs(currentX) > 5 || Math.abs(currentY) > 5) hasMoved = true;
-      activeCard.style.transform = `translate(${currentX}px, ${currentY}px) rotate(${currentX * 0.05}deg)`;
-    }
-    function touchEnd() {
-      if (!isDragging) return; isDragging = false; activeCard.classList.remove('swiping');
-      if (currentX > 100) fly('right');
-      else if (currentX < -100) fly('left');
-      else if (currentY < -100) fly('up');
-      else activeCard.style.transform = '';
-    }
-
-    function fly(dir) {
-      let x = 0, y = 0, r = 0;
-      if (dir === 'right') { x = 500; r = 30; }
-      else if (dir === 'left') { x = -500; r = -30; }
-      else if (dir === 'up') { y = -500; }
-      activeCard.style.transform = `translate(${x}px, ${y}px) rotate(${r}deg)`;
-      activeCard.style.opacity = '0';
-      setTimeout(() => { currentIndex++; renderCard(); }, 300);
-    }
-
-    document.getElementById('btn-forgot').onclick = () => activeCard && fly('left');
-    document.getElementById('btn-known').onclick = () => activeCard && fly('right');
-    document.getElementById('btn-fuzzy').onclick = () => activeCard && fly('up');
-
-    function openSheet(w) {
-      const sheet = document.getElementById('sheet'), backdrop = document.getElementById('backdrop'), content = document.getElementById('sheet-content');
-      let phrasesHTML = w.phrases.length ? w.phrases.map(p => `<div class="phrase"><div class="en">${p.phrase}</div><div class="zh">${p.translation}</div></div>`).join('') : '<div style="color:var(--text-sub)">No phrases available.</div>';
-      content.innerHTML = `<h3>${w.word}</h3><div class="pos">${w.pos}</div><div class="meaning">${w.meaning}</div><div style="font-size:12px; color:var(--text-sub); margin-bottom:12px; text-transform:uppercase;">Phrases</div>${phrasesHTML}`;
-      sheet.classList.add('active'); backdrop.classList.add('active');
-    }
-    function closeSheet() { document.getElementById('sheet').classList.remove('active'); document.getElementById('backdrop').classList.remove('active'); }
-  </script>
+  <script src="./js/storage.js"></script>
+  <script src="./js/vocab.js"></script>
 </body>
 </html>

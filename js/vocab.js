@@ -1,67 +1,111 @@
-/**
- * Vocabulary Engine (Bug-Fixed Version)
- * 修复了滑动后误触弹窗、动画状态混乱的问题
- */
-
+let originalWordsData = [];
 let wordsData = [];
 let currentIndex = 0;
-let startX = 0, startY = 0, currentX = 0, currentY = 0;
-let isDragging = false;
-let hasMoved = false; 
-let isAnimating = false; // 🌟 新增：全局动画锁，防止动画期间误触
+let currentSort = 'default';
+
+let startX = 0, startY = 0, currentX = 0, currentY = 0, isDragging = false;
+let hasMoved = false; // 🌟 核心修复：防止滑动后误触 click 弹窗
+let activeCard = null;
 
 document.addEventListener('DOMContentLoaded', async () => {
   await loadWords();
   setupControls();
+  setupSortButtons();
 });
 
 async function loadWords() {
   try {
     const res = await fetch('./data/words.json');
     const rawData = await res.json();
-    wordsData = rawData.map(raw => ({
-      id: raw.word,
-      word: raw.word,
-      pos: raw.translations?.[0]?.type || '',
-      meaning: raw.translations?.map(t => t.translation).join('；') || '暂无释义',
-      phrases: raw.phrases || []
+    originalWordsData = rawData.map(w => ({
+      id: w.word,
+      word: w.word,
+      pos: w.translations?.[0]?.type || 'n.',
+      meaning: w.translations?.map(t => t.translation).join('；') || '暂无释义',
+      phrases: w.phrases || []
     }));
-    renderCards();
+    applySorting();
   } catch (e) {
-    console.error("Failed to load words", e);
+    console.error('Load words failed', e);
   }
+}
+
+// 🌟 排序逻辑
+function applySorting() {
+  if (currentSort === 'random') {
+    wordsData = [...originalWordsData];
+    for (let i = wordsData.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [wordsData[i], wordsData[j]] = [wordsData[j], wordsData[i]];
+    }
+  } else if (currentSort === 'az') {
+    wordsData = [...originalWordsData].sort((a, b) => a.word.localeCompare(b.word));
+  } else {
+    wordsData = [...originalWordsData];
+  }
+  currentIndex = 0;
+  renderCards();
+}
+
+function setupSortButtons() {
+  document.querySelectorAll('.sort-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const sort = btn.dataset.sort;
+      if (sort === currentSort) return;
+      currentSort = sort;
+      document.querySelectorAll('.sort-btn').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      applySorting();
+      if (window.Haptics) Haptics.light();
+    });
+  });
 }
 
 function renderCards() {
   const container = document.getElementById('vocab-card-container');
   const emptyState = document.getElementById('vocab-empty-state');
-  container.innerHTML = ''; 
+  container.innerHTML = '';
   
   if (currentIndex >= wordsData.length) {
-    emptyState.classList.remove('hidden');
+    emptyState.style.display = 'block';
     updateProgress();
     return;
   }
-  emptyState.classList.add('hidden');
+  emptyState.style.display = 'none';
 
   const word = wordsData[currentIndex];
   const card = document.createElement('div');
-  card.className = 'vocab-card glass-card absolute inset-0 flex flex-col items-center justify-center p-8 cursor-pointer';
-  card.dataset.id = word.id;
+  card.className = 'vocab-card';
+  card.style.cssText = `
+    position:absolute; inset:0; background:rgba(28,28,30,0.85); backdrop-filter:blur(24px);
+    border:1px solid rgba(255,255,255,0.08); border-radius:24px; display:flex; flex-direction:column;
+    align-items:center; justify-content:center; padding:32px; text-align:center; touch-action:none;
+  `;
   
   card.innerHTML = `
-    <span class="text-xs font-semibold text-[#5e5ce6] tracking-widest uppercase mb-4">${word.pos}</span>
-    <h2 class="text-5xl font-bold text-gradient font-serif-elegant mb-4 text-center">${word.word}</h2>
-    <button class="w-14 h-14 rounded-full bg-white/5 flex items-center justify-center text-white/80 active:scale-90 transition-transform pulse-soft mb-8" onclick="event.stopPropagation(); playAudio('${word.word}')">
-      <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor"><path d="M3 9v6h4l5 5V4L7 9H3zm13.5 3c0-1.77-1.02-3.29-2.5-4.03v8.05c1.48-.73 2.5-2.25 2.5-4.02z"/></svg>
+    <span style="font-size:12px;font-weight:600;color:#5e5ce6;letter-spacing:0.1em;text-transform:uppercase;margin-bottom:16px;">${word.pos}</span>
+    <h2 style="font-size:42px;font-weight:700;background:linear-gradient(135deg,#fff,#a1a1aa);-webkit-background-clip:text;-webkit-text-fill-color:transparent;margin-bottom:16px;">${word.word}</h2>
+    <button class="vocab-audio-btn" style="width:56px;height:56px;border-radius:50%;background:rgba(255,255,255,0.05);border:none;color:#fff;margin-bottom:32px;">
+      <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor"><path d="M3 9v6h4l5 5V4L7 9H3z"/></svg>
     </button>
-    <p class="text-sm text-[var(--text-tertiary)]">Swipe or tap for details</p>
+    <p style="font-size:12px;color:#86868b;">Swipe or tap for details</p>
   `;
 
-  // 🌟 修复：点击时检查 hasMoved 和 isAnimating
+  activeCard = card;
+  
+  // 🌟 核心修复：点击事件拦截
   card.addEventListener('click', (e) => {
-    if (hasMoved || isAnimating) return; // 如果发生过滑动，或正在执行飞出动画，则拦截点击
+    if (hasMoved) {
+      e.preventDefault();
+      e.stopPropagation();
+      return; // 只要发生过滑动，就绝对不弹窗
+    }
     openSheet(word);
+  });
+
+  card.querySelector('.vocab-audio-btn').addEventListener('click', (e) => {
+    e.stopPropagation();
+    if (window.playAudio) playAudio(word.word);
   });
 
   attachTouchEvents(card);
@@ -70,9 +114,8 @@ function renderCards() {
 }
 
 function updateProgress() {
-  const total = wordsData.length;
-  document.getElementById('vocab-progress-text').textContent = `${currentIndex} / ${total}`;
-  const percent = total > 0 ? (currentIndex / total) * 100 : 0;
+  document.getElementById('vocab-progress-text').textContent = `${currentIndex} / ${wordsData.length}`;
+  const percent = wordsData.length > 0 ? (currentIndex / wordsData.length) * 100 : 0;
   document.getElementById('vocab-progress-bar').style.width = `${percent}%`;
 }
 
@@ -81,7 +124,6 @@ function attachTouchEvents(card) {
   card.addEventListener('touchmove', touchMove, { passive: false });
   card.addEventListener('touchend', touchEnd, { passive: true });
   
-  // 桌面端兼容
   card.addEventListener('mousedown', touchStart);
   card.addEventListener('mousemove', touchMove);
   card.addEventListener('mouseup', touchEnd);
@@ -92,179 +134,113 @@ function getX(e) { return e.touches ? e.touches[0].clientX : e.clientX; }
 function getY(e) { return e.touches ? e.touches[0].clientY : e.clientY; }
 
 function touchStart(e) {
-  if (isAnimating) return; // 动画期间禁止拖拽
   isDragging = true;
-  hasMoved = false; // 重置滑动标志
-  startX = getX(e);
-  startY = getY(e);
-  activeCard.classList.add('swiping');
+  hasMoved = false; // 重置移动状态
+  startX = getX(e); startY = getY(e);
 }
 
 function touchMove(e) {
   if (!isDragging) return;
-  e.preventDefault(); 
+  e.preventDefault();
+  currentX = getX(e) - startX; currentY = getY(e) - startY;
   
-  currentX = getX(e) - startX;
-  currentY = getY(e) - startY;
-  
-  // 移动超过 10px 视为滑动
-  if (Math.abs(currentX) > 10 || Math.abs(currentY) > 10) {
-    hasMoved = true;
-  }
+  // 🌟 核心修复：只要移动超过 5px，就标记为滑动
+  if (Math.abs(currentX) > 5 || Math.abs(currentY) > 5) hasMoved = true;
   
   const rotate = currentX * 0.05;
   activeCard.style.transform = `translate(${currentX}px, ${currentY}px) rotate(${rotate}deg)`;
-  
-  // 视觉反馈
-  let leftOpacity = Math.max(0, -currentX / 100);
-  let rightOpacity = Math.max(0, currentX / 100);
-  let upOpacity = Math.max(0, -currentY / 100);
-  
-  activeCard.style.boxShadow = `
-    inset 0 0 100px rgba(239, 68, 68, ${leftOpacity * 0.2}),
-    inset 0 0 100px rgba(34, 197, 94, ${rightOpacity * 0.2}),
-    inset 0 0 100px rgba(234, 179, 8, ${upOpacity * 0.2})
-  `;
 }
 
-function touchEnd(e) {
+function touchEnd() {
   if (!isDragging) return;
   isDragging = false;
-  activeCard.classList.remove('swiping');
-
-  const threshold = 80;
-  let flyDirection = null;
-
-  if (currentX > threshold) flyDirection = 'right';
-  else if (currentX < -threshold) flyDirection = 'left';
-  else if (currentY < -threshold) flyDirection = 'up';
-
-  if (flyDirection) {
-    flyOut(flyDirection);
-    hasMoved = true; // 🌟 保持为 true，防止 touchend 后浏览器自动触发的 click 事件打开弹窗
-  } else {
-    // 没达到飞出阈值，弹回原位，重置 hasMoved 允许下次点击
-    activeCard.style.transform = '';
-    activeCard.style.boxShadow = '';
-    hasMoved = false; 
+  
+  if (currentX > 100) flyOut('right');
+  else if (currentX < -100) flyOut('left');
+  else if (currentY < -100) flyOut('up');
+  else {
+    activeCard.style.transform = ''; // 弹回原位
   }
-  currentX = 0;
-  currentY = 0;
 }
 
 function flyOut(direction) {
-  if (isAnimating) return;
-  isAnimating = true; // 🌟 锁定动画，防止连续触发
-  
   const word = wordsData[currentIndex];
   let mastery = 0;
+  if (direction === 'right') { mastery = 3; activeCard.style.transform = 'translate(150%, 0) rotate(30deg)'; } 
+  else if (direction === 'left') { mastery = 0; activeCard.style.transform = 'translate(-150%, 0) rotate(-30deg)'; } 
+  else if (direction === 'up') { mastery = 1; activeCard.style.transform = 'translate(0, -150%) scale(0.8)'; }
   
-  if (direction === 'right') { 
-    activeCard.style.transform = 'translate(150%, 0) rotate(30deg)';
-    activeCard.style.opacity = '0';
-    mastery = 3; 
-  } else if (direction === 'left') { 
-    activeCard.style.transform = 'translate(-150%, 0) rotate(-30deg)';
-    activeCard.style.opacity = '0';
-    mastery = 0; 
-  } else if (direction === 'up') { 
-    activeCard.style.transform = 'translate(0, -150%) scale(0.8)';
-    activeCard.style.opacity = '0';
-    mastery = 1; 
-  }
-
-  // 保存进度
+  activeCard.style.opacity = '0';
+  
   if (window.Store && window.DB_KEYS) {
     const progress = Store.get(DB_KEYS.VOCAB_PROGRESS) || {};
     progress[word.id] = { mastery, lastReview: Date.now() };
     Store.set(DB_KEYS.VOCAB_PROGRESS, progress);
   }
 
-  if (window.Haptics) Haptics.medium();
-
-  // 动画结束后渲染新卡片并解锁
-  setTimeout(() => {
-    currentIndex++;
-    renderCards();
-    isAnimating = false; // 🌟 解锁
-  }, 300);
+  setTimeout(() => { currentIndex++; renderCards(); }, 300);
 }
 
 function setupControls() {
-  document.getElementById('vocab-btn-forgot').addEventListener('click', () => {
-    if (!isAnimating && activeCard) flyOut('left');
-  });
-  document.getElementById('vocab-btn-known').addEventListener('click', () => {
-    if (!isAnimating && activeCard) flyOut('right');
-  });
-  document.getElementById('vocab-btn-fuzzy').addEventListener('click', () => {
-    if (!isAnimating && activeCard) flyOut('up');
-  });
+  document.getElementById('vocab-btn-forgot').onclick = () => activeCard && flyOut('left');
+  document.getElementById('vocab-btn-known').onclick = () => activeCard && flyOut('right');
+  document.getElementById('vocab-btn-fuzzy').onclick = () => activeCard && flyOut('up');
 }
 
 function openSheet(word) {
   const sheet = document.getElementById('vocab-sheet');
   const backdrop = document.getElementById('vocab-backdrop');
   const content = document.getElementById('vocab-sheet-content');
-  
   const isSaved = window.Store && window.DB_KEYS ? Store.isWordSaved(word.id) : false;
 
   content.innerHTML = `
-    <div class="flex justify-between items-start mb-6">
+    <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:24px;">
       <div>
-        <h3 class="text-3xl font-bold font-serif-elegant text-white">${word.word}</h3>
-        <p class="text-[var(--text-secondary)] mt-1">${word.pos}</p>
+        <h3 style="font-size:28px;font-weight:700;margin:0;">${word.word}</h3>
+        <p style="color:#86868b;margin:4px 0 0;">${word.pos}</p>
       </div>
-      <button onclick="toggleSave('${word.id}', this)" class="w-10 h-10 rounded-full bg-white/5 flex items-center justify-center ${isSaved ? 'text-[#5e5ce6]' : 'text-white/40'}">
+      <button onclick="toggleSave('${word.id}', this)" style="width:40px;height:40px;border-radius:50%;background:rgba(255,255,255,0.05);border:none;color:${isSaved ? '#5e5ce6' : '#86868b'};">
         <svg width="20" height="20" viewBox="0 0 24 24" fill="${isSaved ? 'currentColor' : 'none'}" stroke="currentColor" stroke-width="2"><path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"></path></svg>
       </button>
     </div>
-    <div class="space-y-6">
-      <div>
-        <p class="text-xs uppercase tracking-wider text-[var(--text-tertiary)] mb-2">Meaning</p>
-        <p class="text-lg text-white">${word.meaning}</p>
-      </div>
-      ${word.phrases && word.phrases.length > 0 ? `
-      <div>
-        <p class="text-xs uppercase tracking-wider text-[var(--text-tertiary)] mb-3">Phrases</p>
-        <div class="space-y-2">
-          ${word.phrases.slice(0, 5).map(p => `
-            <div class="bg-white/5 p-3 rounded-xl">
-              <p class="text-white font-medium">${p.phrase}</p>
-              <p class="text-sm text-[var(--text-secondary)] mt-1">${p.translation}</p>
-            </div>
-          `).join('')}
-        </div>
-      </div>
-      ` : ''}
+    <div style="margin-bottom:24px;">
+      <p style="font-size:12px;color:#86868b;margin-bottom:8px;">MEANING</p>
+      <p style="font-size:16px;margin:0;">${word.meaning}</p>
     </div>
+    ${word.phrases.length > 0 ? `
+      <div>
+        <p style="font-size:12px;color:#86868b;margin-bottom:12px;">PHRASES</p>
+        ${word.phrases.map(p => `
+          <div style="background:rgba(255,255,255,0.05);padding:12px;border-radius:12px;margin-bottom:8px;">
+            <p style="margin:0 0 4px;font-weight:500;">${p.phrase}</p>
+            <p style="margin:0;font-size:13px;color:#86868b;">${p.translation}</p>
+          </div>
+        `).join('')}
+      </div>
+    ` : ''}
   `;
-  
-  sheet.classList.add('open');
-  backdrop.classList.remove('hidden');
-  setTimeout(() => backdrop.classList.add('opacity-100'), 10);
-  if (window.Haptics) Haptics.light();
+
+  sheet.style.transform = 'translateY(0)';
+  backdrop.style.opacity = '1';
+  backdrop.style.pointerEvents = 'auto';
 }
 
 window.closeSheet = function() {
-  document.getElementById('vocab-sheet').classList.remove('open');
+  document.getElementById('vocab-sheet').style.transform = 'translateY(100%)';
   const backdrop = document.getElementById('vocab-backdrop');
-  backdrop.classList.remove('opacity-100');
-  setTimeout(() => backdrop.classList.add('hidden'), 300);
+  backdrop.style.opacity = '0';
+  backdrop.style.pointerEvents = 'none';
 };
 
 window.toggleSave = function(wordId, btn) {
   if (!window.Store || !window.DB_KEYS) return;
   if (Store.isWordSaved(wordId)) {
     Store.unsaveWord(wordId);
-    btn.classList.remove('text-[#5e5ce6]');
-    btn.classList.add('text-white/40');
+    btn.style.color = '#86868b';
     btn.querySelector('svg').setAttribute('fill', 'none');
   } else {
     Store.saveWord(wordId);
-    btn.classList.add('text-[#5e5ce6]');
-    btn.classList.remove('text-white/40');
+    btn.style.color = '#5e5ce6';
     btn.querySelector('svg').setAttribute('fill', 'currentColor');
-    if (window.Haptics) Haptics.success();
   }
 };
