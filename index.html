@@ -408,7 +408,19 @@ function switchTab(tabName, el) {
     document.querySelectorAll('.tab-item').forEach(t => t.classList.remove('active'));
     document.getElementById(`page-${tabName}`).classList.add('active');
     if (el) el.classList.add('active');
+    else {
+        const tabs = document.querySelectorAll('.tab-item');
+        const tabMap = { home: 0, vocab: 1, quote: 2, notebook: 3, settings: 4 };
+        if (tabMap[tabName] !== undefined) tabs[tabMap[tabName]].classList.add('active');
+    }
     if (tabName === 'home') initHome();
+}
+
+// Read ?tab= param on load (for redirects from vocab.html, quote.html, etc.)
+const urlParams = new URLSearchParams(window.location.search);
+const tabParam = urlParams.get('tab');
+if (tabParam && ['home', 'vocab', 'quote', 'notebook', 'settings'].includes(tabParam)) {
+    switchTab(tabParam);
 }
 
 loadState(); initHome(); loadWords(); loadRandomQuote();
