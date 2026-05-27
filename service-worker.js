@@ -1,4 +1,4 @@
-const CACHE_NAME = 'cet6-immersive-v3';
+const CACHE_NAME = 'cet6-immersive-v4';
 const OFFLINE_URL = './offline.html';
 
 // 预缓存核心资源
@@ -15,7 +15,10 @@ const PRECACHE_ASSETS = [
   './css/utilities.css',
   './css/animation.css',
   './js/app.js',
-  './js/storage.js'
+  './js/storage.js',
+  './js/vocab.js',
+  './js/settings.js',
+  './js/index.js'
 ];
 
 self.addEventListener('install', (event) => {

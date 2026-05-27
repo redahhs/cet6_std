@@ -89,6 +89,25 @@ class StorageManager {
     const saved = this.get(DB_KEYS.SAVED_WORDS) || [];
     return saved.includes(wordId);
   }
+
+  saveQuote(quoteId) {
+    const saved = this.get(DB_KEYS.SAVED_QUOTES) || [];
+    if (!saved.includes(quoteId)) {
+      saved.push(quoteId);
+      this.set(DB_KEYS.SAVED_QUOTES, saved);
+    }
+  }
+
+  unsaveQuote(quoteId) {
+    let saved = this.get(DB_KEYS.SAVED_QUOTES) || [];
+    saved = saved.filter(id => id !== quoteId);
+    this.set(DB_KEYS.SAVED_QUOTES, saved);
+  }
+
+  isQuoteSaved(quoteId) {
+    const saved = this.get(DB_KEYS.SAVED_QUOTES) || [];
+    return saved.includes(quoteId);
+  }
   
   exportData() {
     const data = {

@@ -4,86 +4,138 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
   <meta name="theme-color" content="#000000">
-  <meta name="mobile-web-app-capable" content="yes">
-  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-  <title>Daily Inspiration</title>
-  
-  <!-- 1. 核心设计系统 (深黑背景、毛玻璃、渐变文字全靠它) -->
+  <title>Daily Quote</title>
   <link rel="stylesheet" href="./css/theme.css">
-  <link rel="stylesheet" href="./css/animation.css">
-  
-  <!-- 2. 恢复 Tailwind CDN (确保所有排版和布局完美生效) -->
-  <script src="https://cdn.tailwindcss.com"></script>
-  <script>
-    tailwind.config = {
-      darkMode: 'class',
-      theme: {
-        extend: {
-          colors: {
-            primary: '#0a0a0a',
-            accent: '#5e5ce6',
-            surface: '#1c1c1e'
-          }
-        }
-      }
-    }
-  </script>
+  <link rel="stylesheet" href="./css/utilities.css">
   <style>
-    body { background: #000; }
-    .bg-dim { background: linear-gradient(to top, rgba(0,0,0,0.95) 0%, rgba(0,0,0,0.4) 50%, rgba(0,0,0,0.8) 100%); }
+    body { margin: 0; padding: 0; background: #000; overflow: hidden; font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", sans-serif; }
+    
+    /* 背景图层：缓慢放大动效 (Ken Burns) */
+    .quote-bg {
+      position: fixed; inset: 0; z-index: 0;
+      background-size: cover; background-position: center;
+      transition: transform 15s ease-out, opacity 1s ease;
+      transform: scale(1.0);
+    }
+    .quote-bg.zoomed { transform: scale(1.15); }
+    
+    /* 渐变遮罩：确保文字在任何背景上都清晰可读 */
+    .quote-overlay {
+      position: fixed; inset: 0; z-index: 1;
+      background: linear-gradient(to bottom, 
+        rgba(0,0,0,0.5) 0%, 
+        rgba(0,0,0,0.1) 30%, 
+        rgba(0,0,0,0.5) 70%, 
+        rgba(0,0,0,0.9) 100%);
+      pointer-events: none;
+    }
+
+    /* 内容层 */
+    .quote-content {
+      position: relative; z-index: 10;
+      height: 100vh; height: 100dvh;
+      display: flex; flex-direction: column;
+      padding: 60px 24px 0;
+      box-sizing: border-box;
+    }
+
+    .quote-tag {
+      font-size: 11px; font-weight: 600; letter-spacing: 0.15em;
+      color: rgba(255,255,255,0.5); text-transform: uppercase;
+    }
+
+    /* 核心文字区 */
+    .quote-text-area {
+      flex: 1; display: flex; flex-direction: column; justify-content: center;
+      max-width: 600px; margin: 0 auto; width: 100%;
+    }
+    .quote-en {
+      font-family: "New York", "Playfair Display", "Noto Serif SC", serif;
+      font-size: clamp(26px, 7vw, 40px);
+      font-weight: 500; line-height: 1.35;
+      color: #fff;
+      text-shadow: 0 2px 20px rgba(0,0,0,0.6);
+      margin-bottom: 24px;
+    }
+    .quote-zh {
+      font-size: 16px; line-height: 1.6;
+      color: rgba(255,255,255,0.7);
+      margin-bottom: 16px;
+    }
+    .quote-author {
+      font-size: 14px; color: rgba(255,255,255,0.4);
+      font-style: italic;
+    }
+
+    /* 底部毛玻璃操作栏 */
+    .quote-actions {
+      display: flex; justify-content: center; gap: 40px;
+      padding: 24px;
+      background: rgba(255,255,255,0.05);
+      backdrop-filter: blur(24px); -webkit-backdrop-filter: blur(24px);
+      border-top: 1px solid rgba(255,255,255,0.08);
+      border-radius: 28px 28px 0 0;
+      margin: 0 -24px 0;
+      padding-bottom: max(24px, env(safe-area-inset-bottom));
+    }
+    .action-btn {
+      display: flex; flex-direction: column; align-items: center; gap: 8px;
+      color: rgba(255,255,255,0.7); background: none; border: none;
+      font-size: 11px; font-weight: 500;
+      transition: transform 0.2s;
+    }
+    .action-btn:active { transform: scale(0.9); }
+    .action-icon {
+      width: 52px; height: 52px; border-radius: 50%;
+      background: rgba(255,255,255,0.1);
+      display: flex; align-items: center; justify-content: center;
+      transition: all 0.3s;
+    }
+    .action-btn.saved .action-icon { 
+      background: var(--accent); 
+      color: #fff; 
+      box-shadow: 0 4px 15px rgba(94, 92, 230, 0.4);
+    }
   </style>
 </head>
-<body class="dark h-screen w-screen overflow-hidden relative flex flex-col">
+<body>
+  <!-- 背景 -->
+  <div class="quote-bg" id="quoteBg"></div>
+  <div class="quote-overlay"></div>
 
-  <!-- Background Image -->
-  <div id="bg-image" class="absolute inset-0 bg-cover bg-center transition-all duration-1000 ease-out scale-105"></div>
-  <div class="absolute inset-0 bg-dim"></div>
-
-  <!-- Top Bar -->
-  <header class="relative z-10 px-6 pt-12 pb-4 flex items-center justify-between">
-    <button onclick="history.back()" class="w-10 h-10 flex items-center justify-center rounded-full bg-white/10 backdrop-blur-md active:scale-95 transition-transform">
-      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
-    </button>
-    <span class="text-xs font-semibold text-white/60 tracking-widest uppercase">Daily Quote</span>
-    <div class="w-10"></div> <!-- Spacer -->
-  </header>
-
-  <!-- Content Area -->
-  <main class="relative z-10 flex-1 flex flex-col justify-end px-8 pb-32">
-    <div id="quote-content" class="stagger-item">
-      <p id="quote-en" class="font-serif-elegant text-3xl leading-tight text-white mb-6 drop-shadow-lg"></p>
-      <p id="quote-zh" class="text-base text-white/70 leading-relaxed mb-4"></p>
-      <p id="quote-author" class="text-sm text-white/40 font-medium tracking-wide"></p>
+  <!-- 内容 -->
+  <div class="quote-content" id="quoteContent">
+    <div class="quote-tag" id="quoteDate">Daily Inspiration</div>
+    
+    <div class="quote-text-area" id="quoteTextArea">
+      <p class="quote-en" id="quoteEn">"Loading..."</p>
+      <p class="quote-zh" id="quoteZh">Loading...</p>
+      <p class="quote-author" id="quoteAuthor">—</p>
     </div>
-  </main>
 
-  <!-- Floating Action Bar -->
-  <footer class="absolute bottom-0 inset-x-0 z-20 px-6 pb-10" style="padding-bottom: max(24px, env(safe-area-inset-bottom));">
-    <div class="glass-card !bg-white/10 !border-white/10 p-4 flex justify-around items-center">
-      <button onclick="playQuote()" class="flex flex-col items-center gap-1 text-white/80 active:scale-90 transition-transform">
-        <div class="w-12 h-12 rounded-full bg-white/10 flex items-center justify-center">
-          <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor"><path d="M3 9v6h4l5 5V4L7 9H3zm13.5 3c0-1.77-1.02-3.29-2.5-4.03v8.05c1.48-.73 2.5-2.25 2.5-4.02z"/></svg>
+    <!-- 底部操作栏 -->
+    <div class="quote-actions">
+      <button class="action-btn" id="btnPlay" onclick="playQuote()">
+        <div class="action-icon">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor"><path d="M3 9v6h4l5 5V4L7 9H3zm13.5 3c0-1.77-1.02-3.29-2.5-4.03v8.05c1.48-.73 2.5-2.25 2.5-4.02z"/></svg>
         </div>
-        <span class="text-[10px]">Listen</span>
+        <span>Listen</span>
       </button>
-      
-      <button id="btn-save-quote" onclick="toggleSaveQuote()" class="flex flex-col items-center gap-1 text-white/80 active:scale-90 transition-transform">
-        <div class="w-12 h-12 rounded-full bg-white/10 flex items-center justify-center">
-          <svg id="icon-heart" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path></svg>
+      <button class="action-btn" id="btnSave" onclick="toggleSave()">
+        <div class="action-icon">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"></path></svg>
         </div>
-        <span class="text-[10px]">Save</span>
+        <span id="saveText">Save</span>
       </button>
-
-      <button onclick="shareQuote()" class="flex flex-col items-center gap-1 text-white/80 active:scale-90 transition-transform">
-        <div class="w-12 h-12 rounded-full bg-white/10 flex items-center justify-center">
-          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="18" cy="5" r="3"></circle><circle cx="6" cy="12" r="3"></circle><circle cx="18" cy="19" r="3"></circle><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"></line><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"></line></svg>
+      <button class="action-btn" onclick="nextQuote()">
+        <div class="action-icon">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M23 4v6h-6M1 20v-6h6"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/></svg>
         </div>
-        <span class="text-[10px]">Share</span>
+        <span>Next</span>
       </button>
     </div>
-  </footer>
+  </div>
 
-  <script src="./js/haptics.js"></script>
   <script src="./js/storage.js"></script>
   <script src="./js/app.js"></script>
   <script src="./js/quote.js"></script>

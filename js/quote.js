@@ -1,112 +1,99 @@
-/**
- * Daily Quote Engine
- * Handles immersive background, typography, and interactions
- */
-
+let quotes = [];
 let currentQuote = null;
+let isSaved = false;
 
 document.addEventListener('DOMContentLoaded', async () => {
-  await loadQuote();
+  await loadQuotes();
+  setupDailyQuote();
+  setupBackgroundInteraction();
 });
 
-async function loadQuote() {
+async function loadQuotes() {
   try {
-    // Check cache first for daily consistency
-    const cached = Store.get(DB_KEYS.DAILY_QUOTE);
-    const today = new Date().toISOString().split('T')[0];
-    
-    if (cached && cached.date === today) {
-      currentQuote = cached.data;
-    } else {
-      const res = await fetch('./data/quotes.json');
-      const quotes = await res.json();
-      // Pick a random quote for the day
-      currentQuote = quotes[Math.floor(Math.random() * quotes.length)];
-      Store.set(DB_KEYS.DAILY_QUOTE, { date: today, data: currentQuote });
-    }
-    
-    renderQuote();
+    const res = await fetch('./data/quotes.json');
+    quotes = await res.json();
   } catch (e) {
-    console.error("Failed to load quote", e);
+    console.error("Failed to load quotes", e);
   }
 }
 
-function renderQuote() {
-  if (!currentQuote) return;
-
-  // Set Background
-  const bgEl = document.getElementById('bg-image');
-  bgEl.style.backgroundImage = `url('${currentQuote.bg}')`;
+function setupDailyQuote() {
+  // 基于日期的伪随机，保证同一天看到同一句
+  const today = new Date().toISOString().split('T')[0];
+  const seed = today.split('').reduce((a, b) => a + b.charCodeAt(0), 0);
+  const index = seed % quotes.length;
   
-  // Preload image for smooth transition
-  const img = new Image();
-  img.src = currentQuote.bg;
-  img.onload = () => {
-    bgEl.classList.remove('scale-105');
-    bgEl.classList.add('scale-100');
-  };
+  currentQuote = quotes[index];
+  renderQuote(currentQuote);
+  checkSavedStatus();
+}
 
-  // Set Text
-  document.getElementById('quote-en').textContent = `"${currentQuote.en}"`;
-  document.getElementById('quote-zh').textContent = currentQuote.zh;
-  document.getElementById('quote-author').textContent = `— ${currentQuote.author}`;
+function renderQuote(q) {
+  const bg = document.getElementById('quoteBg');
+  bg.style.backgroundImage = `url(${q.bg})`;
+  
+  document.getElementById('quoteEn').textContent = `"${q.en}"`;
+  document.getElementById('quoteZh').textContent = q.zh;
+  document.getElementById('quoteAuthor').textContent = `— ${q.author}`;
+  
+  // 触发 Ken Burns 缓慢放大动效
+  bg.classList.remove('zoomed');
+  setTimeout(() => bg.classList.add('zoomed'), 100);
+}
 
-  // Update Save Button State
-  updateSaveButton();
+function setupBackgroundInteraction() {
+  const content = document.getElementById('quote-content');
+  content.addEventListener('click', (e) => {
+    // 如果点击的是按钮，不触发背景交互
+    if (e.target.closest('.action-btn') || e.target.closest('.action-icon')) return;
+    
+    const bg = document.getElementById('quoteBg');
+    bg.classList.toggle('zoomed');
+  });
+}
+
+function nextQuote() {
+  let newIndex = Math.floor(Math.random() * quotes.length);
+  while (newIndex === quotes.indexOf(currentQuote) && quotes.length > 1) {
+    newIndex = Math.floor(Math.random() * quotes.length);
+  }
+  currentQuote = quotes[newIndex];
+  renderQuote(currentQuote);
+  checkSavedStatus();
+}
+
+function checkSavedStatus() {
+  isSaved = Store.isQuoteSaved ? Store.isQuoteSaved(currentQuote.id) : false;
+  updateSaveUI();
+}
+
+function toggleSave() {
+  if (!currentQuote) return;
+  if (isSaved) {
+    Store.unsaveQuote ? Store.unsaveQuote(currentQuote.id) : null;
+    isSaved = false;
+  } else {
+    Store.saveQuote ? Store.saveQuote(currentQuote.id) : null;
+    isSaved = true;
+  }
+  updateSaveUI();
+  if (window.Haptics) Haptics.light();
+}
+
+function updateSaveUI() {
+  const btn = document.getElementById('btnSave');
+  const text = document.getElementById('saveText');
+  if (isSaved) {
+    btn.classList.add('saved');
+    text.textContent = 'Saved';
+  } else {
+    btn.classList.remove('saved');
+    text.textContent = 'Save';
+  }
 }
 
 function playQuote() {
-  if (currentQuote) {
+  if (currentQuote && window.playAudio) {
     playAudio(currentQuote.en);
-  }
-}
-
-function toggleSaveQuote() {
-  if (!currentQuote) return;
-  
-  const savedQuotes = Store.get('cet6_saved_quotes') || [];
-  const index = savedQuotes.findIndex(q => q.id === currentQuote.id);
-  
-  if (index > -1) {
-    savedQuotes.splice(index, 1);
-  } else {
-    savedQuotes.push(currentQuote);
-  }
-  
-  Store.set('cet6_saved_quotes', savedQuotes);
-  updateSaveButton();
-  
-  // Haptic feedback simulation (visual)
-  const btn = document.getElementById('btn-save-quote');
-  btn.classList.add('scale-110');
-  setTimeout(() => btn.classList.remove('scale-110'), 200);
-}
-
-function updateSaveButton() {
-  const savedQuotes = Store.get('cet6_saved_quotes') || [];
-  const isSaved = savedQuotes.some(q => q.id === currentQuote.id);
-  const icon = document.getElementById('icon-heart');
-  
-  if (isSaved) {
-    icon.setAttribute('fill', 'currentColor');
-    icon.classList.add('text-red-500');
-  } else {
-    icon.setAttribute('fill', 'none');
-    icon.classList.remove('text-red-500');
-  }
-}
-
-function shareQuote() {
-  if (navigator.share && currentQuote) {
-    navigator.share({
-      title: 'Daily Inspiration',
-      text: `${currentQuote.en}\n\n${currentQuote.zh}\n\n— ${currentQuote.author}`,
-    }).catch(console.error);
-  } else {
-    // Fallback: Copy to clipboard
-    const text = `${currentQuote.en}\n${currentQuote.zh}`;
-    navigator.clipboard.writeText(text).then(() => {
-      alert('Copied to clipboard');
-    });
   }
 }
