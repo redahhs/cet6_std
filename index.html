@@ -1,86 +1,417 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="zh-CN" data-theme="light" data-accent="indigo">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-  <meta name="theme-color" content="#0a0a0a">
-  <title>CET6 Immersive</title>
-  <style>
-    :root {
-      --bg: #0a0a0a; --card-bg: rgba(28,28,30,0.65); --border: rgba(255,255,255,0.08);
-      --text-main: #f5f5f7; --text-sub: #86868b; --accent: #5e5ce6;
-    }
-    body { background: var(--bg); color: var(--text-main); font-family: -apple-system, sans-serif; margin: 0; min-height: 100vh; -webkit-font-smoothing: antialiased; }
-    .glass { background: var(--card-bg); backdrop-filter: blur(24px); border: 1px solid var(--border); border-radius: 24px; }
-    .text-gradient { background: linear-gradient(135deg, #fff, #a1a1aa); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
-    .nav-item { display: flex; flex-direction: column; align-items: center; gap: 4px; color: var(--text-sub); text-decoration: none; }
-    .nav-item.active { color: var(--accent); }
-  </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>CET-6 Immersive</title>
+    <style>
+        :root {
+            --radius: 24px; --nav-h: 84px;
+            --font-en: 'Georgia', 'Times New Roman', serif;
+            --font-cn: -apple-system, BlinkMacSystemFont, "SF Pro Text", sans-serif;
+            --transition: 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+        [data-theme="light"] {
+            --bg: #F5F7FA; --surface: #FFFFFF; --text-1: #111827; --text-2: #6B7280; --text-3: #9CA3AF;
+            --border: rgba(0,0,0,0.06); --shadow: 0 8px 30px -8px rgba(0,0,0,0.08); --overlay: rgba(255,255,255,0.92);
+        }
+        [data-theme="dark"] {
+            --bg: #0F1117; --surface: #1A1D27; --text-1: #F3F4F6; --text-2: #9CA3AF; --text-3: #6B7280;
+            --border: rgba(255,255,255,0.08); --shadow: 0 8px 30px -8px rgba(0,0,0,0.4); --overlay: rgba(15,17,23,0.92);
+        }
+        [data-accent="indigo"]  { --accent: #6366F1; --accent-light: #EEF2FF; --accent-dark: #4338CA; }
+        [data-accent="emerald"] { --accent: #10B981; --accent-light: #ECFDF5; --accent-dark: #047857; }
+        [data-accent="rose"]    { --accent: #F43F5E; --accent-light: #FFF1F2; --accent-dark: #BE123C; }
+        [data-accent="amber"]   { --accent: #F59E0B; --accent-light: #FFFBEB; --accent-dark: #B45309; }
+        [data-accent="cyan"]    { --accent: #06B6D4; --accent-light: #ECFEFF; --accent-dark: #0E7490; }
+        [data-theme="dark"][data-accent="indigo"]  { --accent-light: #1E1B4B; }
+        [data-theme="dark"][data-accent="emerald"] { --accent-light: #064E3B; }
+        [data-theme="dark"][data-accent="rose"]    { --accent-light: #4C0519; }
+        [data-theme="dark"][data-accent="amber"]   { --accent-light: #451A03; }
+        [data-theme="dark"][data-accent="cyan"]    { --accent-light: #083344; }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; outline: none; }
+        body { background: var(--bg); font-family: var(--font-cn); color: var(--text-1); height: 100vh; overflow: hidden; display: flex; flex-direction: column; transition: background var(--transition), color var(--transition); }
+
+        .tab-bar { height: var(--nav-h); background: var(--overlay); backdrop-filter: blur(20px); border-top: 1px solid var(--border); display: flex; justify-content: space-around; align-items: center; padding-bottom: env(safe-area-inset-bottom); z-index: 100; flex-shrink: 0; }
+        .tab-item { display: flex; flex-direction: column; align-items: center; gap: 4px; font-size: 0.65rem; font-weight: 600; color: var(--text-3); cursor: pointer; transition: all 0.25s ease; width: 60px; }
+        .tab-item.active { color: var(--accent); }
+        .tab-item.active .tab-icon-bg { background: var(--accent-light); transform: scale(1); }
+        .tab-icon-bg { width: 44px; height: 32px; border-radius: 16px; display: flex; align-items: center; justify-content: center; transition: all 0.25s cubic-bezier(0.34, 1.56, 0.64, 1); transform: scale(0.8); }
+        .tab-icon { width: 22px; height: 22px; stroke: currentColor; fill: none; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+
+        .pages { flex: 1; position: relative; overflow-y: auto; overflow-x: hidden; -webkit-overflow-scrolling: touch; }
+        .page { position: absolute; inset: 0; min-height: 100%; padding: 0 20px 100px; opacity: 0; pointer-events: none; transform: translateY(10px); transition: opacity 0.35s ease, transform 0.35s cubic-bezier(0.16, 1, 0.3, 1); }
+        .page.active { opacity: 1; pointer-events: auto; transform: translateY(0); position: relative; }
+
+        .home-header { padding: 60px 0 24px; }
+        .greeting-sub { font-size: 0.85rem; color: var(--text-2); font-weight: 500; margin-bottom: 4px; }
+        .greeting-main { font-size: 1.8rem; font-weight: 800; letter-spacing: -0.5px; line-height: 1.2; }
+        .greeting-main span { color: var(--accent); }
+        .streak-card { background: linear-gradient(135deg, var(--accent) 0%, var(--accent-dark) 100%); border-radius: var(--radius); padding: 24px; color: white; margin-bottom: 24px; display: flex; align-items: center; justify-content: space-between; box-shadow: 0 12px 30px -8px color-mix(in srgb, var(--accent) 40%, transparent); }
+        .streak-info h3 { font-size: 0.8rem; opacity: 0.85; font-weight: 500; margin-bottom: 6px; text-transform: uppercase; letter-spacing: 1px; }
+        .streak-info .num { font-size: 2.4rem; font-weight: 800; line-height: 1; }
+        .streak-info .unit { font-size: 0.9rem; opacity: 0.8; margin-left: 4px; }
+        .streak-flame { font-size: 2.8rem; filter: drop-shadow(0 4px 8px rgba(0,0,0,0.2)); animation: pulse 2s infinite; }
+        @keyframes pulse { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.1); } }
+
+        .section-title { font-size: 1.1rem; font-weight: 700; margin-bottom: 16px; letter-spacing: -0.3px; }
+        .progress-card { background: var(--surface); border-radius: var(--radius); padding: 28px; box-shadow: var(--shadow); display: flex; align-items: center; gap: 28px; margin-bottom: 24px; }
+        .ring-container { position: relative; width: 90px; height: 90px; flex-shrink: 0; }
+        .ring-svg { transform: rotate(-90deg); width: 100%; height: 100%; }
+        .ring-bg { fill: none; stroke: var(--border); stroke-width: 8; }
+        .ring-fill { fill: none; stroke: var(--accent); stroke-width: 8; stroke-linecap: round; transition: stroke-dashoffset 1s cubic-bezier(0.16, 1, 0.3, 1); }
+        .ring-text { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; font-size: 1.2rem; font-weight: 800; color: var(--accent); }
+        .progress-detail h4 { font-size: 1rem; font-weight: 700; margin-bottom: 6px; }
+        .progress-detail p { font-size: 0.85rem; color: var(--text-2); line-height: 1.5; }
+        .mini-stats { display: flex; gap: 16px; margin-top: 12px; }
+        .mini-stat { font-size: 0.75rem; color: var(--text-3); display: flex; align-items: center; gap: 4px; }
+        .mini-stat b { color: var(--text-1); font-weight: 700; }
+
+        .chart-card { background: var(--surface); border-radius: var(--radius); padding: 24px; box-shadow: var(--shadow); margin-bottom: 24px; }
+        .chart-bars { display: flex; align-items: flex-end; justify-content: space-between; height: 80px; gap: 8px; margin-top: 16px; }
+        .bar-col { display: flex; flex-direction: column; align-items: center; gap: 8px; flex: 1; }
+        .bar { width: 100%; border-radius: 6px; background: var(--border); transition: height 0.8s cubic-bezier(0.16, 1, 0.3, 1); min-height: 8px; }
+        .bar.active { background: var(--accent); }
+        .bar-label { font-size: 0.65rem; color: var(--text-3); font-weight: 600; }
+
+        .cta-btn { width: 100%; padding: 20px; border: none; border-radius: var(--radius); background: var(--text-1); color: var(--bg); font-size: 1.05rem; font-weight: 700; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 10px; box-shadow: 0 8px 24px -6px rgba(0,0,0,0.2); }
+        .cta-btn:active { transform: scale(0.97); }
+
+        /* VOCAB MODULE */
+        .vocab-header { margin-bottom: 24px; }
+        .sort-control { display: flex; background: var(--surface); border-radius: 12px; padding: 4px; box-shadow: var(--shadow); margin-bottom: 16px; }
+        .sort-btn { flex: 1; padding: 10px; border: none; background: transparent; font-size: 0.8rem; font-weight: 600; color: var(--text-2); cursor: pointer; border-radius: 8px; transition: all 0.25s ease; }
+        .sort-btn.active { background: var(--accent); color: white; }
+        
+        .vocab-page-inner { display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: calc(100vh - 200px); }
+        .card-container { width: 100%; max-width: 380px; aspect-ratio: 3/4; position: relative; cursor: pointer; }
+        .word-card { width: 100%; height: 100%; background: var(--surface); border-radius: var(--radius); box-shadow: var(--shadow); display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; padding: 40px; position: absolute; transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.27); }
+        .word-en { font-family: var(--font-en); font-size: 2.8rem; font-weight: 700; margin-bottom: 8px; }
+        .word-meta { display: flex; align-items: center; gap: 10px; margin-bottom: 24px; }
+        .word-phonetic { color: var(--text-2); background: var(--border); padding: 4px 12px; border-radius: 12px; font-size: 0.9rem; }
+        .speak-btn, .save-btn { width: 34px; height: 34px; border-radius: 50%; background: var(--accent); border: none; display: flex; align-items: center; justify-content: center; cursor: pointer; color: white; }
+        .save-btn.saved { background: var(--accent); }
+        .save-btn svg { width: 16px; height: 16px; fill: none; stroke: currentColor; stroke-width: 2; }
+        .save-btn.saved svg { fill: currentColor; }
+        .word-pos { font-style: italic; color: var(--accent); font-size: 0.9rem; margin-bottom: 6px; opacity: 0; transform: translateY(10px); transition: all 0.3s; }
+        .word-cn { font-size: 1.4rem; font-weight: 600; margin-bottom: 20px; opacity: 0; transform: translateY(10px); transition: all 0.3s 0.05s; }
+        .word-example { font-size: 0.95rem; color: var(--text-2); line-height: 1.6; font-style: italic; border-top: 1px solid var(--border); padding-top: 20px; width: 100%; opacity: 0; transform: translateY(10px); transition: all 0.3s 0.1s; }
+        .show-detail .word-pos, .show-detail .word-cn, .show-detail .word-example { opacity: 1; transform: translateY(0); }
+        .tap-hint { position: absolute; bottom: 30px; font-size: 0.7rem; color: var(--text-3); letter-spacing: 1.5px; text-transform: uppercase; transition: opacity 0.3s; }
+        .show-detail .tap-hint { opacity: 0; }
+        
+        .controls { margin-top: 24px; display: flex; gap: 16px; width: 100%; max-width: 380px; opacity: 0; pointer-events: none; transition: opacity 0.3s; }
+        .controls.active { opacity: 1; pointer-events: auto; }
+        .btn { flex: 1; padding: 18px; border: none; border-radius: 16px; font-size: 1rem; font-weight: 700; color: white; cursor: pointer; }
+        .btn:active { transform: scale(0.96); }
+        .btn-forgot { background: #EF4444; }
+        .btn-known { background: var(--accent); }
+        @keyframes swipeL { to { transform: translateX(-120%) rotate(-12deg); opacity: 0; } }
+        @keyframes swipeR { to { transform: translateX(120%) rotate(12deg); opacity: 0; } }
+        .anim-l { animation: swipeL 0.4s forwards; }
+        .anim-r { animation: swipeR 0.4s forwards; }
+
+        /* NOTEBOOK LIST */
+        .notebook-list { display: flex; flex-direction: column; gap: 12px; width: 100%; max-width: 400px; margin: 0 auto; }
+        .notebook-item { background: var(--surface); border-radius: 16px; padding: 16px; display: flex; justify-content: space-between; align-items: center; box-shadow: var(--shadow); }
+        .notebook-word { font-family: var(--font-en); font-size: 1.2rem; font-weight: 700; }
+        .notebook-meaning { font-size: 0.9rem; color: var(--text-2); margin-top: 4px; }
+        .notebook-actions { display: flex; gap: 8px; }
+        .notebook-btn { width: 36px; height: 36px; border-radius: 50%; border: none; display: flex; align-items: center; justify-content: center; cursor: pointer; }
+        .btn-speak { background: var(--accent-light); color: var(--accent); }
+        .btn-remove { background: rgba(239,68,68,0.1); color: #EF4444; }
+
+        /* QUOTE MODULE */
+        .quote-page-inner { display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: calc(100vh - 100px); }
+        .quote-card { width: 100%; max-width: 380px; aspect-ratio: 3/4.5; border-radius: var(--radius); position: relative; overflow: hidden; box-shadow: var(--shadow); display: flex; flex-direction: column; justify-content: flex-end; }
+        .quote-bg { position: absolute; inset: 0; z-index: 0; background-size: cover; background-position: center; transition: transform 8s ease-out; }
+        .quote-overlay { position: absolute; inset: 0; z-index: 1; pointer-events: none; background: linear-gradient(to top, rgba(0,0,0,0.92) 0%, rgba(0,0,0,0.6) 35%, rgba(0,0,0,0.15) 60%, transparent 100%); }
+        .magazine-label { position: absolute; top: 28px; left: 24px; z-index: 3; writing-mode: vertical-rl; font-size: 0.6rem; letter-spacing: 3px; text-transform: uppercase; color: rgba(255,255,255,0.7); font-weight: 600; }
+        .quote-content { position: relative; z-index: 2; color: white; padding: 0 28px 28px; }
+        .quote-en { font-family: var(--font-en); font-weight: 600; line-height: 1.45; font-size: 1.4rem; text-shadow: 0 2px 16px rgba(0,0,0,0.4); margin-bottom: 10px; }
+        .quote-cn { font-size: 0.9rem; opacity: 0.88; line-height: 1.65; margin-bottom: 10px; }
+        .quote-source { font-size: 0.78rem; opacity: 0.75; font-style: italic; }
+        .quote-actions { margin-top: 20px; display: flex; gap: 12px; width: 100%; max-width: 380px; }
+        .action-btn { flex: 1; padding: 16px; border-radius: 16px; border: none; font-weight: 600; font-size: 0.85rem; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 6px; }
+        .btn-collect { background: var(--surface); color: var(--text-1); }
+        .btn-collect.collected { background: var(--accent-light); color: var(--accent); }
+        .btn-refresh { background: rgba(255,255,255,0.12); color: white; backdrop-filter: blur(12px); border: 1px solid rgba(255,255,255,0.15); }
+
+        /* SETTINGS */
+        .settings-page-inner { padding-top: 60px; max-width: 420px; margin: 0 auto; }
+        .settings-title { font-size: 1.8rem; font-weight: 800; margin-bottom: 32px; }
+        .setting-group { margin-bottom: 32px; }
+        .setting-label { font-size: 0.75rem; text-transform: uppercase; letter-spacing: 1.5px; color: var(--text-3); font-weight: 600; margin-bottom: 14px; }
+        .theme-toggle { display: flex; background: var(--surface); border-radius: 16px; padding: 4px; box-shadow: var(--shadow); }
+        .theme-option { flex: 1; padding: 14px; border-radius: 12px; border: none; background: transparent; font-size: 0.9rem; font-weight: 600; color: var(--text-2); cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px; }
+        .theme-option.active { background: var(--accent); color: white; }
+        .color-grid { display: flex; gap: 12px; }
+        .color-swatch { width: 48px; height: 48px; border-radius: 50%; border: 3px solid transparent; cursor: pointer; }
+        .color-swatch.active { border-color: var(--text-1); }
+        .swatch-indigo { background: #6366F1; } .swatch-emerald { background: #10B981; } .swatch-rose { background: #F43F5E; } .swatch-amber { background: #F59E0B; } .swatch-cyan { background: #06B6D4; }
+        .settings-info { margin-top: 40px; padding: 20px; border-radius: 16px; background: var(--surface); box-shadow: var(--shadow); font-size: 0.8rem; color: var(--text-3); text-align: center; }
+        .reset-link { display: inline-block; margin-top: 16px; color: #EF4444; font-weight: 600; cursor: pointer; }
+    </style>
 </head>
 <body>
-  <div style="position:fixed;top:-20%;right:-20%;width:80vw;height:80vw;background:radial-gradient(circle,rgba(94,92,230,0.15),transparent 70%);filter:blur(80px);z-index:0;"></div>
-  
-  <main style="position:relative;z-index:1;max-width:600px;margin:0 auto;padding:60px 24px 120px;">
-    <header style="margin-bottom:40px;">
-      <p id="date-text" style="font-size:12px;color:var(--text-sub);text-transform:uppercase;letter-spacing:0.1em;margin-bottom:8px;">Loading...</p>
-      <h1 class="text-gradient" style="font-size:32px;margin:0;">Ready to focus?</h1>
-    </header>
-
-    <div style="display:grid;grid-template-columns:repeat(2,1fr);gap:16px;margin-bottom:24px;">
-      <div class="glass" style="padding:20px;">
-        <p style="font-size:11px;color:var(--text-sub);text-transform:uppercase;margin:0 0 8px;">Streak</p>
-        <p style="font-size:28px;font-weight:700;margin:0;"><span id="stat-streak">12</span> <span style="font-size:12px;color:var(--accent);">days</span></p>
-      </div>
-      <div class="glass" style="padding:20px;">
-        <p style="font-size:11px;color:var(--text-sub);text-transform:uppercase;margin:0 0 8px;">Words</p>
-        <p style="font-size:28px;font-weight:700;margin:0;"><span id="stat-words">847</span></p>
-      </div>
-    </div>
-
-    <div class="glass" style="padding:24px;margin-bottom:24px;" onclick="location.href='quote.html'">
-      <p style="font-size:11px;color:var(--accent);text-transform:uppercase;margin:0 0 16px;">Daily Inspiration</p>
-      <p style="font-size:22px;font-weight:500;margin:0 0 8px;">"The only way to do great work is to love what you do."</p>
-      <p style="font-size:14px;color:var(--text-sub);margin:0;">— Steve Jobs</p>
-    </div>
-
-    <div style="display:grid;grid-template-columns:repeat(2,1fr);gap:16px;">
-      <a href="./vocab.html" class="glass" style="padding:20px;text-decoration:none;color:var(--text-main);">
-        <div style="width:40px;height:40px;border-radius:12px;background:rgba(94,92,230,0.1);display:flex;align-items:center;justify-content:center;color:var(--accent);margin-bottom:12px;">
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"></path></svg>
+    <div class="pages">
+        <!-- HOME -->
+        <div class="page active" id="page-home">
+            <div class="home-header">
+                <div class="greeting-sub" id="greetSub"></div>
+                <div class="greeting-main" id="greetMain"></div>
+            </div>
+            <div class="streak-card">
+                <div class="streak-info"><h3>Current Streak</h3><span class="num" id="streakNum">0</span><span class="unit">days</span></div>
+                <div class="streak-flame">🔥</div>
+            </div>
+            <div class="section-title">Today's Progress</div>
+            <div class="progress-card">
+                <div class="ring-container">
+                    <svg class="ring-svg" viewBox="0 0 100 100"><circle class="ring-bg" cx="50" cy="50" r="42"/><circle class="ring-fill" id="progressRing" cx="50" cy="50" r="42" stroke-dasharray="263.89" stroke-dashoffset="263.89"/></svg>
+                    <div class="ring-text" id="ringText">0%</div>
+                </div>
+                <div class="progress-detail">
+                    <h4>Daily Goal</h4>
+                    <p>You've learned <b id="todayLearned">0</b> of 20 words today.</p>
+                    <div class="mini-stats"><div class="mini-stat"><b id="totalKnown">0</b>&nbsp;mastered</div></div>
+                </div>
+            </div>
+            <button class="cta-btn" onclick="switchTab('vocab', document.querySelectorAll('.tab-item')[1])">Continue Learning</button>
         </div>
-        <p style="font-size:16px;font-weight:600;margin:0 0 4px;">Vocabulary</p>
-        <p style="font-size:12px;color:var(--text-sub);margin:0;">Swipe & Learn</p>
-      </a>
-      <a href="./reading.html" class="glass" style="padding:20px;text-decoration:none;color:var(--text-main);">
-        <div style="width:40px;height:40px;border-radius:12px;background:rgba(34,197,94,0.1);display:flex;align-items:center;justify-content:center;color:#22c55e;margin-bottom:12px;">
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"></path><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"></path></svg>
+
+        <!-- VOCAB -->
+        <div class="page" id="page-vocab">
+            <div class="vocab-header">
+                <div class="sort-control">
+                    <button class="sort-btn active" data-sort="default" onclick="setSort('default')">Default</button>
+                    <button class="sort-btn" data-sort="random" onclick="setSort('random')">Random</button>
+                    <button class="sort-btn" data-sort="az" onclick="setSort('az')">A-Z</button>
+                </div>
+            </div>
+            <div class="vocab-page-inner">
+                <div class="card-container" id="cardContainer"></div>
+                <div class="controls" id="controls">
+                    <button class="btn btn-forgot" onclick="handleSwipe(false)">😵 Still Learning</button>
+                    <button class="btn btn-known" onclick="handleSwipe(true)">😎 Got It</button>
+                </div>
+            </div>
         </div>
-        <p style="font-size:16px;font-weight:600;margin:0 0 4px;">Reading</p>
-        <p style="font-size:12px;color:var(--text-sub);margin:0;">Deep Dive</p>
-      </a>
+
+        <!-- QUOTE -->
+        <div class="page" id="page-quote">
+            <div class="quote-page-inner">
+                <div class="quote-card" id="quoteCard">
+                    <div class="quote-bg" id="qBg"></div>
+                    <div class="quote-overlay"></div>
+                    <div class="magazine-label">Daily Inspiration</div>
+                    <div class="quote-content" id="qContent">
+                        <div class="quote-en" id="qEn"></div>
+                        <div class="quote-cn" id="qCn"></div>
+                        <div class="quote-source" id="qSrc"></div>
+                    </div>
+                </div>
+                <div class="quote-actions">
+                    <button class="action-btn btn-collect" id="collectBtn" onclick="toggleCollect()"><span>Save</span></button>
+                    <button class="action-btn btn-refresh" onclick="loadRandomQuote()"><span>Next</span></button>
+                </div>
+            </div>
+        </div>
+
+        <!-- SETTINGS -->
+        <div class="page" id="page-settings">
+            <div class="settings-page-inner">
+                <div class="settings-title">Settings</div>
+                <div class="setting-group">
+                    <div class="setting-label">Appearance</div>
+                    <div class="theme-toggle">
+                        <button class="theme-option active" data-theme-val="light" onclick="setTheme('light')">Light</button>
+                        <button class="theme-option" data-theme-val="dark" onclick="setTheme('dark')">Dark</button>
+                    </div>
+                </div>
+                <div class="setting-group">
+                    <div class="setting-label">Accent Color</div>
+                    <div class="color-grid">
+                        <div class="color-swatch swatch-indigo active" data-color="indigo" onclick="setAccent('indigo')"></div>
+                        <div class="color-swatch swatch-emerald" data-color="emerald" onclick="setAccent('emerald')"></div>
+                        <div class="color-swatch swatch-rose" data-color="rose" onclick="setAccent('rose')"></div>
+                        <div class="color-swatch swatch-amber" data-color="amber" onclick="setAccent('amber')"></div>
+                        <div class="color-swatch swatch-cyan" data-color="cyan" onclick="setAccent('cyan')"></div>
+                    </div>
+                </div>
+                <div class="settings-info">
+                    CET-6 Immersive v3.0<br>
+                    <span class="reset-link" onclick="resetAllData()">Reset All Progress</span>
+                </div>
+            </div>
+        </div>
     </div>
-  </main>
 
-  <nav class="glass" style="position:fixed;bottom:0;left:0;right:0;border-radius:0;border-top:1px solid var(--border);padding:12px 24px;display:flex;justify-content:space-around;z-index:50;">
-    <a href="./index.html" class="nav-item active">
-      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path><polyline points="9 22 9 12 15 12 15 22"></polyline></svg>
-      <span>Home</span>
-    </a>
-    <a href="./vocab.html" class="nav-item">
-      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"></path></svg>
-      <span>Vocab</span>
-    </a>
-    <a href="./reading.html" class="nav-item">
-      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"></path><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"></path></svg>
-      <span>Read</span>
-    </a>
-    <a href="./notebook.html" class="nav-item">
-      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"></path></svg>
-      <span>Saved</span>
-    </a>
-  </nav>
+    <nav class="tab-bar">
+        <div class="tab-item active" onclick="switchTab('home', this)"><div class="tab-icon-bg"><svg class="tab-icon" viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/></svg></div><span>Home</span></div>
+        <div class="tab-item" onclick="switchTab('vocab', this)"><div class="tab-icon-bg"><svg class="tab-icon" viewBox="0 0 24 24"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg></div><span>Vocab</span></div>
+        <div class="tab-item" onclick="switchTab('quote', this)"><div class="tab-icon-bg"><svg class="tab-icon" viewBox="0 0 24 24"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg></div><span>Daily</span></div>
+        <div class="tab-item" onclick="switchTab('settings', this)"><div class="tab-icon-bg"><svg class="tab-icon" viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg></div><span>Settings</span></div>
+    </nav>
 
-  <script src="./js/storage.js"></script>
-  <script src="./js/index.js"></script>
+<script>
+const STORAGE_KEY = 'cet6_immersive_v3';
+let state = { knownWords: [], notebook: [], currentIndex: 0, sortMode: 'default', theme: 'light', accent: 'indigo' };
+let allWords = [], displayWords = [], isAnimating = false, isDetailVisible = false;
+
+function loadState() {
+    try {
+        const saved = localStorage.getItem(STORAGE_KEY);
+        if (saved) state = { ...state, ...JSON.parse(saved) };
+    } catch(e) {}
+    applyTheme(state.theme, state.accent);
+}
+
+function saveState() { try { localStorage.setItem(STORAGE_KEY, JSON.stringify(state)); } catch(e) {} }
+
+function setTheme(t) { state.theme = t; applyTheme(t, state.accent); saveState(); }
+function setAccent(a) { state.accent = a; applyTheme(state.theme, a); saveState(); }
+function applyTheme(t, a) {
+    document.documentElement.setAttribute('data-theme', t);
+    document.documentElement.setAttribute('data-accent', a);
+    document.querySelectorAll('.theme-option').forEach(b => b.classList.toggle('active', b.dataset.themeVal === t));
+    document.querySelectorAll('.color-swatch').forEach(s => s.classList.toggle('active', s.dataset.color === a));
+}
+
+function resetAllData() {
+    if (confirm('Reset all progress?')) { localStorage.removeItem(STORAGE_KEY); location.reload(); }
+}
+
+function speak(word) {
+    if (!window.speechSynthesis) return;
+    window.speechSynthesis.cancel();
+    const u = new SpeechSynthesisUtterance(word);
+    u.lang = 'en-US'; u.rate = 0.9;
+    window.speechSynthesis.speak(u);
+}
+
+function initHome() {
+    const h = new Date().getHours();
+    document.getElementById('greetSub').textContent = h < 12 ? 'Good morning' : h < 18 ? 'Good afternoon' : 'Good evening';
+    document.getElementById('greetMain').innerHTML = `Level up your <span>English</span>`;
+    document.getElementById('streakNum').textContent = state.streak || 0;
+    document.getElementById('todayLearned').textContent = state.todayLearned || 0;
+    document.getElementById('totalKnown').textContent = state.knownWords.length;
+}
+
+async function loadWords() {
+    try {
+        const res = await fetch('./data/words.json');
+        const data = await res.json();
+        allWords = data.map(w => ({
+            word: w.word,
+            pos: w.translations?.[0]?.type || '',
+            meaning: w.translations?.map(t => t.translation).join('；') || '',
+            phrases: w.phrases || []
+        }));
+        applySorting();
+    } catch(e) { console.error(e); }
+}
+
+function setSort(mode) {
+    state.sortMode = mode;
+    document.querySelectorAll('.sort-btn').forEach(b => b.classList.toggle('active', b.dataset.sort === mode));
+    applySorting();
+}
+
+function applySorting() {
+    if (state.sortMode === 'random') {
+        displayWords = [...allWords].sort(() => Math.random() - 0.5);
+    } else if (state.sortMode === 'az') {
+        displayWords = [...allWords].sort((a, b) => a.word.localeCompare(b.word));
+    } else {
+        displayWords = [...allWords];
+    }
+    state.currentIndex = 0;
+    renderCard();
+}
+
+function renderCard() {
+    const container = document.getElementById('cardContainer');
+    const controls = document.getElementById('controls');
+    container.innerHTML = '';
+    if (state.currentIndex >= displayWords.length) {
+        container.innerHTML = '<div style="text-align:center;color:var(--text-2);padding:40px"><div style="font-size:3.5rem;margin-bottom:16px">🎉</div><h3>All caught up!</h3></div>';
+        controls.classList.remove('active'); return;
+    }
+    const w = displayWords[state.currentIndex];
+    const isSaved = state.notebook.includes(w.word);
+    const card = document.createElement('div');
+    card.className = 'word-card';
+    card.innerHTML = `
+        <div class="word-en">${w.word}</div>
+        <div class="word-meta">
+            <div class="word-phonetic">${w.pos}</div>
+            <button class="speak-btn" onclick="event.stopPropagation(); speak('${w.word}')"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M3 9v6h4l5 5V4L7 9H3z"/></svg></button>
+            <button class="save-btn ${isSaved ? 'saved' : ''}" onclick="event.stopPropagation(); toggleNotebook('${w.word}')"><svg viewBox="0 0 24 24"><path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"/></svg></button>
+        </div>
+        <div class="word-pos">${w.pos}</div>
+        <div class="word-cn">${w.meaning}</div>
+        <div class="word-example">"${w.phrases.length > 0 ? w.phrases[0].phrase : ''}"</div>
+        <div class="tap-hint">Tap to reveal</div>
+    `;
+    card.addEventListener('click', () => { if (!isDetailVisible && !isAnimating) { card.classList.add('show-detail'); controls.classList.add('active'); isDetailVisible = true; } });
+    container.appendChild(card);
+}
+
+function handleSwipe(isKnown) {
+    if (isAnimating || !isDetailVisible) return;
+    isAnimating = true;
+    document.querySelector('.word-card').classList.add(isKnown ? 'anim-r' : 'anim-l');
+    if (isKnown) {
+        const w = displayWords[state.currentIndex].word;
+        if (!state.knownWords.includes(w)) state.knownWords.push(w);
+    }
+    setTimeout(() => {
+        state.currentIndex++;
+        saveState(); isDetailVisible = false; isAnimating = false;
+        document.getElementById('controls').classList.remove('active');
+        renderCard();
+    }, 350);
+}
+
+function toggleNotebook(word) {
+    if (state.notebook.includes(word)) state.notebook = state.notebook.filter(w => w !== word);
+    else state.notebook.push(word);
+    saveState(); renderCard();
+}
+
+const QUOTES = [
+    { en: "The only way to do great work is to love what you do.", cn: "成就伟业的唯一途径是热爱你所做的事。", src: "Steve Jobs", img: "https://images.unsplash.com/photo-1493246507139-91e8fad9978e?w=600&q=80" },
+    { en: "In the middle of difficulty lies opportunity.", cn: "困难之中蕴藏着机遇。", src: "Albert Einstein", img: "https://images.unsplash.com/photo-1470071459604-3b5ec3a7fe05?w=600&q=80" }
+];
+let currentQuoteIdx = 0;
+function loadRandomQuote() {
+    currentQuoteIdx = Math.floor(Math.random() * QUOTES.length);
+    const q = QUOTES[currentQuoteIdx];
+    document.getElementById('qBg').style.backgroundImage = `url(${q.img})`;
+    document.getElementById('qEn').textContent = `"${q.en}"`;
+    document.getElementById('qCn').textContent = q.cn;
+    document.getElementById('qSrc').textContent = `— ${q.src}`;
+}
+function toggleCollect() {
+    const q = QUOTES[currentQuoteIdx].en;
+    if (state.notebook.includes(q)) state.notebook = state.notebook.filter(x => x !== q);
+    else state.notebook.push(q);
+    saveState();
+    document.getElementById('collectBtn').classList.toggle('collected');
+}
+
+function switchTab(tabName, el) {
+    document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+    document.querySelectorAll('.tab-item').forEach(t => t.classList.remove('active'));
+    document.getElementById(`page-${tabName}`).classList.add('active');
+    if (el) el.classList.add('active');
+    if (tabName === 'home') initHome();
+}
+
+loadState(); initHome(); loadWords(); loadRandomQuote();
+</script>
 </body>
 </html>
