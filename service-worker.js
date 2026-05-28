@@ -1,4 +1,4 @@
-const CACHE_NAME = 'cet6-immersive-v6';
+const CACHE_NAME = 'cet6-immersive-v7';
 const OFFLINE_URL = './offline.html';
 
 // 预缓存核心资源

@@ -48,6 +48,9 @@
                     <button class="sort-btn" data-sort="random" onclick="setSort('random')">Random</button>
                     <button class="sort-btn" data-sort="az" onclick="setSort('az')">A-Z</button>
                 </div>
+                <div class="alpha-nav" id="alphaNav">
+                    <button class="alpha-btn active" data-letter="ALL" onclick="filterByLetter('ALL')">ALL</button>
+                </div>
             </div>
             <div class="vocab-page-inner">
                 <div class="card-container" id="cardContainer"></div>
@@ -84,7 +87,7 @@
         <!-- QUOTE -->
         <div class="page" id="page-quote">
             <div class="quote-page-inner">
-                <div class="quote-card" id="quoteCard">
+                <div class="quote-card" id="quoteCard" onclick="openQuoteModal()">
                     <div class="quote-bg" id="qBg"></div>
                     <div class="quote-overlay"></div>
                     <div class="magazine-label">Daily Inspiration</div>
@@ -108,6 +111,13 @@
             <div class="settings-page-inner">
                 <div class="settings-title">Settings</div>
                 <div class="setting-group">
+                    <div class="setting-label">Notebook</div>
+                    <div class="notebook-section" id="notebookSection">
+                        <div class="notebook-empty" id="notebookEmpty">No saved words yet. Bookmark words while learning!</div>
+                        <div class="notebook-list" id="notebookList"></div>
+                    </div>
+                </div>
+                <div class="setting-group">
                     <div class="setting-label">Appearance</div>
                     <div class="theme-toggle">
                         <button class="theme-option active" data-theme-val="light" onclick="setTheme('light')">☀️ Light</button>
@@ -129,6 +139,27 @@
                     <span class="reset-link" onclick="resetAllData()">Reset All Progress</span>
                 </div>
             </div>
+        </div>
+    </div>
+
+    <!-- Quote Modal -->
+    <div class="quote-modal" id="quoteModal" onclick="closeQuoteModal(event)">
+        <div class="quote-modal-content" onclick="event.stopPropagation()">
+            <div class="modal-img-wrap">
+                <img class="modal-img" id="modalImg" src="" alt="">
+                <div class="modal-img-overlay"></div>
+            </div>
+            <div class="modal-body">
+                <div class="modal-quote" id="modalQuote"></div>
+                <div class="modal-divider"></div>
+                <div class="modal-cn" id="modalCn"></div>
+                <div class="modal-author" id="modalAuthor"></div>
+                <div class="modal-meta">
+                    <div class="modal-meta-item" id="modalLocation"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg><span id="modalLocText"></span></div>
+                    <div class="modal-meta-item" id="modalPhotoBy"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg><span id="modalPhotoByText"></span></div>
+                </div>
+            </div>
+            <button class="modal-close" onclick="closeQuoteModal()"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>
         </div>
     </div>
 

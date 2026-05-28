@@ -4,13 +4,71 @@
     "en": "We are what we repeatedly do. Excellence, then, is not an act, but a habit.",
     "zh": "人即其习惯的总和。因此，卓越不是一种行为，而是一种习惯。",
     "author": "Aristotle",
-    "bg": "https://images.unsplash.com/photo-1519681393784-d120267933ba?auto=format&fit=crop&w=1200&q=80"
+    "bg": "https://images.unsplash.com/photo-1519681393784-d120267933ba?auto=format&fit=crop&w=1200&q=80",
+    "location": "Swiss Alps",
+    "photoBy": "Benjamin Voros"
   },
   {
     "id": "q002",
     "en": "The only limit to our realization of tomorrow will be our doubts of today.",
     "zh": "实现明天理想的唯一障碍，是今天的疑虑。",
     "author": "Franklin D. Roosevelt",
-    "bg": "https://images.unsplash.com/photo-1470071459604-3b5ec3a7fe05?auto=format&fit=crop&w=1200&q=80"
+    "bg": "https://images.unsplash.com/photo-1470071459604-3b5ec3a7fe05?auto=format&fit=crop&w=1200&q=80",
+    "location": "Fjord, Norway",
+    "photoBy": "Dave Hoefler"
+  },
+  {
+    "id": "q003",
+    "en": "In the middle of difficulty lies opportunity.",
+    "zh": "困难之中蕴藏着机遇。",
+    "author": "Albert Einstein",
+    "bg": "https://images.unsplash.com/photo-1493246507139-91e8fad9978e?auto=format&fit=crop&w=1200&q=80",
+    "location": "Santorini, Greece",
+    "photoBy": "Matthew Smith"
+  },
+  {
+    "id": "q004",
+    "en": "The only way to do great work is to love what you do.",
+    "zh": "成就伟业的唯一途径是热爱你所做的事。",
+    "author": "Steve Jobs",
+    "bg": "https://images.unsplash.com/photo-1506744038136-46273834b3fb?auto=format&fit=crop&w=1200&q=80",
+    "location": "Yosemite, USA",
+    "photoBy": "Brett Zeck"
+  },
+  {
+    "id": "q005",
+    "en": "It is during our darkest moments that we must focus to see the light.",
+    "zh": "正是在最黑暗的时刻，我们才必须集中精力去看见光明。",
+    "author": "Aristotle",
+    "bg": "https://images.unsplash.com/photo-1507400492013-162706c8c05e?auto=format&fit=crop&w=1200&q=80",
+    "location": "Pacific Coast, USA",
+    "photoBy": "John T"
+  },
+  {
+    "id": "q006",
+    "en": "The future belongs to those who believe in the beauty of their dreams.",
+    "zh": "未来属于那些相信梦想之美的人。",
+    "author": "Eleanor Roosevelt",
+    "bg": "https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?auto=format&fit=crop&w=1200&q=80",
+    "location": "Dolomites, Italy",
+    "photoBy": "Fabio Fistarol"
+  },
+  {
+    "id": "q007",
+    "en": "Success is not final, failure is not fatal: it is the courage to continue that counts.",
+    "zh": "成功不是终点，失败也不是末日，重要的是继续前行的勇气。",
+    "author": "Winston Churchill",
+    "bg": "https://images.unsplash.com/photo-1472214103451-9374bd1c798e?auto=format&fit=crop&w=1200&q=80",
+    "location": "Tuscany, Italy",
+    "photoBy": "Jared Erondu"
+  },
+  {
+    "id": "q008",
+    "en": "What we think, we become.",
+    "zh": "我们所想即我们所成。",
+    "author": "Buddha",
+    "bg": "https://images.unsplash.com/photo-1500534314263-a834e29e38ff?auto=format&fit=crop&w=1200&q=80",
+    "location": "Kyoto, Japan",
+    "photoBy": "Zhang Kaiyv"
   }
 ]
