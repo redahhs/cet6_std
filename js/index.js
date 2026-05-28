@@ -242,29 +242,29 @@ function speakQuote() {
 }
 
 /* ===== QUOTE MODAL ===== */
-function openQuoteModal() {
+window.openQuoteModal = function openQuoteModal() {
     if (!currentQuote) return;
     const modal = document.getElementById('quoteModal');
+    if (!modal) return;
     document.getElementById('modalImg').src = currentQuote.bg;
     document.getElementById('modalQuote').textContent = `"${currentQuote.en}"`;
     document.getElementById('modalCn').textContent = currentQuote.zh;
     document.getElementById('modalAuthor').textContent = `— ${currentQuote.author}`;
     document.getElementById('modalLocText').textContent = currentQuote.location || 'Unknown';
     document.getElementById('modalPhotoByText').textContent = currentQuote.photoBy ? `Photo by ${currentQuote.photoBy}` : '';
-    // Show/hide meta items
     document.getElementById('modalLocation').style.display = currentQuote.location ? '' : 'none';
     document.getElementById('modalPhotoBy').style.display = currentQuote.photoBy ? '' : 'none';
-    // Trigger animation
     requestAnimationFrame(() => { modal.classList.add('active'); });
     document.body.style.overflow = 'hidden';
-}
+};
 
-function closeQuoteModal(event) {
+window.closeQuoteModal = function closeQuoteModal(event) {
     if (event && event.target !== event.currentTarget) return;
     const modal = document.getElementById('quoteModal');
+    if (!modal) return;
     modal.classList.remove('active');
     document.body.style.overflow = '';
-}
+};
 
 /* ===== READING ===== */
 let readingArticles = [];
