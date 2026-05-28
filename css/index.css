@@ -117,12 +117,22 @@ body { background: var(--bg); font-family: var(--font-cn); color: var(--text-1);
 .anim-r { animation: swipeR 0.4s forwards; }
 
 /* NOTEBOOK LIST */
-.notebook-section { background: var(--surface); border-radius: 16px; padding: 16px; box-shadow: var(--shadow); max-height: 320px; overflow-y: auto; }
+.notebook-count { font-weight: 400; color: var(--text-3); }
+.notebook-toolbar { display: flex; gap: 8px; margin-bottom: 12px; }
+.notebook-search { flex: 1; padding: 10px 14px; border-radius: 12px; border: 1px solid var(--border); background: var(--surface); color: var(--text-1); font-size: 0.85rem; outline: none; transition: border-color 0.2s; }
+.notebook-search:focus { border-color: var(--accent); }
+.notebook-search::placeholder { color: var(--text-3); }
+.notebook-clear-btn { padding: 10px 16px; border-radius: 12px; border: none; background: rgba(239,68,68,0.1); color: #EF4444; font-size: 0.8rem; font-weight: 600; cursor: pointer; white-space: nowrap; transition: all 0.2s; }
+.notebook-clear-btn:active { transform: scale(0.95); }
+.notebook-section { background: var(--surface); border-radius: 16px; padding: 16px; box-shadow: var(--shadow); max-height: 400px; overflow-y: auto; }
 .notebook-empty { text-align: center; color: var(--text-3); font-size: 0.85rem; padding: 24px 0; }
+.notebook-empty-icon { font-size: 2.5rem; margin-bottom: 8px; }
+.notebook-empty-sub { font-size: 0.78rem; margin-top: 4px; opacity: 0.7; }
 .notebook-list { display: flex; flex-direction: column; gap: 10px; }
 .notebook-item { display: flex; justify-content: space-between; align-items: center; padding: 10px 12px; border-radius: 12px; background: var(--bg); }
+.notebook-item-main { flex: 1; min-width: 0; }
 .notebook-word { font-family: var(--font-en); font-size: 1rem; font-weight: 700; }
-.notebook-meaning { font-size: 0.82rem; color: var(--text-2); margin-top: 2px; max-width: 200px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.notebook-meaning { font-size: 0.82rem; color: var(--text-2); margin-top: 2px; max-width: 220px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .notebook-actions { display: flex; gap: 6px; flex-shrink: 0; }
 .notebook-btn { width: 32px; height: 32px; border-radius: 50%; border: none; display: flex; align-items: center; justify-content: center; cursor: pointer; transition: all 0.2s; }
 .notebook-btn:active { transform: scale(0.9); }
@@ -150,7 +160,10 @@ body { background: var(--bg); font-family: var(--font-cn); color: var(--text-1);
 
 /* QUOTE MODULE */
 .quote-page-inner { display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: calc(100vh - 100px); padding-top: 40px; }
-.quote-card { width: 100%; max-width: 400px; border-radius: var(--radius); position: relative; overflow: hidden; box-shadow: var(--shadow); display: flex; flex-direction: column; }
+.quote-card { width: 100%; max-width: 400px; border-radius: var(--radius); position: relative; overflow: hidden; box-shadow: var(--shadow); display: flex; flex-direction: column; transition: transform 0.35s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.35s ease; }
+.quote-card.quote-exit { transform: translateX(-30px) scale(0.96); opacity: 0; }
+.quote-card.quote-enter { animation: quoteSlideIn 0.45s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
+@keyframes quoteSlideIn { from { transform: translateX(40px) scale(0.96); opacity: 0; } to { transform: translateX(0) scale(1); opacity: 1; } }
 .quote-bg { position: absolute; inset: 0; z-index: 0; background-size: cover; background-position: center; transition: transform 8s ease-out; }
 .quote-card:hover .quote-bg { transform: scale(1.05); }
 .quote-overlay { position: absolute; inset: 0; z-index: 1; pointer-events: none; background: linear-gradient(to top, rgba(0,0,0,0.92) 0%, rgba(0,0,0,0.65) 40%, rgba(0,0,0,0.2) 65%, rgba(0,0,0,0.1) 100%); }

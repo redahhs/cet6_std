@@ -104,6 +104,16 @@ function applySorting() {
 function setSort(mode) {
     state.sortMode = mode;
     document.querySelectorAll('.sort-btn').forEach(b => b.classList.toggle('active', b.dataset.sort === mode));
+    const alphaNav = document.getElementById('alphaNav');
+    if (alphaNav) {
+        if (mode === 'az') {
+            alphaNav.style.display = 'flex';
+        } else {
+            alphaNav.style.display = 'none';
+            state.currentLetter = 'ALL';
+            document.querySelectorAll('.alpha-btn').forEach(b => b.classList.toggle('active', b.dataset.letter === 'ALL'));
+        }
+    }
     applySorting();
 }
 
@@ -165,13 +175,18 @@ function toggleNotebook(word) {
 function renderNotebook() {
     const list = document.getElementById('notebookList');
     const empty = document.getElementById('notebookEmpty');
+    const countEl = document.getElementById('notebookCount');
+    const toolbar = document.getElementById('notebookToolbar');
+    const searchInput = document.getElementById('notebookSearch');
     if (!list || !empty) return;
 
-    // Filter notebook to only show words that exist in allWords
     const wordMap = {};
     allWords.forEach(w => { wordMap[w.word] = w; });
 
-    const validNotebook = state.notebook.filter(w => wordMap[w]);
+    let validNotebook = state.notebook.filter(w => wordMap[w]);
+
+    if (countEl) countEl.textContent = validNotebook.length > 0 ? `(${validNotebook.length})` : '';
+    if (toolbar) toolbar.style.display = validNotebook.length > 0 ? '' : 'none';
 
     if (validNotebook.length === 0) {
         empty.style.display = '';
@@ -180,10 +195,25 @@ function renderNotebook() {
     }
     empty.style.display = 'none';
 
+    const query = (searchInput?.value || '').toLowerCase().trim();
+    if (query) {
+        validNotebook = validNotebook.filter(w => {
+            const info = wordMap[w];
+            return w.toLowerCase().includes(query) || (info.meaning && info.meaning.toLowerCase().includes(query));
+        });
+    }
+
+    validNotebook.sort((a, b) => a.localeCompare(b));
+
+    if (validNotebook.length === 0) {
+        list.innerHTML = '<div style="text-align:center;color:var(--text-3);padding:20px 0;font-size:0.85rem">No matches found</div>';
+        return;
+    }
+
     list.innerHTML = validNotebook.map(word => {
         const info = wordMap[word];
         return `<div class="notebook-item">
-            <div>
+            <div class="notebook-item-main">
                 <div class="notebook-word">${word}</div>
                 <div class="notebook-meaning">${info.meaning}</div>
             </div>
@@ -193,6 +223,12 @@ function renderNotebook() {
             </div>
         </div>`;
     }).join('');
+}
+
+function clearNotebook() {
+    if (!confirm('Clear all saved words?')) return;
+    state.notebook = [];
+    saveState(); renderNotebook(); renderCard();
 }
 
 function removeFromNotebook(word) {
@@ -212,8 +248,20 @@ async function loadRandomQuote() {
         } catch(e) {}
     }
     if (quotesData.length === 0) return;
-    currentQuote = quotesData[Math.floor(Math.random() * quotesData.length)];
-    renderQuote();
+    const card = document.getElementById('quoteCard');
+    if (card && currentQuote) {
+        card.classList.add('quote-exit');
+        await new Promise(r => setTimeout(r, 320));
+        currentQuote = quotesData[Math.floor(Math.random() * quotesData.length)];
+        renderQuote();
+        card.classList.remove('quote-exit');
+        void card.offsetWidth;
+        card.classList.add('quote-enter');
+        setTimeout(() => card.classList.remove('quote-enter'), 500);
+    } else {
+        currentQuote = quotesData[Math.floor(Math.random() * quotesData.length)];
+        renderQuote();
+    }
 }
 
 function renderQuote() {
