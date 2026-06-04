@@ -158,6 +158,189 @@ body { background: var(--bg); font-family: var(--font-cn); color: var(--text-1);
 .modal-close { position: absolute; top: 16px; right: 16px; width: 36px; height: 36px; border-radius: 50%; background: rgba(0,0,0,0.4); backdrop-filter: blur(8px); border: none; color: white; display: flex; align-items: center; justify-content: center; cursor: pointer; z-index: 10; transition: all 0.2s; }
 .modal-close:active { transform: scale(0.9); }
 
+/* ==================== SPRINT 1: Toast Notification ==================== */
+.toast-container { position: fixed; top: 20px; left: 50%; transform: translateX(-50%); z-index: 9999; display: flex; flex-direction: column; gap: 8px; pointer-events: none; }
+.toast { padding: 12px 20px; border-radius: 24px; background: var(--surface); box-shadow: 0 8px 32px rgba(0,0,0,0.15); color: var(--text-1); font-size: 0.9rem; font-weight: 600; opacity: 0; transform: translateY(-20px); transition: opacity 0.3s ease, transform 0.3s cubic-bezier(0.16, 1, 0.3, 1); max-width: 90vw; pointer-events: auto; backdrop-filter: blur(20px); border: 1px solid var(--border); }
+.toast.show { opacity: 1; transform: translateY(0); }
+.toast-success { background: linear-gradient(135deg, #10B981, #059669); color: white; border-color: transparent; }
+.toast-error { background: linear-gradient(135deg, #EF4444, #DC2626); color: white; border-color: transparent; }
+.toast-info { background: var(--surface); color: var(--text-1); }
+
+/* ==================== SPRINT 1: Heatmap ==================== */
+.heatmap-card, .review-shortcut, .achievement-shortcut { background: var(--surface); border-radius: var(--radius); padding: 16px; box-shadow: var(--shadow); margin-bottom: 16px; }
+.review-shortcut, .achievement-shortcut { display: flex; align-items: center; gap: 16px; cursor: pointer; transition: transform 0.2s; }
+.review-shortcut:active, .achievement-shortcut:active { transform: scale(0.98); }
+.review-shortcut-icon, .achievement-shortcut-icon { width: 48px; height: 48px; border-radius: 14px; background: var(--accent-light); color: var(--accent); display: flex; align-items: center; justify-content: center; font-size: 1.5rem; flex-shrink: 0; }
+.review-shortcut-info, .achievement-shortcut-info { flex: 1; }
+.review-shortcut-title, .achievement-shortcut-title { font-weight: 700; font-size: 0.95rem; }
+.review-shortcut-sub, .achievement-shortcut-sub { font-size: 0.78rem; color: var(--text-2); margin-top: 2px; }
+
+.heatmap { overflow-x: auto; padding-top: 8px; }
+.heatmap-grid { display: flex; gap: 4px; }
+.heatmap-col { display: flex; flex-direction: column; gap: 4px; }
+.heatmap-cell { width: 14px; height: 14px; border-radius: 3px; background: var(--bg-elevated); transition: transform 0.15s; cursor: pointer; }
+.heatmap-cell:hover { transform: scale(1.3); }
+.heatmap-cell.level-1 { background: rgba(99, 102, 241, 0.25); }
+.heatmap-cell.level-2 { background: rgba(99, 102, 241, 0.5); }
+.heatmap-cell.level-3 { background: rgba(99, 102, 241, 0.75); }
+.heatmap-cell.level-4 { background: var(--accent); }
+.heatmap-legend { display: flex; align-items: center; gap: 4px; font-size: 0.7rem; color: var(--text-2); margin-top: 12px; }
+
+/* ==================== SPRINT 1: Mode Switcher ==================== */
+.mode-switcher { display: flex; gap: 6px; padding: 0 24px 12px; }
+.mode-btn { flex: 1; padding: 8px 12px; border-radius: 10px; border: 1px solid var(--border); background: var(--surface); color: var(--text-2); font-size: 0.78rem; font-weight: 600; cursor: pointer; transition: all 0.2s; }
+.mode-btn.active { background: var(--accent); color: white; border-color: transparent; }
+
+/* ==================== SPRINT 1: Listening Mode ==================== */
+.listening-mode { display: flex; flex-direction: column; align-items: center; padding: 32px 16px; }
+.listening-progress { font-size: 0.85rem; color: var(--text-2); margin-bottom: 32px; }
+.listening-speak { width: 100px; height: 100px; border-radius: 50%; border: none; background: var(--accent); color: white; display: flex; align-items: center; justify-content: center; cursor: pointer; margin-bottom: 16px; box-shadow: 0 12px 32px rgba(99, 102, 241, 0.3); transition: all 0.2s; }
+.listening-speak:active { transform: scale(0.95); }
+.listening-speak svg { margin-left: 4px; }
+.listening-hint { font-size: 0.78rem; color: var(--text-2); margin-bottom: 32px; }
+.listening-options { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; width: 100%; }
+.listening-option { padding: 16px; border-radius: 14px; border: 1px solid var(--border); background: var(--surface); color: var(--text-1); font-size: 1rem; font-weight: 600; cursor: pointer; transition: all 0.2s; }
+.listening-option:active { transform: scale(0.97); }
+.listening-option.correct { background: #10B981; color: white; border-color: transparent; }
+.listening-option.wrong { background: #EF4444; color: white; border-color: transparent; }
+.listening-option:disabled { opacity: 0.6; cursor: not-allowed; }
+
+/* ==================== SPRINT 1: Spelling Mode ==================== */
+.spelling-mode { display: flex; flex-direction: column; align-items: center; padding: 32px 16px; }
+.spelling-progress { font-size: 0.85rem; color: var(--text-2); margin-bottom: 32px; }
+.spelling-meaning { font-size: 1.1rem; font-weight: 600; text-align: center; margin-bottom: 24px; }
+.spelling-hint { font-family: monospace; font-size: 1.6rem; letter-spacing: 6px; color: var(--accent); margin-bottom: 32px; font-weight: 700; }
+.spelling-input { width: 100%; padding: 16px; border-radius: 14px; border: 2px solid var(--border); background: var(--surface); color: var(--text-1); font-size: 1.1rem; text-align: center; font-family: var(--font-en); outline: none; transition: border-color 0.2s; margin-bottom: 12px; }
+.spelling-input:focus { border-color: var(--accent); }
+.spelling-input.shake { animation: shake 0.4s; border-color: #EF4444; }
+@keyframes shake { 0%, 100% { transform: translateX(0); } 25% { transform: translateX(-8px); } 75% { transform: translateX(8px); } }
+.spelling-submit, .spelling-skip { width: 100%; padding: 14px; border-radius: 14px; border: none; font-weight: 700; font-size: 0.95rem; cursor: pointer; transition: all 0.2s; margin-bottom: 8px; }
+.spelling-submit { background: var(--accent); color: white; }
+.spelling-skip { background: transparent; color: var(--text-2); }
+.cta-btn { padding: 14px 24px; border-radius: 14px; background: var(--accent); color: white; border: none; font-weight: 700; cursor: pointer; font-size: 0.95rem; }
+
+/* ==================== SPRINT 1: Word Detail Sheet ==================== */
+.word-sheet { transform: translateY(100%); transition: transform 0.35s cubic-bezier(0.16, 1, 0.3, 1); }
+.word-sheet.open { transform: translateY(0); }
+.word-sheet-backdrop { backdrop-filter: blur(8px); }
+.word-sheet-header { margin-bottom: 16px; padding-bottom: 16px; border-bottom: 1px solid var(--border); }
+.word-sheet-word { font-size: 2rem; font-weight: 800; font-family: var(--font-en); }
+.word-sheet-phonetic { font-size: 0.95rem; color: var(--text-2); margin-top: 4px; font-family: monospace; }
+.word-sheet-meaning { font-size: 0.95rem; line-height: 1.6; margin-bottom: 16px; }
+.word-sheet-section-title { font-size: 0.78rem; font-weight: 700; text-transform: uppercase; color: var(--text-2); letter-spacing: 1px; margin: 16px 0 8px; }
+.word-sheet-phrases { list-style: none; padding: 0; margin: 0; }
+.word-sheet-phrases li { padding: 8px 0; border-bottom: 1px solid var(--border); font-size: 0.88rem; }
+.word-sheet-pos { font-style: italic; color: var(--accent); font-size: 0.85rem; margin-top: 12px; }
+.word-sheet-def { font-size: 0.9rem; line-height: 1.5; margin: 4px 0 8px 8px; }
+.word-sheet-example { font-size: 0.85rem; color: var(--text-2); font-style: italic; margin-left: 8px; }
+.word-sheet-actions { display: flex; gap: 8px; margin-top: 20px; }
+.word-sheet-actions .action-btn { flex: 1; padding: 12px; border-radius: 12px; border: 1px solid var(--border); background: var(--bg); color: var(--text-1); font-size: 0.85rem; font-weight: 600; cursor: pointer; }
+.word-sheet-actions .action-btn:active { transform: scale(0.97); }
+.loading-spinner { width: 32px; height: 32px; border: 3px solid var(--border); border-top-color: var(--accent); border-radius: 50%; margin: 0 auto; animation: spin 0.8s linear infinite; }
+@keyframes spin { to { transform: rotate(360deg); } }
+
+/* ==================== SPRINT 1: Clickable Word in Reading ==================== */
+.clickable-word { cursor: pointer; transition: background 0.15s; padding: 0 1px; border-radius: 2px; }
+.clickable-word:hover { background: rgba(99, 102, 241, 0.1); }
+
+/* ==================== SPRINT 1: Achievement Wall ==================== */
+.achievement-tile { display: flex; flex-direction: column; align-items: center; padding: 16px 8px; border-radius: 14px; background: var(--bg); text-align: center; transition: transform 0.2s; }
+.achievement-tile.locked { opacity: 0.4; filter: grayscale(1); }
+.achievement-tile.unlocked { background: linear-gradient(135deg, rgba(99, 102, 241, 0.1), rgba(168, 85, 247, 0.1)); }
+.achievement-icon { font-size: 2.2rem; margin-bottom: 6px; }
+.achievement-name { font-size: 0.78rem; font-weight: 700; line-height: 1.2; }
+.achievement-desc { font-size: 0.7rem; color: var(--text-2); margin-top: 4px; line-height: 1.3; }
+
+/* ==================== SPRINT 2-6: Goals Widget ==================== */
+.goals-widget { background: var(--surface); border-radius: var(--radius); padding: 16px; box-shadow: var(--shadow); margin-bottom: 16px; }
+.goals-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; }
+.goals-title { font-size: 0.95rem; font-weight: 700; }
+.goals-overall { font-size: 0.78rem; color: var(--text-2); }
+.goals-edit-btn { background: transparent; border: none; cursor: pointer; font-size: 1.1rem; padding: 4px; opacity: 0.6; }
+.goal-bar { margin-bottom: 10px; }
+.goal-bar-label { display: flex; justify-content: space-between; font-size: 0.78rem; color: var(--text-2); margin-bottom: 4px; }
+.goal-bar-label b { color: var(--text-1); }
+.goal-bar-track { height: 6px; background: var(--bg); border-radius: 3px; overflow: hidden; }
+.goal-bar-fill { height: 100%; border-radius: 3px; transition: width 0.3s ease; }
+.goal-completed { margin-top: 10px; padding: 8px 12px; background: linear-gradient(135deg, rgba(16, 185, 129, 0.15), rgba(99, 102, 241, 0.15)); border-radius: 10px; text-align: center; font-size: 0.85rem; font-weight: 700; color: #10B981; }
+.goals-settings h2 { font-size: 1.2rem; font-weight: 800; margin-bottom: 16px; }
+.goal-input-group { display: flex; justify-content: space-between; align-items: center; padding: 12px 0; border-bottom: 1px solid var(--border); }
+.goal-input-group label { font-size: 0.9rem; color: var(--text-1); }
+.goal-input-control { display: flex; align-items: center; gap: 16px; }
+.goal-input-control button { width: 32px; height: 32px; border-radius: 50%; border: 1px solid var(--border); background: var(--bg); color: var(--text-1); font-size: 1.1rem; font-weight: 700; cursor: pointer; }
+.goal-input-control button:active { transform: scale(0.9); }
+.goal-input-control span { min-width: 40px; text-align: center; font-weight: 700; font-size: 1.05rem; }
+
+/* ==================== SPRINT 2-5: Article Bookmark ==================== */
+.article-card-header { display: flex; justify-content: space-between; align-items: flex-start; gap: 12px; }
+.article-bookmark { background: transparent; border: none; font-size: 1.4rem; cursor: pointer; padding: 0; line-height: 1; transition: transform 0.2s; flex-shrink: 0; }
+.article-bookmark:active { transform: scale(0.85); }
+.article-bookmark.bookmarked { animation: pop 0.3s ease; }
+@keyframes pop { 0% { transform: scale(1); } 50% { transform: scale(1.4); } 100% { transform: scale(1); } }
+.article-card-footer { display: flex; justify-content: space-between; font-size: 0.75rem; color: var(--text-2); margin-top: 10px; padding-top: 10px; border-top: 1px solid var(--border); }
+.article-words { opacity: 0.8; }
+
+/* ==================== SPRINT 2-3: Difficulty Badge ==================== */
+.difficulty-badge { display: flex; align-items: center; gap: 10px; padding: 8px 12px; background: var(--bg); border-radius: 10px; margin: 10px 0; }
+.difficulty-stars { color: #F59E0B; font-size: 0.9rem; letter-spacing: 1px; }
+.difficulty-info { display: flex; flex-direction: column; gap: 2px; }
+.difficulty-label { font-size: 0.78rem; font-weight: 700; color: var(--text-1); }
+.difficulty-meta { font-size: 0.7rem; color: var(--text-2); }
+
+/* ==================== SPRINT 2-4: Reading Quiz ==================== */
+.quiz-progress { text-align: center; font-size: 0.85rem; color: var(--text-2); margin-bottom: 16px; font-weight: 600; }
+.quiz-question { font-size: 1.05rem; font-weight: 600; line-height: 1.5; margin-bottom: 20px; }
+.quiz-options { display: flex; flex-direction: column; gap: 10px; }
+.quiz-option { display: flex; align-items: center; gap: 12px; padding: 14px 16px; border-radius: 12px; border: 1px solid var(--border); background: var(--bg); color: var(--text-1); font-size: 0.92rem; cursor: pointer; transition: all 0.2s; text-align: left; }
+.quiz-option:active { transform: scale(0.98); }
+.quiz-option.correct { background: #10B981 !important; color: white !important; border-color: transparent !important; }
+.quiz-option.wrong { background: #EF4444 !important; color: white !important; border-color: transparent !important; }
+.quiz-option:disabled { opacity: 0.7; cursor: not-allowed; }
+.opt-letter { width: 24px; height: 24px; border-radius: 50%; background: var(--surface); color: var(--text-1); display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 0.78rem; flex-shrink: 0; }
+.quiz-option.correct .opt-letter, .quiz-option.wrong .opt-letter { background: rgba(255,255,255,0.25); color: white; }
+.quiz-result { text-align: center; }
+.quiz-result-emoji { font-size: 4rem; margin-bottom: 8px; }
+.quiz-result-score { font-size: 2.4rem; font-weight: 800; color: var(--accent); margin: 8px 0; }
+.quiz-result-acc { font-size: 0.95rem; color: var(--text-2); margin-bottom: 20px; }
+.quiz-review { text-align: left; }
+.quiz-review-item { padding: 12px; border-radius: 10px; margin-bottom: 8px; background: var(--bg); border-left: 3px solid #EF4444; }
+.quiz-review-item.correct { border-left-color: #10B981; }
+.quiz-review-q { font-size: 0.85rem; font-weight: 600; margin-bottom: 6px; }
+.quiz-review-ans, .quiz-review-correct, .quiz-review-expl { font-size: 0.78rem; color: var(--text-2); margin-top: 4px; }
+.quiz-review-correct { color: #10B981; }
+.quiz-launch-btn { width: 100%; padding: 16px; border-radius: 14px; border: none; background: linear-gradient(135deg, var(--accent), #8B5CF6); color: white; font-size: 1rem; font-weight: 700; cursor: pointer; margin-top: 20px; transition: all 0.2s; box-shadow: 0 8px 24px rgba(99, 102, 241, 0.3); }
+.quiz-launch-btn:active { transform: scale(0.98); }
+
+/* ==================== SPRINT 2-2: Vocab Test ==================== */
+.vocab-test-shortcut { background: var(--surface); border-radius: var(--radius); padding: 16px; box-shadow: var(--shadow); margin-bottom: 16px; display: flex; align-items: center; gap: 16px; cursor: pointer; transition: transform 0.2s; }
+.vocab-test-shortcut:active { transform: scale(0.98); }
+.vocab-test-shortcut-icon { width: 48px; height: 48px; border-radius: 14px; background: linear-gradient(135deg, #8B5CF6, #EC4899); color: white; display: flex; align-items: center; justify-content: center; font-size: 1.5rem; flex-shrink: 0; }
+.vocab-test-shortcut-info { flex: 1; }
+.vocab-test-shortcut-title { font-weight: 700; font-size: 0.95rem; }
+.vocab-test-shortcut-sub { font-size: 0.78rem; color: var(--text-2); margin-top: 2px; }
+.vocab-test-progress { text-align: center; font-size: 0.85rem; color: var(--text-2); margin-bottom: 16px; font-weight: 600; }
+.vocab-test-word { font-size: 2.4rem; font-weight: 800; font-family: var(--font-en); text-align: center; margin: 24px 0 12px; letter-spacing: 2px; }
+.vocab-test-prompt { text-align: center; color: var(--text-2); font-size: 0.9rem; margin-bottom: 24px; }
+.vocab-test-options { display: flex; flex-direction: column; gap: 10px; }
+.vocab-test-option { display: flex; align-items: center; gap: 12px; padding: 14px 16px; border-radius: 12px; border: 1px solid var(--border); background: var(--bg); color: var(--text-1); font-size: 0.92rem; cursor: pointer; transition: all 0.2s; text-align: left; }
+.vocab-test-option:active { transform: scale(0.98); }
+.vocab-test-option.correct { background: #10B981 !important; color: white !important; border-color: transparent !important; }
+.vocab-test-option.wrong { background: #EF4444 !important; color: white !important; border-color: transparent !important; }
+.vocab-test-option:disabled { opacity: 0.7; cursor: not-allowed; }
+.opt-meaning { flex: 1; }
+.vocab-test-result { text-align: center; }
+.vocab-test-emoji { font-size: 3.5rem; margin-bottom: 8px; }
+.vocab-test-number { font-size: 3.4rem; font-weight: 800; color: var(--accent); margin: 12px 0 4px; line-height: 1; }
+.vocab-test-range { font-size: 0.85rem; color: var(--text-2); margin-bottom: 8px; }
+.vocab-test-level { font-size: 1rem; font-weight: 700; color: var(--text-1); padding: 6px 16px; background: var(--bg); border-radius: 20px; display: inline-block; margin-bottom: 16px; }
+.vocab-test-stats { display: flex; justify-content: center; gap: 20px; font-size: 0.85rem; color: var(--text-2); margin-bottom: 20px; }
+.vocab-test-bars { text-align: left; }
+.vocab-test-bar { display: flex; align-items: center; gap: 8px; margin-bottom: 6px; }
+.bar-label { font-size: 0.7rem; font-weight: 600; color: var(--text-2); width: 56px; }
+.bar-track { flex: 1; height: 6px; background: var(--bg); border-radius: 3px; overflow: hidden; }
+.bar-fill { height: 100%; background: var(--accent); border-radius: 3px; transition: width 0.3s; }
+.bar-num { font-size: 0.7rem; font-weight: 700; color: var(--text-1); width: 32px; text-align: right; }
+
 /* QUOTE MODULE */
 .quote-page-inner { display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: calc(100vh - 100px); padding-top: 40px; }
 .quote-card { width: 100%; max-width: 400px; border-radius: var(--radius); position: relative; overflow: hidden; box-shadow: var(--shadow); display: flex; flex-direction: column; transition: transform 0.35s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.35s ease; }

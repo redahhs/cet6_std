@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <title>CET-6 Immersive</title>
-    <link rel="stylesheet" href="./css/index.css?v=10">
+    <link rel="stylesheet" href="./css/index.css?v=13">
 </head>
 <body>
     <div class="pages">
@@ -37,6 +37,46 @@
                 <div class="section-title" style="margin-bottom:0">Weekly Activity</div>
                 <div class="chart-bars" id="chartBars"></div>
             </div>
+
+            <!-- Sprint 1-1: 今日复习快捷入口 -->
+            <div class="review-shortcut" onclick="startReview()">
+                <div class="review-shortcut-icon">🔄</div>
+                <div class="review-shortcut-info">
+                    <div class="review-shortcut-title">Today's Review</div>
+                    <div class="review-shortcut-sub"><b id="homeReviewCount">0</b> words to review</div>
+                </div>
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 18l6-6-6-6"/></svg>
+            </div>
+
+            <!-- Sprint 2-6: 目标追踪 -->
+            <div id="homeGoals"></div>
+
+            <!-- Sprint 2-2: 词汇量测试 -->
+            <div class="vocab-test-shortcut" onclick="startVocabTest()">
+                <div class="vocab-test-shortcut-icon">🎓</div>
+                <div class="vocab-test-shortcut-info">
+                    <div class="vocab-test-shortcut-title">Vocabulary Test</div>
+                    <div class="vocab-test-shortcut-sub" id="vocabTestStatus">Take a 20-question adaptive test</div>
+                </div>
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 18l6-6-6-6"/></svg>
+            </div>
+
+            <!-- Sprint 1-4: 学习热力图 -->
+            <div class="heatmap-card">
+                <div class="section-title" style="margin-bottom:0">Activity (Last 90 days)</div>
+                <div id="homeHeatmap"></div>
+            </div>
+
+            <!-- Sprint 1-5: 成就入口 -->
+            <div class="achievement-shortcut" onclick="renderAchievementWall()">
+                <div class="achievement-shortcut-icon">🏆</div>
+                <div class="achievement-shortcut-info">
+                    <div class="achievement-shortcut-title">Achievements</div>
+                    <div class="achievement-shortcut-sub"><b id="homeAchievementCount">0/0</b> unlocked</div>
+                </div>
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 18l6-6-6-6"/></svg>
+            </div>
+
             <button class="cta-btn" onclick="switchTab('vocab', this)">Start Learning</button>
         </div>
 
@@ -50,6 +90,12 @@
                 </div>
                 <div class="alpha-nav" id="alphaNav" style="display:none">
                     <button class="alpha-btn active" data-letter="ALL" onclick="filterByLetter('ALL')">ALL</button>
+                </div>
+                <!-- Sprint 1-2/1-3: 学习模式切换 -->
+                <div class="mode-switcher">
+                    <button class="mode-btn active" data-mode="card" onclick="setVocabMode('card')">📇 Card</button>
+                    <button class="mode-btn" data-mode="listening" onclick="startListeningMode()">🔊 Listen</button>
+                    <button class="mode-btn" data-mode="spelling" onclick="startSpellingMode()">✏️ Spell</button>
                 </div>
             </div>
             <div class="vocab-page-inner">
@@ -79,8 +125,10 @@
                 <button class="back-btn" onclick="closeArticleDetail()"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M19 12H5M12 19l-7-7 7-7"/></svg> Back</button>
                 <h1 id="detailTitle"></h1>
                 <div class="detail-meta" id="detailMeta"></div>
+                <div id="detailDifficulty"></div>
                 <div class="word-legend"><span class="cet6-word">word</span> = CET-6 vocabulary, tap to see meaning</div>
                 <div class="detail-body" id="detailBody"></div>
+                <button class="quiz-launch-btn" id="detailQuizBtn">📝 Take Comprehension Quiz</button>
             </div>
         </div>
 
@@ -171,6 +219,41 @@
         </div>
     </div>
 
+    <!-- Sprint 1-6: Word Detail Bottom Sheet -->
+    <div id="wordSheetBackdrop" class="word-sheet-backdrop fixed inset-0 bg-black/60 backdrop-blur-sm z-40 hidden opacity-0 transition-opacity duration-300" onclick="closeWordSheet()"></div>
+    <div id="wordSheet" class="word-sheet fixed inset-x-0 bottom-0 bg-[var(--surface)] rounded-t-[32px] p-6 pb-10 z-50 shadow-2xl border-t border-[var(--border)]" style="padding-bottom: max(24px, env(safe-area-inset-bottom));">
+        <div class="w-12 h-1 bg-white/20 rounded-full mx-auto mb-6" onclick="closeWordSheet()"></div>
+        <div id="wordSheetContent" class="max-h-[60vh] overflow-y-auto"></div>
+    </div>
+
+    <!-- Sprint 1-5: Achievement Wall Modal -->
+    <div class="quote-modal" id="achievementModal" onclick="if(event.target===event.currentTarget) document.getElementById('achievementModal').classList.remove('active')">
+        <div class="quote-modal-content" onclick="event.stopPropagation()" style="max-height:80vh;display:flex;flex-direction:column">
+            <div class="modal-body" style="margin-top:0;padding:24px 24px 0;flex:1;overflow:hidden;display:flex;flex-direction:column">
+                <h2 style="font-size:1.4rem;font-weight:800;margin-bottom:8px">🏆 Achievements</h2>
+                <p style="font-size:0.85rem;color:var(--text-2);margin-bottom:20px">Unlock badges as you learn</p>
+                <div id="achievementWall" style="flex:1;overflow-y:auto;padding-bottom:24px;display:grid;grid-template-columns:repeat(3,1fr);gap:12px"></div>
+            </div>
+            <button class="modal-close" onclick="document.getElementById('achievementModal').classList.remove('active')"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>
+        </div>
+    </div>
+
+    <!-- Sprint 2-4: Reading Quiz Modal -->
+    <div class="quote-modal" id="quizModal" onclick="if(event.target===event.currentTarget) closeQuizModal()">
+        <div class="quote-modal-content" onclick="event.stopPropagation()" style="max-height:85vh;display:flex;flex-direction:column">
+            <div class="modal-body" id="quizContent" style="margin-top:0;padding:24px;flex:1;overflow-y:auto"></div>
+            <button class="modal-close" onclick="closeQuizModal()"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>
+        </div>
+    </div>
+
+    <!-- Sprint 2-2: Vocab Test Modal -->
+    <div class="quote-modal" id="vocabTestModal" onclick="if(event.target===event.currentTarget && !testState.active) closeVocabTestModal()">
+        <div class="quote-modal-content" onclick="event.stopPropagation()" style="max-height:80vh;display:flex;flex-direction:column">
+            <div class="modal-body" id="vocabTestContent" style="margin-top:0;padding:24px;flex:1;overflow-y:auto"></div>
+            <button class="modal-close" onclick="closeVocabTestModal()"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>
+        </div>
+    </div>
+
     <nav class="tab-bar">
         <div class="tab-item active" onclick="switchTab('home', this)"><div class="tab-icon-bg"><svg class="tab-icon" viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/></svg></div><span>Home</span></div>
         <div class="tab-item" onclick="switchTab('vocab', this)"><div class="tab-icon-bg"><svg class="tab-icon" viewBox="0 0 24 24"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg></div><span>Vocab</span></div>
@@ -179,6 +262,18 @@
         <div class="tab-item" onclick="switchTab('settings', this)"><div class="tab-icon-bg"><svg class="tab-icon" viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg></div><span>Settings</span></div>
     </nav>
 
-    <script src="./js/index.js?v=10"></script>
+    <script src="./js/migrate.js?v=13"></script>
+    <script src="./js/srs.js?v=13"></script>
+    <script src="./js/toast.js?v=13"></script>
+    <script src="./js/achievements.js?v=13"></script>
+    <script src="./js/heatmap.js?v=13"></script>
+    <script src="./js/dictionary.js?v=13"></script>
+    <script src="./js/listening.js?v=13"></script>
+    <script src="./js/spelling.js?v=13"></script>
+    <script src="./js/difficulty.js?v=13"></script>
+    <script src="./js/reading-extras.js?v=13"></script>
+    <script src="./js/vocab-test.js?v=13"></script>
+    <script src="./js/goals.js?v=13"></script>
+    <script src="./js/index.js?v=13"></script>
 </body>
 </html>
