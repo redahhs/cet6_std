@@ -98,9 +98,42 @@ function initHome() {
     const streakEl = document.getElementById('streakNum');
     const todayEl = document.getElementById('todayLearned');
     const knownEl = document.getElementById('totalKnown');
-    if (streakEl) streakEl.textContent = state.streak || 0;
+    if (streakEl) {
+        streakEl.textContent = state.streak || 0;
+        // 数字滚动动画
+        animateNumber(streakEl, state.streak || 0);
+    }
     if (todayEl) todayEl.textContent = state.todayLearned || 0;
     if (knownEl) knownEl.textContent = state.knownWords.length;
+
+    // Phase 6: 填充新统计卡片
+    const statKnown = document.getElementById('statKnown');
+    const statToday = document.getElementById('statToday');
+    const statStreak = document.getElementById('statStreak');
+    const statAch = document.getElementById('statAch');
+    if (statKnown) {
+        statKnown.textContent = state.knownWords.length;
+        animateNumber(statKnown, state.knownWords.length, 600);
+    }
+    if (statToday) {
+        statToday.textContent = state.todayLearned || 0;
+        animateNumber(statToday, state.todayLearned || 0, 500);
+    }
+    if (statStreak) {
+        statStreak.textContent = state.streak || 0;
+        animateNumber(statStreak, state.streak || 0, 700);
+    }
+    const achUnlocked = getUnlockedCount();
+    if (statAch) {
+        statAch.textContent = achUnlocked;
+        animateNumber(statAch, achUnlocked, 800);
+    }
+
+    // 计算今日进度比例
+    const dailyGoal = (state.goals && state.goals.dailyNewWords) || 20;
+    const todayProgress = state.todayLearned || 0;
+    const progressMeta = document.getElementById('progressMeta');
+    if (progressMeta) progressMeta.textContent = `${todayProgress} / ${dailyGoal}`;
 
     // 修复 3: 更新进度环
     const total = allWords.length;
@@ -121,7 +154,7 @@ function initHome() {
 
     // Sprint 1-5: 更新成就计数
     const achCountEl = document.getElementById('homeAchievementCount');
-    if (achCountEl) achCountEl.textContent = `${getUnlockedCount()}/${ACHIEVEMENTS.length}`;
+    if (achCountEl) achCountEl.textContent = `${achUnlocked}/${ACHIEVEMENTS.length}`;
 
     // Sprint 1-1: 显示今日复习数
     const reviewEl = document.getElementById('homeReviewCount');
@@ -129,6 +162,24 @@ function initHome() {
 
     // Sprint 2-6: 渲染目标进度
     renderGoalsWidget('homeGoals');
+}
+
+// 数字滚动动画
+function animateNumber(el, target, duration = 600) {
+    if (!el) return;
+    const start = parseInt(el.textContent) || 0;
+    if (start === target) return;
+    const startTime = performance.now();
+    const animate = (now) => {
+        const elapsed = now - startTime;
+        const progress = Math.min(elapsed / duration, 1);
+        // ease-out-quart
+        const eased = 1 - Math.pow(1 - progress, 4);
+        const current = Math.round(start + (target - start) * eased);
+        el.textContent = current;
+        if (progress < 1) requestAnimationFrame(animate);
+    };
+    requestAnimationFrame(animate);
 }
 
 // 修复 1: Streak 计算逻辑
@@ -570,7 +621,10 @@ function renderArticleList() {
     let totalCet6 = 0;
     let totalWords = 0;
 
-    list.innerHTML = readingArticles.map(article => {
+    // 文章封面图标
+    const coverIcons = ['📚', '🔬', '🌍', '💡', '🎨', '🚀', '🌱', '⚡', '🏛️', '🎭', '🔮', '🌟'];
+
+    list.innerHTML = readingArticles.map((article, idx) => {
         const cet6Found = countCet6Words(article.content);
         totalCet6 += cet6Found.size;
         totalWords += (article.content.match(/[a-z]+/gi) || []).length;
@@ -578,19 +632,38 @@ function renderArticleList() {
         const metrics = assessDifficulty(article.content);
         // Sprint 2-5: 检查收藏状态
         const bookmarked = isArticleBookmarked(article.id);
-        return `<div class="article-card" data-article-id="${escapeHtml(article.id)}">
-            <div class="article-card-header">
-                <h3>${escapeHtml(article.title)}</h3>
-                <button class="article-bookmark ${bookmarked ? 'bookmarked' : ''}" data-id="${escapeHtml(article.id)}" onclick="event.stopPropagation(); toggleArticleBookmark('${escapeHtml(article.id)}')">${bookmarked ? '⭐' : '☆'}</button>
+
+        const icon = coverIcons[idx % coverIcons.length];
+        const difficultyClass = metrics.score <= 2 ? 'difficulty-easy' : metrics.score <= 3 ? 'difficulty-medium' : 'difficulty-hard';
+        const difficultyLabel = metrics.score <= 2 ? 'Easy' : metrics.score <= 3 ? 'Medium' : 'Hard';
+        const stars = '★'.repeat(metrics.score) + '☆'.repeat(5 - metrics.score);
+
+        return `<article class="article-card" data-article-id="${escapeHtml(article.id)}" role="button" tabindex="0" aria-label="Read article: ${escapeHtml(article.title)}">
+            <div class="article-cover">
+                <div class="article-cover-pattern"></div>
+                <div class="article-cover-icon" aria-hidden="true">${icon}</div>
             </div>
-            <div class="meta"><span>${escapeHtml(article.author)}</span><span>${escapeHtml(article.date)}</span></div>
-            ${renderDifficultyBadge(metrics)}
-            <div class="preview">${escapeHtml(article.content)}</div>
+            <div class="article-body">
+                <div class="article-card-header">
+                    <h3>${escapeHtml(article.title)}</h3>
+                    <button class="article-bookmark ${bookmarked ? 'bookmarked' : ''}" data-id="${escapeHtml(article.id)}" onclick="event.stopPropagation(); toggleArticleBookmark('${escapeHtml(article.id)}')" aria-label="${bookmarked ? 'Remove bookmark' : 'Add bookmark'}">${bookmarked ? '⭐' : '☆'}</button>
+                </div>
+                <div class="article-tags">
+                    <span class="article-tag cet6">${cet6Found.size} CET-6</span>
+                    <span class="article-tag ${difficultyClass}">${difficultyLabel} ${stars}</span>
+                </div>
+                <div class="meta">
+                    <span>${escapeHtml(article.author || 'Unknown')}</span>
+                    <span class="meta-dot"></span>
+                    <span>${escapeHtml(article.date || '—')}</span>
+                </div>
+                <div class="preview">${escapeHtml(article.content)}</div>
+            </div>
             <div class="article-card-footer">
-                <span class="cet6-count">${cet6Found.size} CET-6 words</span>
                 <span class="article-words">${metrics.wordCount} words · ${metrics.estimatedMinutes} min</span>
+                <span>Tap to read →</span>
             </div>
-        </div>`;
+        </article>`;
     }).join('');
 
     document.getElementById('readingTotal').textContent = readingArticles.length;
@@ -599,7 +672,14 @@ function renderArticleList() {
 
     // 事件委托
     list.querySelectorAll('.article-card').forEach(card => {
-        card.onclick = () => openArticleDetail(card.dataset.articleId);
+        const onActivate = () => openArticleDetail(card.dataset.articleId);
+        card.onclick = onActivate;
+        card.onkeydown = (e) => {
+            if (e.key === 'Enter' || e.key === ' ') {
+                e.preventDefault();
+                onActivate();
+            }
+        };
     });
 }
 

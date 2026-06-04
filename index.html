@@ -4,24 +4,95 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <title>CET-6 Immersive</title>
-    <link rel="stylesheet" href="./css/index.css?v=13">
+    <link rel="stylesheet" href="./css/index.css?v=15">
 </head>
 <body>
     <div class="pages">
+        <a href="#main" class="skip-link">Skip to main content</a>
         <!-- HOME -->
-        <div class="page active" id="page-home">
+        <main class="page active" id="page-home">
+            <div id="main" tabindex="-1"></div>
             <div class="home-header">
                 <div class="greeting-sub" id="greetSub"></div>
                 <div class="greeting-main" id="greetMain"></div>
             </div>
-            <div class="streak-card">
-                <div class="streak-info"><h3>Current Streak</h3><span class="num" id="streakNum">0</span><span class="unit">days</span></div>
-                <div class="streak-flame">🔥</div>
+
+            <!-- Streak Card — 渐变光晕 -->
+            <div class="streak-card" aria-label="Current streak">
+                <div class="streak-info">
+                    <h3>Current Streak</h3>
+                    <span class="num" id="streakNum">0</span>
+                    <span class="unit">days</span>
+                </div>
+                <div class="streak-flame" aria-hidden="true">🔥</div>
             </div>
-            <div class="section-title">Today's Progress</div>
+
+            <!-- Stats Grid — 图标 + 数值 + 趋势 -->
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="stat-card-icon indigo" aria-hidden="true">📘</div>
+                    <div class="stat-card-value">
+                        <span id="statKnown">0</span>
+                        <span class="stat-card-suffix">words</span>
+                    </div>
+                    <div class="stat-card-label">Total learned</div>
+                    <div class="stat-trend up" id="statKnownTrend">
+                        <span class="stat-trend-arrow">↑</span>
+                        <span id="statKnownTrendVal">0%</span>
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-card-icon emerald" aria-hidden="true">🎯</div>
+                    <div class="stat-card-value">
+                        <span id="statToday">0</span>
+                        <span class="stat-card-suffix">today</span>
+                    </div>
+                    <div class="stat-card-label">New words</div>
+                    <div class="stat-trend up" id="statTodayTrend">
+                        <span class="stat-trend-arrow">↑</span>
+                        <span>Active</span>
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-card-icon amber" aria-hidden="true">🔥</div>
+                    <div class="stat-card-value">
+                        <span id="statStreak">0</span>
+                        <span class="stat-card-suffix">days</span>
+                    </div>
+                    <div class="stat-card-label">Streak</div>
+                    <div class="stat-trend neutral" id="statStreakTrend">
+                        <span class="stat-trend-arrow">●</span>
+                        <span>Keep going</span>
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-card-icon rose" aria-hidden="true">🏆</div>
+                    <div class="stat-card-value">
+                        <span id="statAch">0</span>
+                        <span class="stat-card-suffix">badges</span>
+                    </div>
+                    <div class="stat-card-label">Achievements</div>
+                    <div class="stat-trend up" id="statAchTrend">
+                        <span class="stat-trend-arrow">↑</span>
+                        <span>Unlock</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Today's Progress Ring -->
+            <div class="section-title">Today's Progress<span class="section-title-meta" id="progressMeta">0 / 20</span></div>
             <div class="progress-card">
                 <div class="ring-container">
-                    <svg class="ring-svg" viewBox="0 0 100 100"><circle class="ring-bg" cx="50" cy="50" r="42"/><circle class="ring-fill" cx="50" cy="50" r="42" stroke-dasharray="264" stroke-dashoffset="264" id="ringFill"/></svg>
+                    <svg class="ring-svg" viewBox="0 0 100 100" aria-hidden="true">
+                        <defs>
+                            <linearGradient id="ringGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+                                <stop offset="0%" stop-color="var(--accent)"/>
+                                <stop offset="100%" stop-color="color-mix(in srgb, var(--accent) 60%, #EC4899)"/>
+                            </linearGradient>
+                        </defs>
+                        <circle class="ring-bg" cx="50" cy="50" r="42"/>
+                        <circle class="ring-fill" cx="50" cy="50" r="42" stroke-dasharray="264" stroke-dashoffset="264" id="ringFill"/>
+                    </svg>
                     <div class="ring-text" id="ringText">0%</div>
                 </div>
                 <div class="progress-detail">
@@ -33,32 +104,34 @@
                     </div>
                 </div>
             </div>
+
+            <!-- Weekly Activity -->
+            <div class="section-title">Weekly Activity</div>
             <div class="chart-card">
-                <div class="section-title" style="margin-bottom:0">Weekly Activity</div>
                 <div class="chart-bars" id="chartBars"></div>
             </div>
 
             <!-- Sprint 1-1: 今日复习快捷入口 -->
-            <div class="review-shortcut" onclick="startReview()">
-                <div class="review-shortcut-icon">🔄</div>
+            <div class="review-shortcut" onclick="startReview()" role="button" tabindex="0" aria-label="Start today's review">
+                <div class="review-shortcut-icon" aria-hidden="true">🔄</div>
                 <div class="review-shortcut-info">
                     <div class="review-shortcut-title">Today's Review</div>
                     <div class="review-shortcut-sub"><b id="homeReviewCount">0</b> words to review</div>
                 </div>
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 18l6-6-6-6"/></svg>
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M9 18l6-6-6-6"/></svg>
             </div>
 
             <!-- Sprint 2-6: 目标追踪 -->
             <div id="homeGoals"></div>
 
             <!-- Sprint 2-2: 词汇量测试 -->
-            <div class="vocab-test-shortcut" onclick="startVocabTest()">
-                <div class="vocab-test-shortcut-icon">🎓</div>
+            <div class="vocab-test-shortcut" onclick="startVocabTest()" role="button" tabindex="0" aria-label="Start vocabulary test">
+                <div class="vocab-test-shortcut-icon" aria-hidden="true">🎓</div>
                 <div class="vocab-test-shortcut-info">
                     <div class="vocab-test-shortcut-title">Vocabulary Test</div>
                     <div class="vocab-test-shortcut-sub" id="vocabTestStatus">Take a 20-question adaptive test</div>
                 </div>
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 18l6-6-6-6"/></svg>
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M9 18l6-6-6-6"/></svg>
             </div>
 
             <!-- Sprint 1-4: 学习热力图 -->
@@ -68,17 +141,20 @@
             </div>
 
             <!-- Sprint 1-5: 成就入口 -->
-            <div class="achievement-shortcut" onclick="renderAchievementWall()">
-                <div class="achievement-shortcut-icon">🏆</div>
+            <div class="achievement-shortcut" onclick="renderAchievementWall()" role="button" tabindex="0" aria-label="View achievements">
+                <div class="achievement-shortcut-icon" aria-hidden="true">🏆</div>
                 <div class="achievement-shortcut-info">
                     <div class="achievement-shortcut-title">Achievements</div>
                     <div class="achievement-shortcut-sub"><b id="homeAchievementCount">0/0</b> unlocked</div>
                 </div>
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 18l6-6-6-6"/></svg>
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M9 18l6-6-6-6"/></svg>
             </div>
 
-            <button class="cta-btn" onclick="switchTab('vocab', this)">Start Learning</button>
-        </div>
+            <button class="cta-btn" onclick="switchTab('vocab', this)">
+                Start Learning
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" aria-hidden="true"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+            </button>
+        </main>
 
         <!-- VOCAB -->
         <div class="page" id="page-vocab">
@@ -262,18 +338,18 @@
         <div class="tab-item" onclick="switchTab('settings', this)"><div class="tab-icon-bg"><svg class="tab-icon" viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg></div><span>Settings</span></div>
     </nav>
 
-    <script src="./js/migrate.js?v=13"></script>
-    <script src="./js/srs.js?v=13"></script>
-    <script src="./js/toast.js?v=13"></script>
-    <script src="./js/achievements.js?v=13"></script>
-    <script src="./js/heatmap.js?v=13"></script>
-    <script src="./js/dictionary.js?v=13"></script>
-    <script src="./js/listening.js?v=13"></script>
-    <script src="./js/spelling.js?v=13"></script>
-    <script src="./js/difficulty.js?v=13"></script>
-    <script src="./js/reading-extras.js?v=13"></script>
-    <script src="./js/vocab-test.js?v=13"></script>
-    <script src="./js/goals.js?v=13"></script>
-    <script src="./js/index.js?v=13"></script>
+    <script src="./js/migrate.js?v=15"></script>
+    <script src="./js/srs.js?v=15"></script>
+    <script src="./js/toast.js?v=15"></script>
+    <script src="./js/achievements.js?v=15"></script>
+    <script src="./js/heatmap.js?v=15"></script>
+    <script src="./js/dictionary.js?v=15"></script>
+    <script src="./js/listening.js?v=15"></script>
+    <script src="./js/spelling.js?v=15"></script>
+    <script src="./js/difficulty.js?v=15"></script>
+    <script src="./js/reading-extras.js?v=15"></script>
+    <script src="./js/vocab-test.js?v=15"></script>
+    <script src="./js/goals.js?v=15"></script>
+    <script src="./js/index.js?v=15"></script>
 </body>
 </html>
