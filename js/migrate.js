@@ -2,6 +2,18 @@
 
 const STATE_VERSION = 5;  // 当前数据结构版本
 
+// 工具函数：获取本地 ISO 日期 (YYYY-MM-DD)
+function todayISO() {
+    const d = new Date();
+    const y = d.getFullYear();
+    const m = String(d.getMonth() + 1).padStart(2, '0');
+    const day = String(d.getDate()).padStart(2, '0');
+    return `${y}-${m}-${day}`;
+}
+
+// 暴露为全局函数，确保其他模块可访问
+window.todayISO = todayISO;
+
 function migrateState(rawState) {
     if (!rawState) return getDefaultState();
     let s = rawState;

@@ -184,7 +184,8 @@ function animateNumber(el, target, duration = 600) {
 
 // 修复 1: Streak 计算逻辑
 function updateStreak() {
-    const today = new Date().toISOString().split('T')[0];
+    // 使用本地日期（与 todayISO 一致），避免 UTC 跨日问题
+    const today = todayISO();
     if (state.lastStudyDate === today) {
         // 今天已经记录过，只增加今日计数
         state.todayLearned = (state.todayLearned || 0) + 1;
@@ -193,9 +194,9 @@ function updateStreak() {
     }
 
     if (state.lastStudyDate) {
-        const last = new Date(state.lastStudyDate);
-        const now = new Date(today);
-        const diffDays = Math.floor((now - last) / (1000 * 60 * 60 * 24));
+        const last = new Date(state.lastStudyDate + 'T00:00:00');
+        const now = new Date(today + 'T00:00:00');
+        const diffDays = Math.round((now - last) / (1000 * 60 * 60 * 24));
 
         if (diffDays === 1) {
             state.streak = (state.streak || 0) + 1;  // 连续一天
@@ -590,8 +591,14 @@ async function loadReadingModule() {
         return;
     }
 
+    // 修复：避免维基百科网络超时阻塞 UI 渲染，使用 AbortController + 短超时
     try {
-        const wikiRes = await fetch('https://en.wikipedia.org/api/rest_v1/page/summary/Artificial_intelligence');
+        const controller = new AbortController();
+        const timeoutId = setTimeout(() => controller.abort(), 4000);
+        const wikiRes = await fetch('https://en.wikipedia.org/api/rest_v1/page/summary/Artificial_intelligence', {
+            signal: controller.signal
+        });
+        clearTimeout(timeoutId);
         if (wikiRes.ok) {
             const wikiData = await wikiRes.json();
             if (wikiData.extract && !readingArticles.find(a => a.id === 'wiki-ai')) {
@@ -604,7 +611,9 @@ async function loadReadingModule() {
                 });
             }
         }
-    } catch(e) {}
+    } catch(e) {
+        // 静默失败：维基百科不可用不影响核心功能
+    }
 
     renderArticleList();
 }
@@ -657,7 +666,7 @@ function renderArticleList() {
                     <span class="meta-dot"></span>
                     <span>${escapeHtml(article.date || '—')}</span>
                 </div>
-                <div class="preview">${escapeHtml(article.content)}</div>
+                <div class="preview">${escapeHtml((article.content || '').slice(0, 140))}…</div>
             </div>
             <div class="article-card-footer">
                 <span class="article-words">${metrics.wordCount} words · ${metrics.estimatedMinutes} min</span>

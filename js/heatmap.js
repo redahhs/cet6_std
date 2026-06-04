@@ -17,9 +17,13 @@ function renderHeatmap(containerId) {
     const cells = [];
 
     for (let i = days - 1; i >= 0; i--) {
-        const d = new Date(today);
+        const d = new Date();
         d.setDate(d.getDate() - i);
-        const key = d.toISOString().split('T')[0];
+        // 修复：使用本地日期格式与 todayISO() 保持一致
+        const y = d.getFullYear();
+        const m = String(d.getMonth() + 1).padStart(2, '0');
+        const day = String(d.getDate()).padStart(2, '0');
+        const key = `${y}-${m}-${day}`;
         const count = data[key] || 0;
         let level = 0;
         if (count > 0) level = 1;
