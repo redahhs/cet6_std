@@ -1,4 +1,4 @@
-const CACHE_NAME = 'cet6-immersive-v16';
+const CACHE_NAME = 'cet6-immersive-v17';
 
 // 修复 7: 只缓存实际存在的文件
 const PRECACHE_ASSETS = [
