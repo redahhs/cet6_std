@@ -340,6 +340,7 @@ function renderCard() {
     card.dataset.word = w.word;
     card.dataset.saved = isSaved ? '1' : '0';
     card.innerHTML = `
+        <div class="word-card-top-spacer" aria-hidden="true"></div>
         <div class="word-en">${escapeHtml(w.word)}</div>
         <div class="word-meta">
             <div class="word-phonetic">${escapeHtml(w.pos)}</div>
@@ -350,6 +351,7 @@ function renderCard() {
         <div class="word-cn">${escapeHtml(w.meaning)}</div>
         <div class="word-example">"${escapeHtml(w.phrases.length > 0 ? w.phrases[0].phrase : '')}"</div>
         <div class="tap-hint">Tap to reveal</div>
+        <div class="word-card-bottom-spacer" aria-hidden="true"></div>
     `;
     // 不再为 card / speak-btn / save-btn 单独 addEventListener
     // 所有事件由 _initCardEventDelegation 的委托监听器处理
