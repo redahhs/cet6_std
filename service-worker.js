@@ -1,5 +1,5 @@
 /**
- * Service Worker v19 - PWA + 离线优化
+ * Service Worker v21 - PWA + 离线优化
  * - Network First for HTML (with offline fallback)
  * - Stale-while-revalidate for data
  * - Cache First for assets
@@ -7,7 +7,7 @@
  * - 后台同步支持
  */
 
-const CACHE_VERSION = 'v20';
+const CACHE_VERSION = 'v21';
 const CACHE_NAME = `cet6-immersive-${CACHE_VERSION}`;
 const DATA_CACHE = `cet6-data-${CACHE_VERSION}`;
 const OFFLINE_URL = './offline.html';

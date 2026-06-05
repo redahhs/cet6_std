@@ -1,17 +1,22 @@
 let quotes = [];
 let currentQuote = null;
 let isSaved = false;
+// 暴露到全局,供首页 hero 卡片使用
+window.allQuotes = quotes;
 
 document.addEventListener('DOMContentLoaded', async () => {
   await loadQuotes();
   setupDailyQuote();
   setupBackgroundInteraction();
+  // 触发首页 hero 更新
+  if (typeof window.loadDailyQuoteHero === 'function') window.loadDailyQuoteHero();
 });
 
 async function loadQuotes() {
   try {
     const res = await fetch('./data/quotes.json');
     quotes = await res.json();
+    window.allQuotes = quotes;  // 同步全局
   } catch (e) {
     console.error("Failed to load quotes", e);
   }

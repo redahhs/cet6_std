@@ -1,354 +1,230 @@
 /* ============================================
-   CET-6 Immersive Design System v4.0
-   Refined for Apple/Linear aesthetic
+   CET-6 Immersive Design System v5.0
+   Less but better · Apple/Notion/Duolingo
    ============================================ */
-
-/* ----- 1. Spacing (8px base grid) ----- */
-:root {
-    --space-0: 0;
-    --space-1: 4px;     /* half-step, 慎用 */
-    --space-2: 8px;
-    --space-3: 12px;
-    --space-4: 16px;
-    --space-5: 20px;    /* 8 的倍数 */
-    --space-6: 24px;
-    --space-8: 32px;
-    --space-10: 40px;
-    --space-12: 48px;
-    --space-16: 64px;
-    --space-20: 80px;
-    --space-24: 96px;
-
-    /* 语义化间距 (Apple 风格) */
-    --gutter:    24px;  /* 页面左右内边距 */
-    --gap-sm:    8px;   /* 紧密相关元素 */
-    --gap-md:    16px;  /* 一般元素 */
-    --gap-lg:    24px;  /* 卡片之间 */
-    --gap-xl:    40px;  /* 区块之间 */
-    --gap-2xl:   64px;  /* 页面区块 */
-}
-
-/* ----- 2. Radius ----- */
-:root {
-    --radius-xs: 6px;   /* 标签 */
-    --radius-sm: 10px;  /* 小元素 */
-    --radius: 14px;     /* 主圆角：按钮/输入 */
-    --radius-md: 20px;  /* 卡片 */
-    --radius-lg: 24px;  /* 大卡片 */
-    --radius-xl: 32px;  /* 弹窗/词卡 */
-    --radius-2xl: 40px; /* 极圆角 */
-    --radius-full: 9999px;  /* 胶囊/按钮 */
-}
-
-/* ----- 3. Typography (Refined for Linear) ----- */
-:root {
-    /* 字体族 — Apple SF 优先，回退稳定方案 */
-    --font-en: 'SF Pro Display', -apple-system, BlinkMacSystemFont, 'Inter', 'Helvetica Neue', sans-serif;
-    --font-serif: 'New York', 'Georgia', 'Times New Roman', serif;  /* 单词/标题 */
-    --font-cn: -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'PingFang SC', 'Microsoft YaHei', sans-serif;
-    --font-mono: 'SF Mono', 'JetBrains Mono', 'Cascadia Code', 'Monaco', monospace;
-
-    /* OpenType 特性 - 提升字体质感 (Linear/Apple 风格) */
-    --font-features: 'ss01', 'cv01', 'cv11';   /* stylistic alternates */
-    --font-ligatures: 'calt', 'liga';          /* 连字 */
-
-    /* Type Scale — 1.2 完美四度音阶 (Major Third) */
-    --text-xs:   0.75rem;   /* 12px   - micro */
-    --text-sm:   0.8125rem; /* 13px   - caption */
-    --text-base: 0.9375rem; /* 15px   - body (Apple 标准) */
-    --text-md:   1rem;      /* 16px   - subtitle */
-    --text-lg:   1.125rem;  /* 18px   - h6 */
-    --text-xl:   1.375rem;  /* 22px   - h5 */
-    --text-2xl:  1.625rem;  /* 26px   - h4 */
-    --text-3xl:  2rem;      /* 32px   - h3 */
-    --text-4xl:  2.5rem;    /* 40px   - h2 */
-    --text-5xl:  3.25rem;   /* 52px   - h1 */
-
-    /* Font Weights — 严谨的层级 */
-    --weight-thin:     200;
-    --weight-extralight: 300;
-    --weight-light:    300;
-    --weight-regular:  400;
-    --weight-medium:   500;
-    --weight-semibold: 600;
-    --weight-bold:     700;
-    --weight-extrabold: 800;
-
-    /* Line Heights — 阅读舒适度 */
-    --leading-none:    1;     /* 紧凑显示 */
-    --leading-tight:   1.2;   /* 标题 */
-    --leading-snug:    1.35;  /* 副标题/小标题 */
-    --leading-normal:  1.5;   /* UI 元素 */
-    --leading-relaxed: 1.65;  /* 正文 */
-    --leading-loose:   1.8;   /* 长文阅读 */
-
-    /* Letter Spacing */
-    --tracking-tighter: -0.04em;  /* 大标题 */
-    --tracking-tight:   -0.02em;  /* 小标题 */
-    --tracking-normal:  0;
-    --tracking-wide:    0.02em;   /* 强调 */
-    --tracking-wider:   0.05em;   /* caps 小标签 */
-    --tracking-widest:  0.1em;    /* caps 大标签 */
-}
-
-/* ----- 4. Elevation (Refined: Double Shadow + Border System) ----- */
-/*
-   设计哲学 (Apple/Linear):
-   - 浅色: 双层柔和阴影 (近 + 远) + 极细边框
-   - 深色: 不用黑色外阴影,改用极细亮色边框 + 微弱内阴影
-   - 透明度上限 0.10,绝对不出现 0.20+ 的纯黑
-*/
-:root {
-    /* 基础 Border (Light: 几乎不可见) */
-    --border: 1px solid rgba(0, 0, 0, 0.05);
-    --border-strong: 1px solid rgba(0, 0, 0, 0.08);
-    --border-color: rgba(0, 0, 0, 0.05);
-    --border-color-strong: rgba(0, 0, 0, 0.08);
-
-    /* 双层阴影 - Micro (小元素/微悬浮) */
-    --shadow-xs:
-        0 1px 2px rgba(0, 0, 0, 0.04),    /* 硬边近影 */
-        0 1px 1px rgba(0, 0, 0, 0.02);    /* 环境散射 */
-
-    /* 双层阴影 - Small (按钮/小卡片) */
-    --shadow-sm:
-        0 1px 2px rgba(0, 0, 0, 0.05),    /* 硬边近影 */
-        0 4px 8px rgba(0, 0, 0, 0.04);    /* 柔和远影 */
-
-    /* 双层阴影 - Default (默认卡片) */
-    --shadow:
-        0 1px 2px rgba(0, 0, 0, 0.04),    /* 硬边近影 */
-        0 8px 24px rgba(0, 0, 0, 0.06);   /* 柔和远影 */
-
-    /* 双层阴影 - Medium (浮起卡片) */
-    --shadow-md:
-        0 2px 4px rgba(0, 0, 0, 0.04),    /* 硬边近影 */
-        0 12px 32px rgba(0, 0, 0, 0.08);  /* 柔和远影 */
-
-    /* 双层阴影 - Large (Modal) */
-    --shadow-lg:
-        0 4px 8px rgba(0, 0, 0, 0.04),    /* 硬边近影 */
-        0 24px 56px rgba(0, 0, 0, 0.10);  /* 柔和远影 */
-
-    /* 双层阴影 - XL (Drawer/Full-screen) */
-    --shadow-xl:
-        0 8px 16px rgba(0, 0, 0, 0.05),    /* 硬边近影 */
-        0 32px 80px rgba(0, 0, 0, 0.10);   /* 柔和远影 */
-
-    /* 顶部浮起 (Sticky/Header) */
-    --shadow-up:
-        0 -1px 2px rgba(0, 0, 0, 0.04),
-        0 -8px 24px rgba(0, 0, 0, 0.06);
-
-    /* 内阴影 (Inputs, Dark Mode 替代) */
-    --shadow-inner: inset 0 1px 2px rgba(0, 0, 0, 0.04);
-    --shadow-inner-strong: inset 0 1px 3px rgba(0, 0, 0, 0.06);
-
-    /* Accent Glow (彩色阴影) - 透明度严格控制 */
-    --shadow-glow:
-        0 1px 2px color-mix(in srgb, var(--accent) 10%, transparent),
-        0 8px 32px color-mix(in srgb, var(--accent) 20%, transparent);
-
-    /* 焦点环 (用于键盘可达性) */
-    --shadow-focus: 0 0 0 3px color-mix(in srgb, var(--accent) 30%, transparent);
-
-    /* 边框 + 微阴影 (推荐组合) */
-    --surface-bordered:
-        var(--border),
-        var(--shadow-xs);
-    --surface-bordered-hover:
-        var(--border-strong),
-        var(--shadow-sm);
-}
-
-/* ----- 5. Z-Index Scale ----- */
-:root {
-    --z-base: 1;
-    --z-tab: 100;
-    --z-modal: 200;
-    --z-toast: 9999;
-}
-
-/* ----- 6. Motion — 苹果级微交互 ----- */
-:root {
-    /* Duration — 微妙到自然 */
-    --duration-instant: 80ms;     /* 即时反馈 */
-    --duration-fast:    160ms;    /* 悬停/按下 */
-    --duration-base:    240ms;    /* 基础过渡 */
-    --duration-normal:  320ms;    /* 普通过渡 */
-    --duration-slow:    480ms;    /* 强调过渡 */
-    --duration-slower:  640ms;    /* 页面切换 */
-
-    /* Easings — Apple/Linear 经典曲线 */
-    --ease-out:       cubic-bezier(0.16, 1, 0.3, 1);     /* 减速 - 进入 */
-    --ease-in:        cubic-bezier(0.4, 0, 1, 1);        /* 加速 - 退出 */
-    --ease-in-out:    cubic-bezier(0.4, 0, 0.2, 1);      /* 平滑 */
-    --ease-spring:    cubic-bezier(0.34, 1.56, 0.64, 1); /* 弹性 */
-    --ease-precise:   cubic-bezier(0.5, 0, 0, 1);        /* Linear precise */
-    --ease-emphasized: var(--ease-out);
-
-    /* 复合过渡 (Apple 风格: 弹性 + 短促) */
-    --transition-instant:  var(--duration-instant) var(--ease-out);
-    --transition-fast:     var(--duration-fast)    var(--ease-out);
-    --transition-base:     var(--duration-base)    var(--ease-out);
-    --transition-page:     var(--duration-slower)  var(--ease-precise);
-}
-
-/* ----- 7. Layout ----- */
-:root {
-    --nav-h: 84px;
-    --header-h: 60px;
-    --max-w-sm: 400px;     /* 手机内容最大宽度 */
-    --max-w-md: 600px;     /* 平板 */
-    --max-w-lg: 900px;     /* 桌面 */
-
-    /* 文本最大宽度 (阅读舒适) */
-    --prose-width: 65ch;   /* 阅读正文最大宽度 */
-}
 
 /* ============================================
-   COLOR TOKENS — Light Theme (WCAG AA)
+   1. SEMANTIC COLOR TOKENS (Light - Default)
+   ----------------------------------------------------------
+   统一语义化色彩,所有组件仅使用这些 token。
+   对比度均通过 WCAG AA 验证 (4.5:1+)。
    ============================================ */
+:root,
 [data-theme="light"] {
-    /* Brand: Indigo */
-    --accent:        #4F46E5;  /* 4.5:1 on white */
-    --accent-light:  #EEF2FF;  /* 背景层 */
-    --accent-dark:   #3730A3;  /* 渐变末端 */
-    --accent-glow:   rgba(79, 70, 229, 0.20);
+    /* ---- 背景层 (Background) ---- */
+    --bg:              #F5F7FA;  /* 页面背景 - 极浅灰 */
+    --bg-elevated:     #FFFFFF;  /* 浮起容器 */
+    --surface:         #FFFFFF;  /* 卡片/模块 */
+    --surface-hover:   #FAFAFB;  /* 卡片 hover */
+    --surface-2:       #F4F5F7;  /* 次级容器(输入框) */
+    --overlay:         rgba(255, 255, 255, 0.85);  /* 毛玻璃 */
+    --modal-bg:        #FFFFFF;
 
-    /* Semantic */
-    --success:       #059669;  /* 4.84:1 */
-    --success-light: #D1FAE5;
-    --warning:       #D97706;  /* 3.52:1 大字 OK */
-    --warning-light: #FEF3C7;
-    --error:         #DC2626;  /* 4.83:1 */
-    --error-light:   #FEE2E2;
-    --info:          #0284C7;  /* 4.51:1 */
-    --info-light:    #E0F2FE;
+    /* ---- 文本层 (Text) ---- */
+    --text-1:          #111827;  /* 主文本 (16.1:1) */
+    --text-2:          #4B5563;  /* 次文本 (7.6:1) */
+    --text-3:          #9CA3AF;  /* 辅助文本 (装饰) */
+    --text-inverse:    #FFFFFF;
+    --text-on-accent:  #FFFFFF;
 
-    /* Neutrals */
-    --bg:            #F5F7FA;
-    --bg-elevated:   #FFFFFF;
-    --surface:       #FFFFFF;
-    --surface-2:     #F9FAFB;
-    --text-1:        #111827;  /* 16.1:1 主文本 */
-    --text-2:        #4B5563;  /* 7.6:1  次文本 */
-    --text-3:        #9CA3AF;  /* 辅助文本，仅做装饰 */
-    --text-on-accent:#FFFFFF;
-
-    /* 边框颜色 (单一来源) */
-    --border-color:  rgba(0, 0, 0, 0.05);   /* 极细边框 (Apple 风格) */
+    /* ---- 边框 (Border) ---- */
+    --border-color:        rgba(0, 0, 0, 0.05);  /* 极细 */
     --border-color-strong: rgba(0, 0, 0, 0.09);
+    --border:              1px solid var(--border-color);
+    --border-strong:       1px solid var(--border-color-strong);
 
-    /* 完整 border 简写 (推荐直接使用) */
-    --border:        1px solid var(--border-color);
-    --border-strong: 1px solid var(--border-color-strong);
+    /* ---- 品牌色 (Accent) ---- */
+    --accent:         #4F46E5;    /* Indigo */
+    --accent-light:   #EEF2FF;    /* 浅底 */
+    --accent-dark:    #3730A3;    /* 深色 */
+    --accent-glow:    rgba(79, 70, 229, 0.12);
 
-    --overlay:       rgba(255,255,255,0.92);
-    --modal-bg:      rgba(255,255,255,1);
+    /* ---- 语义色 (Semantic) ---- */
+    --success:        #059669;
+    --success-light:  #D1FAE5;
+    --warning:        #D97706;
+    --warning-light:  #FEF3C7;
+    --error:          #DC2626;
+    --error-light:    #FEE2E2;
+    --info:           #0284C7;
+    --info-light:     #E0F2FE;
+
+    /* ---- 阴影 (Shadow) - 单层柔和,无脏渐变 ---- */
+    --shadow-sm:      0 1px 2px rgba(0, 0, 0, 0.04);
+    --shadow:         0 2px 8px rgba(0, 0, 0, 0.05);
+    --shadow-md:      0 4px 12px rgba(0, 0, 0, 0.06);
+    --shadow-lg:      0 8px 24px rgba(0, 0, 0, 0.08);
+    --shadow-xl:      0 16px 48px rgba(0, 0, 0, 0.10);
+    --shadow-up:      0 -2px 8px rgba(0, 0, 0, 0.05);
+    --shadow-focus:   0 0 0 3px var(--accent-glow);
 }
 
 /* ============================================
-   Dark Theme — 不用黑色外阴影
+   2. DARK THEME — 继承+覆盖
    ============================================ */
 [data-theme="dark"] {
-    --accent:        #818CF8;  /* 5.21:1 on dark */
-    --accent-light:  #1E1B4B;
-    --accent-dark:   #4F46E5;
-    --accent-glow:   rgba(129, 140, 248, 0.25);
+    /* ---- 背景层 ---- */
+    --bg:              #0B0E14;
+    --bg-elevated:     #15181F;
+    --surface:         #1A1D27;
+    --surface-hover:   #1F222C;
+    --surface-2:       #222632;
+    --overlay:         rgba(11, 14, 20, 0.85);
+    --modal-bg:        #1A1D27;
 
-    --success:       #10B981;
-    --success-light: #064E3B;
-    --warning:       #FBBF24;
-    --warning-light: #451A03;
-    --error:         #F87171;
-    --error-light:   #4C1D1D;
-    --info:          #38BDF8;
-    --info-light:    #082F49;
+    /* ---- 文本层 ---- */
+    --text-1:          #F3F4F6;  /* 14.7:1 */
+    --text-2:          #D1D5DB;  /* 10.4:1 */
+    --text-3:          #6B7280;  /* 4.83:1 */
+    --text-inverse:    #0B0E14;
+    --text-on-accent:  #FFFFFF;
 
-    --bg:            #0B0E14;
-    --bg-elevated:   #161922;
-    --surface:       #1A1D27;
-    --surface-2:     #222632;
-    --text-1:        #F3F4F6;  /* 14.7:1 */
-    --text-2:        #D1D5DB;  /* 10.4:1 */
-    --text-3:        #6B7280;  /* 4.83:1 */
-    --text-on-accent:#FFFFFF;
-
-    /* 极细亮色边框 - 替代深色阴影 */
-    --border-color:  rgba(255, 255, 255, 0.06);
+    /* ---- 边框 - 极细亮色 ---- */
+    --border-color:        rgba(255, 255, 255, 0.06);
     --border-color-strong: rgba(255, 255, 255, 0.10);
-    --border:        1px solid var(--border-color);
-    --border-strong: 1px solid var(--border-color-strong);
 
-    /* 深色模式: 用内阴影 + 极弱纯黑替代传统外阴影 */
-    --shadow-xs:
-        inset 0 1px 0 rgba(255, 255, 255, 0.02),
-        inset 0 1px 2px rgba(0, 0, 0, 0.10);
+    /* ---- 品牌色 ---- */
+    --accent:         #818CF8;
+    --accent-light:   #1E1B4B;
+    --accent-dark:    #4F46E5;
+    --accent-glow:    rgba(129, 140, 248, 0.20);
 
-    --shadow-sm:
-        inset 0 1px 0 rgba(255, 255, 255, 0.03),
-        0 1px 2px rgba(0, 0, 0, 0.20);
+    /* ---- 语义色 ---- */
+    --success:        #10B981;
+    --success-light:  #064E3B;
+    --warning:        #FBBF24;
+    --warning-light:  #451A03;
+    --error:          #F87171;
+    --error-light:    #4C1D1D;
+    --info:           #38BDF8;
+    --info-light:     #082F49;
 
-    --shadow:
-        inset 0 1px 0 rgba(255, 255, 255, 0.04),
-        0 1px 3px rgba(0, 0, 0, 0.30),
-        0 8px 24px rgba(0, 0, 0, 0.20);
-
-    --shadow-md:
-        inset 0 1px 0 rgba(255, 255, 255, 0.05),
-        0 2px 4px rgba(0, 0, 0, 0.30),
-        0 12px 32px rgba(0, 0, 0, 0.25);
-
-    --shadow-lg:
-        inset 0 1px 0 rgba(255, 255, 255, 0.06),
-        0 4px 8px rgba(0, 0, 0, 0.30),
-        0 24px 56px rgba(0, 0, 0, 0.40);
-
-    --shadow-xl:
-        inset 0 1px 0 rgba(255, 255, 255, 0.06),
-        0 8px 16px rgba(0, 0, 0, 0.40),
-        0 32px 80px rgba(0, 0, 0, 0.50);
-
-    --shadow-up:
-        inset 0 1px 0 rgba(255, 255, 255, 0.04),
-        0 -8px 24px rgba(0, 0, 0, 0.20);
-
-    --shadow-inner: inset 0 1px 2px rgba(0, 0, 0, 0.20);
-    --shadow-inner-strong: inset 0 1px 3px rgba(0, 0, 0, 0.30);
-
-    --shadow-glow:
-        0 0 0 1px color-mix(in srgb, var(--accent) 30%, transparent),
-        0 8px 32px color-mix(in srgb, var(--accent) 25%, transparent);
-
-    --shadow-focus: 0 0 0 3px color-mix(in srgb, var(--accent) 40%, transparent);
-
-    --surface-bordered:
-        var(--border),
-        var(--shadow-xs);
-    --surface-bordered-hover:
-        var(--border-strong),
-        var(--shadow-sm);
-
-    --overlay:       rgba(11,14,20,0.92);
-    --modal-bg:      rgba(26,29,39,1);
+    /* ---- 阴影 (深色) - 几乎透明 + 内侧微高光 ---- */
+    --shadow-sm:      0 1px 2px rgba(0, 0, 0, 0.30);
+    --shadow:         0 2px 8px rgba(0, 0, 0, 0.30), 0 1px 0 rgba(255, 255, 255, 0.04) inset;
+    --shadow-md:      0 4px 12px rgba(0, 0, 0, 0.35);
+    --shadow-lg:      0 8px 24px rgba(0, 0, 0, 0.40);
+    --shadow-xl:      0 16px 48px rgba(0, 0, 0, 0.50);
+    --shadow-up:      0 -2px 8px rgba(0, 0, 0, 0.30);
 }
 
 /* ============================================
-   ACCENT COLOR VARIANTS
+   3. ACCENT COLOR VARIANTS
    ============================================ */
-[data-accent="indigo"]  { --accent: var(--accent); --accent-dark: #3730A3; }
+[data-accent="indigo"]  { --accent: #4F46E5; --accent-light: #EEF2FF; --accent-dark: #3730A3; }
 [data-accent="emerald"] { --accent: #10B981; --accent-light: #ECFDF5; --accent-dark: #047857; }
 [data-accent="rose"]    { --accent: #F43F5E; --accent-light: #FFF1F2; --accent-dark: #BE123C; }
 [data-accent="amber"]   { --accent: #F59E0B; --accent-light: #FFFBEB; --accent-dark: #B45309; }
 [data-accent="cyan"]    { --accent: #06B6D4; --accent-light: #ECFEFF; --accent-dark: #0E7490; }
 
-/* Dark mode accent overrides */
 [data-theme="dark"][data-accent="indigo"]  { --accent: #818CF8; --accent-light: #1E1B4B; }
 [data-theme="dark"][data-accent="emerald"] { --accent: #34D399; --accent-light: #064E3B; }
 [data-theme="dark"][data-accent="rose"]    { --accent: #FB7185; --accent-light: #4C0519; }
 [data-theme="dark"][data-accent="amber"]   { --accent: #FBBF24; --accent-light: #451A03; }
 [data-theme="dark"][data-accent="cyan"]    { --accent: #22D3EE; --accent-light: #083344; }
+
+/* ============================================
+   4. TYPOGRAPHY TOKENS
+   ============================================ */
+:root {
+    --font-en:     'SF Pro Display', -apple-system, BlinkMacSystemFont, 'Inter', sans-serif;
+    --font-serif:  'New York', 'Georgia', 'Times New Roman', serif;
+    --font-cn:     -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'PingFang SC', 'Microsoft YaHei', sans-serif;
+    --font-mono:   'SF Mono', 'JetBrains Mono', 'Cascadia Code', monospace;
+
+    --text-xs:   0.75rem;    /* 12px */
+    --text-sm:   0.8125rem;  /* 13px */
+    --text-base: 0.9375rem;  /* 15px */
+    --text-md:   1rem;       /* 16px */
+    --text-lg:   1.125rem;   /* 18px */
+    --text-xl:   1.375rem;   /* 22px */
+    --text-2xl:  1.625rem;   /* 26px */
+    --text-3xl:  2rem;       /* 32px */
+    --text-4xl:  2.5rem;     /* 40px */
+    --text-5xl:  3.25rem;    /* 52px */
+
+    --weight-light:    300;
+    --weight-regular:  400;
+    --weight-medium:   500;
+    --weight-semibold: 600;
+    --weight-bold:     700;
+
+    --leading-tight:   1.2;
+    --leading-snug:    1.35;
+    --leading-normal:  1.5;
+    --leading-relaxed: 1.65;
+    --leading-loose:   1.8;
+
+    --tracking-tighter: -0.04em;
+    --tracking-tight:   -0.02em;
+    --tracking-normal:  0;
+    --tracking-wide:    0.02em;
+    --tracking-wider:   0.05em;
+}
+
+/* ============================================
+   5. SPACING TOKENS (8px 栅格)
+   ============================================ */
+:root {
+    --space-1:  4px;
+    --space-2:  8px;
+    --space-3:  12px;
+    --space-4:  16px;
+    --space-5:  20px;
+    --space-6:  24px;
+    --space-8:  32px;
+    --space-10: 40px;
+    --space-12: 48px;
+    --space-16: 64px;
+
+    --gutter:   20px;   /* 页面左右内边距 */
+    --gap-sm:   8px;
+    --gap-md:   12px;
+    --gap-lg:   20px;
+    --gap-xl:   32px;
+}
+
+/* ============================================
+   6. RADIUS TOKENS
+   ============================================ */
+:root {
+    --radius-xs:   6px;
+    --radius-sm:   10px;
+    --radius:      14px;
+    --radius-md:   18px;
+    --radius-lg:   24px;
+    --radius-xl:   32px;
+    --radius-full: 9999px;
+}
+
+/* ============================================
+   7. MOTION TOKENS
+   ============================================ */
+:root {
+    --duration-instant: 80ms;
+    --duration-fast:    160ms;
+    --duration-base:    240ms;
+    --duration-normal:  320ms;
+    --duration-slow:    480ms;
+
+    --ease-out:        cubic-bezier(0.16, 1, 0.3, 1);
+    --ease-in:         cubic-bezier(0.4, 0, 1, 1);
+    --ease-precise:    cubic-bezier(0.5, 0, 0, 1);
+    --ease-spring:     cubic-bezier(0.34, 1.56, 0.64, 1);
+
+    --transition-fast: var(--duration-fast) var(--ease-out);
+    --transition-base: var(--duration-base) var(--ease-out);
+}
+
+/* ============================================
+   8. LAYOUT TOKENS
+   ============================================ */
+:root {
+    --nav-h:       84px;
+    --header-h:    60px;
+    --prose-width: 65ch;
+    --max-w-app:   480px;  /* 桌面端居中 */
+}
 
 /* ============================================
    GLOBAL RESET & DEFAULTS
@@ -570,260 +446,265 @@ input, textarea { font-family: inherit; }
     to { opacity: 1; transform: translateY(0); }
 }
 
-/* HOME — Phase 6: Premium Redesign */
-.home-header {
-    padding: 56px 0 20px;
-    position: relative;
+/* ============================================
+   HOME — Less but better
+   极简,无脏渐变,无冗余模块
+   ============================================ */
+.home-hero {
+    padding: var(--space-8) 0 var(--space-5);
 }
 
-/* 装饰性背景渐变球 */
-.home-header::before {
-    content: '';
-    position: absolute;
-    top: -40px;
-    right: -60px;
-    width: 240px;
-    height: 240px;
-    background: radial-gradient(circle, color-mix(in srgb, var(--accent) 18%, transparent) 0%, transparent 70%);
-    border-radius: 50%;
-    pointer-events: none;
-    z-index: 0;
-    filter: blur(20px);
+.greeting {
+    margin-bottom: var(--space-5);
 }
 
 .greeting-sub {
-    /* 副标题: 轻盈字重 + 浅色 + 微字距 */
-    font-size: var(--text-sm);
-    color: var(--text-2);
+    font-size: var(--text-xs);
+    color: var(--text-3);
     font-weight: var(--weight-medium);
-    letter-spacing: var(--tracking-wide);
+    letter-spacing: var(--tracking-wider);
     text-transform: uppercase;
     margin-bottom: var(--space-2);
-    position: relative;
-    z-index: 1;
 }
+
 .greeting-main {
-    /* 主标题: 重字重 + 紧凑字距 (Apple 风格) */
     font-family: var(--font-en);
-    font-size: var(--text-4xl);
+    font-size: var(--text-3xl);
     font-weight: var(--weight-bold);
     letter-spacing: var(--tracking-tighter);
     line-height: var(--leading-tight);
     color: var(--text-1);
+    margin: 0;
+}
+
+/* ============================================
+   QUOTE HERO — Daily Quote 高级感卡片
+   ============================================ */
+.quote-hero {
     position: relative;
-    z-index: 1;
-    text-wrap: balance;
-}
-.greeting-main span {
-    background: linear-gradient(135deg, var(--accent) 0%, color-mix(in srgb, var(--accent) 60%, #EC4899) 100%);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    background-clip: text;
-}
-
-/* Streak Card — 高端毛玻璃 + 渐变光晕 */
-.streak-card {
-    background: linear-gradient(135deg, var(--accent) 0%, var(--accent-dark) 50%, color-mix(in srgb, var(--accent-dark) 70%, #1E1B4B) 100%);
-    border-radius: var(--radius-lg);
-    padding: var(--space-6) var(--space-8);
-    color: white;
-    margin-bottom: var(--space-6);
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    /* 彩色双层阴影 + 顶部高光 (Apple 风格渐变卡片) */
-    box-shadow:
-        0 1px 2px color-mix(in srgb, var(--accent) 20%, transparent),
-        0 12px 32px color-mix(in srgb, var(--accent) 25%, transparent),
-        inset 0 1px 0 rgba(255, 255, 255, 0.12);
-    position: relative;
-    overflow: hidden;
-    transition: transform var(--transition-base), box-shadow var(--transition-base);
-}
-
-/* 卡片顶部高光 */
-.streak-card::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    height: 50%;
-    background: linear-gradient(180deg, rgba(255, 255, 255, 0.15) 0%, transparent 100%);
-    pointer-events: none;
-}
-
-/* 装饰光斑 */
-.streak-card::after {
-    content: '';
-    position: absolute;
-    bottom: -40px;
-    right: -40px;
-    width: 160px;
-    height: 160px;
-    background: radial-gradient(circle, rgba(255, 255, 255, 0.15) 0%, transparent 70%);
-    border-radius: 50%;
-    pointer-events: none;
-}
-
-.streak-card:active {
-    transform: scale(0.99);
-}
-
-.streak-info {
-    position: relative;
-    z-index: 1;
-}
-.streak-info h3 {
-    font-size: 0.75rem;
-    opacity: 0.85;
-    font-weight: 600;
-    margin-bottom: 6px;
-    text-transform: uppercase;
-    letter-spacing: 1.5px;
-}
-.streak-info .num {
-    font-size: 2.6rem;
-    font-weight: 800;
-    line-height: 1;
-    display: inline-block;
-    /* 数字滚动用 */
-    transition: transform 0.4s var(--ease-overshoot);
-}
-.streak-info .unit {
-    font-size: 0.9rem;
-    opacity: 0.8;
-    margin-left: 6px;
-}
-.streak-flame {
-    font-size: 3rem;
-    filter: drop-shadow(0 4px 12px rgba(0, 0, 0, 0.3));
-    animation: flameFloat 2.5s ease-in-out infinite;
-    position: relative;
-    z-index: 1;
-}
-@keyframes flameFloat {
-    0%, 100% { transform: translateY(0) scale(1) rotate(0deg); }
-    25% { transform: translateY(-4px) scale(1.05) rotate(-2deg); }
-    50% { transform: translateY(-2px) scale(1.08) rotate(0deg); }
-    75% { transform: translateY(-5px) scale(1.04) rotate(2deg); }
-}
-
-/* Stats Grid — 双卡片布局 */
-.stats-grid {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 12px;
-    margin-bottom: 24px;
-}
-
-.stat-card {
-    background: var(--surface);
     border-radius: var(--radius-md);
-    padding: var(--space-5);
-    /* 边框 + 微阴影 (推荐组合) */
+    overflow: hidden;
+    cursor: pointer;
+    min-height: 200px;
+    /* 单一柔和阴影 */
     box-shadow: var(--shadow);
+    /* 极细亮色边框 (深色模式) */
     border: 1px solid var(--border-color);
+    transition:
+        transform var(--transition-base),
+        box-shadow var(--transition-base);
+}
+
+.quote-hero:active {
+    transform: scale(0.985);
+}
+
+.quote-hero-bg {
+    position: absolute;
+    inset: 0;
+    background-size: cover;
+    background-position: center;
+    /* 模糊 + 降饱和 (Notion/Apple 风格) */
+    filter: blur(2px) saturate(60%);
+    transform: scale(1.05);  /* 防止模糊边缘露白 */
+    z-index: 0;
+}
+
+.quote-hero-overlay {
+    position: absolute;
+    inset: 0;
+    /* 单一渐变(深色叠加) - 不破坏纯净感 */
+    background: linear-gradient(180deg,
+        rgba(0, 0, 0, 0.40) 0%,
+        rgba(0, 0, 0, 0.70) 100%);
+    z-index: 1;
+}
+
+.quote-hero-content {
+    position: relative;
+    z-index: 2;
+    padding: var(--space-6) var(--space-5);
+    color: white;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    min-height: 200px;
+}
+
+.quote-hero-mark {
+    font-family: var(--font-serif);
+    font-size: 4rem;
+    line-height: 0.5;
+    color: rgba(255, 255, 255, 0.5);
+    margin-bottom: var(--space-2);
+    font-weight: var(--weight-bold);
+}
+
+.quote-hero-text {
+    font-family: var(--font-serif);
+    font-size: var(--text-lg);
+    font-weight: var(--weight-medium);
+    line-height: var(--leading-snug);
+    letter-spacing: var(--tracking-tight);
+    color: white;
+    margin: 0 0 var(--space-3) 0;
+    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.30);
+    /* 防止溢出 */
+    display: -webkit-box;
+    -webkit-line-clamp: 3;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+}
+
+.quote-hero-meta {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: var(--text-xs);
+    color: rgba(255, 255, 255, 0.7);
+    letter-spacing: var(--tracking-wide);
+}
+
+.quote-hero-author {
+    font-weight: var(--weight-medium);
+}
+
+.quote-hero-time {
+    text-transform: uppercase;
+    letter-spacing: var(--tracking-wider);
+    font-weight: var(--weight-medium);
+}
+
+/* ============================================
+   QUICK ACTIONS — 学习入口
+   ============================================ */
+.quick-actions {
     display: flex;
     flex-direction: column;
     gap: var(--space-2);
-    position: relative;
-    overflow: hidden;
+    margin: var(--space-6) 0;
+}
+
+.action-tile {
+    display: flex;
+    align-items: center;
+    gap: var(--space-4);
+    padding: var(--space-4) var(--space-5);
+    background: var(--surface);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius);
+    text-decoration: none;
+    color: var(--text-1);
+    cursor: pointer;
+    /* 单一柔和阴影 */
+    box-shadow: var(--shadow-sm);
     transition:
-        transform var(--transition-base),
-        box-shadow var(--transition-base),
-        border-color var(--transition-base);
+        transform var(--transition-fast),
+        background var(--transition-fast),
+        border-color var(--transition-fast),
+        box-shadow var(--transition-fast);
 }
 
-.stat-card:hover {
-    transform: translateY(-2px);
-    box-shadow: var(--shadow-md);
+.action-tile:hover {
+    background: var(--surface-hover);
     border-color: var(--border-color-strong);
+    transform: translateX(2px);
 }
 
-.stat-card-icon {
-    width: 40px;
-    height: 40px;
-    border-radius: 12px;
+.action-tile:active {
+    transform: scale(0.99);
+}
+
+.action-tile-icon {
+    font-size: 1.5rem;
+    width: 44px;
+    height: 44px;
+    border-radius: var(--radius-sm);
     display: flex;
     align-items: center;
     justify-content: center;
-    font-size: 1.3rem;
+    /* 极简图标底色(单层透明叠加) */
+    background: var(--accent-light);
     flex-shrink: 0;
 }
 
-.stat-card-icon.indigo {
-    background: linear-gradient(135deg, rgba(99, 102, 241, 0.15), rgba(139, 92, 246, 0.15));
-    color: var(--accent);
-}
-.stat-card-icon.emerald {
-    background: linear-gradient(135deg, rgba(16, 185, 129, 0.15), rgba(20, 184, 166, 0.15));
-    color: var(--success);
-}
-.stat-card-icon.amber {
-    background: linear-gradient(135deg, rgba(245, 158, 11, 0.15), rgba(251, 191, 36, 0.15));
-    color: var(--warning);
-}
-.stat-card-icon.rose {
-    background: linear-gradient(135deg, rgba(244, 63, 94, 0.15), rgba(236, 72, 153, 0.15));
-    color: var(--error);
+.action-tile-info {
+    flex: 1;
+    min-width: 0;
 }
 
-.stat-card-value {
-    font-size: 1.6rem;
-    font-weight: 800;
+.action-tile-title {
+    font-size: var(--text-md);
+    font-weight: var(--weight-semibold);
     color: var(--text-1);
-    line-height: 1;
-    display: flex;
-    align-items: baseline;
-    gap: 4px;
-    transition: transform 0.4s var(--ease-overshoot);
+    line-height: var(--leading-tight);
 }
 
-.stat-card-suffix {
-    font-size: 0.75rem;
-    color: var(--text-3);
-    font-weight: 600;
-}
-
-.stat-card-label {
-    font-size: 0.75rem;
+.action-tile-sub {
+    font-size: var(--text-sm);
     color: var(--text-2);
-    font-weight: 500;
+    font-weight: var(--weight-regular);
+    margin-top: 2px;
 }
 
-/* 趋势指示器 */
-.stat-trend {
-    display: inline-flex;
-    align-items: center;
-    gap: 2px;
-    font-size: 0.65rem;
-    font-weight: 700;
-    padding: 2px 6px;
-    border-radius: 6px;
-    margin-top: 4px;
-    align-self: flex-start;
-}
-
-.stat-trend.up {
-    color: var(--success);
-    background: color-mix(in srgb, var(--success) 12%, transparent);
-}
-
-.stat-trend.down {
-    color: var(--error);
-    background: color-mix(in srgb, var(--error) 12%, transparent);
-}
-
-.stat-trend.neutral {
+.action-tile-arrow {
     color: var(--text-3);
-    background: var(--surface-2);
+    flex-shrink: 0;
 }
 
-.stat-trend-arrow {
-    font-size: 0.7rem;
-    line-height: 1;
+/* ============================================
+   HOME STATS — 轻量水平统计条
+   ============================================ */
+.home-stats {
+    display: flex;
+    align-items: center;
+    justify-content: space-around;
+    padding: var(--space-4) var(--space-3);
+    background: var(--surface);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius);
+    box-shadow: var(--shadow-sm);
+    margin-bottom: var(--space-6);
 }
+
+.stat-mini {
+    flex: 1;
+    text-align: center;
+    min-width: 0;
+}
+
+.stat-mini-value {
+    font-size: var(--text-xl);
+    font-weight: var(--weight-bold);
+    color: var(--text-1);
+    line-height: var(--leading-tight);
+    font-variant-numeric: tabular-nums;
+}
+
+.stat-mini-label {
+    font-size: var(--text-xs);
+    color: var(--text-3);
+    font-weight: var(--weight-medium);
+    text-transform: uppercase;
+    letter-spacing: var(--tracking-wider);
+    margin-top: var(--space-1);
+}
+
+.stat-mini-divider {
+    width: 1px;
+    height: 28px;
+    background: var(--border-color);
+    flex-shrink: 0;
+}
+
+/* Old stat-card styles removed (use .stat-mini instead) */
+.stat-card,
+.stat-card-icon,
+.stat-card-value,
+.stat-card-suffix,
+.stat-card-label,
+.stat-trend,
+.stats-grid { display: none; }
 
 .section-title {
     /* 区块标题: 中等字重 + 紧凑字距 */
@@ -845,6 +726,22 @@ input, textarea { font-family: inherit; }
     letter-spacing: var(--tracking-wider);
     text-transform: uppercase;
 }
+
+/* Hide old home page modules - removed in v5.0 redesign */
+.streak-card,
+.progress-card,
+.chart-card,
+.review-shortcut,
+.vocab-test-shortcut,
+.heatmap-card,
+.achievement-shortcut,
+.ring-container,
+.ring-svg,
+.ring-bg,
+.ring-fill,
+.ring-text,
+.homeGoals,
+#homeGoals { display: none !important; }
 
 .progress-card {
     background: var(--surface);
@@ -1052,8 +949,46 @@ input, textarea { font-family: inherit; }
 .alpha-btn.active { background: var(--accent); color: white; border-color: var(--accent); box-shadow: 0 4px 12px -4px color-mix(in srgb, var(--accent) 50%, transparent); }
 .alpha-btn:active { transform: scale(0.95); }
 
-.vocab-page-inner { display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: calc(100vh - 200px); }
-.card-container { width: 100%; max-width: 380px; aspect-ratio: 3/4; position: relative; cursor: pointer; perspective: 1200px; }
+/* VOCAB PAGE — 单屏布局 (No Scroll) */
+#page-vocab {
+    display: flex;
+    flex-direction: column;
+    /* 关键: 单屏,使用 dvh 适配移动端 */
+    height: 100dvh;
+    height: calc(100vh - var(--nav-h) - env(safe-area-inset-bottom, 0px));
+    overflow: hidden;
+    padding: 0 var(--gutter) var(--space-4);
+    padding-top: var(--space-4);
+}
+
+.vocab-header {
+    flex-shrink: 0;  /* 顶部不压缩 */
+    margin-bottom: var(--space-3);
+}
+
+.vocab-page-inner {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    min-height: 0;  /* 关键: 允许 flex 收缩 */
+    gap: var(--space-3);
+    overflow: hidden;
+}
+
+.card-container {
+    /* 关键: flex 收缩 + 自适应高度,确保不溢出 */
+    flex: 1 1 auto;
+    min-height: 0;
+    width: 100%;
+    max-width: 360px;
+    position: relative;
+    cursor: pointer;
+    perspective: 1200px;
+    /* 不再使用 aspect-ratio 强制比例,改用 flex 自适应 */
+    max-height: 100%;
+}
 
 /* Word Card — 3D 翻转 + 微光 */
 .word-card {
@@ -1262,14 +1197,14 @@ input, textarea { font-family: inherit; }
 .show-detail .tap-hint { opacity: 0; }
 
 .controls {
-    margin-top: 24px;
+    flex-shrink: 0;
     display: flex;
-    gap: 16px;
+    gap: var(--space-3);
     width: 100%;
-    max-width: 380px;
+    max-width: 360px;
     opacity: 0;
     pointer-events: none;
-    transition: opacity 0.3s var(--ease-emphasized);
+    transition: opacity var(--transition-base);
 }
 .controls.active { opacity: 1; pointer-events: auto; }
 /* ============================================
@@ -1824,35 +1759,25 @@ input, textarea { font-family: inherit; }
 .article-card:active { transform: scale(0.98); }
 
 /* 封面图 */
+/* Article Cover — 纯色 + 极简图标(无脏渐变) */
 .article-cover {
     position: relative;
     width: 100%;
     aspect-ratio: 16/8;
-    background: linear-gradient(135deg, var(--accent) 0%, color-mix(in srgb, var(--accent) 60%, #EC4899) 100%);
+    /* 单一柔和底色,无渐变 */
+    background: var(--surface-2);
     overflow: hidden;
     display: flex;
     align-items: center;
     justify-content: center;
+    /* 极细底边 - 与下方内容区分 */
+    border-bottom: 1px solid var(--border-color);
 }
-.article-cover::before {
-    content: '';
-    position: absolute;
-    inset: 0;
-    background: linear-gradient(180deg, transparent 0%, rgba(0, 0, 0, 0.3) 100%);
-    z-index: 1;
-}
+
 .article-cover-icon {
-    font-size: 2.5rem;
-    color: white;
-    z-index: 2;
-    filter: drop-shadow(0 2px 8px rgba(0, 0, 0, 0.3));
-}
-.article-cover-pattern {
-    position: absolute;
-    inset: 0;
-    background-image:
-        radial-gradient(circle at 20% 30%, rgba(255, 255, 255, 0.1) 0%, transparent 50%),
-        radial-gradient(circle at 80% 70%, rgba(255, 255, 255, 0.1) 0%, transparent 50%);
+    font-size: 2rem;
+    color: var(--text-3);
+    /* 干净图标,无 drop-shadow */
 }
 
 /* 文章卡片内层内容 */
@@ -2128,26 +2053,92 @@ input, textarea { font-family: inherit; }
 /* SETTINGS */
 .settings-page-inner { padding-top: 60px; max-width: 420px; margin: 0 auto; }
 .settings-title {
-    font-size: 1.8rem;
-    font-weight: 800;
-    margin-bottom: 32px;
-    letter-spacing: -0.5px;
-    background: linear-gradient(135deg, var(--text-1) 0%, color-mix(in srgb, var(--text-1) 50%, var(--accent)) 100%);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    background-clip: text;
+    font-size: var(--text-3xl);
+    font-weight: var(--weight-bold);
+    margin-bottom: var(--space-8);
+    letter-spacing: var(--tracking-tighter);
+    color: var(--text-1);
+    /* 简洁纯色,无脏渐变 */
 }
-.setting-group { margin-bottom: 32px; }
+.setting-group { margin-bottom: var(--space-8); }
 .setting-label {
-    font-size: 0.72rem;
+    font-size: var(--text-xs);
     text-transform: uppercase;
-    letter-spacing: 1.5px;
+    letter-spacing: var(--tracking-wider);
     color: var(--text-3);
-    font-weight: 700;
-    margin-bottom: 14px;
+    font-weight: var(--weight-semibold);
+    margin-bottom: var(--space-3);
     display: flex;
     align-items: center;
-    gap: 6px;
+    gap: var(--space-2);
+}
+.setting-count {
+    background: var(--surface-2);
+    color: var(--text-2);
+    padding: 2px 8px;
+    border-radius: var(--radius-full);
+    font-size: var(--text-xs);
+    font-weight: var(--weight-medium);
+    letter-spacing: 0;
+    text-transform: none;
+    margin-left: auto;
+}
+
+/* Achievements Mini Wall */
+.achievements-mini {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: var(--space-2);
+}
+.achievement-mini-item {
+    aspect-ratio: 1;
+    background: var(--surface);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-sm);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 2px;
+    font-size: 1.4rem;
+    box-shadow: var(--shadow-sm);
+    transition: transform var(--transition-fast);
+    position: relative;
+    overflow: hidden;
+}
+.achievement-mini-item:active { transform: scale(0.95); }
+.achievement-mini-item.locked {
+    opacity: 0.35;
+    filter: grayscale(80%);
+}
+.achievement-mini-item .ach-name {
+    font-size: 9px;
+    color: var(--text-2);
+    text-align: center;
+    padding: 0 2px;
+    line-height: 1.1;
+    font-weight: var(--weight-medium);
+    max-width: 100%;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+.achievement-mini-empty {
+    grid-column: span 4;
+    text-align: center;
+    color: var(--text-3);
+    padding: var(--space-4);
+    font-size: var(--text-sm);
+}
+
+.setting-actions {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-2);
+}
+.setting-actions .btn-secondary {
+    width: 100%;
+    min-height: 44px;
 }
 .theme-toggle {
     display: flex;

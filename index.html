@@ -69,7 +69,7 @@
     }
     </style>
 
-    <link rel="stylesheet" href="./css/index.css?v=19">
+    <link rel="stylesheet" href="./css/index.css?v=21">
     <link rel="preload" href="./data/words.json" as="fetch" crossorigin>
 </head>
 <body>
@@ -82,149 +82,84 @@
 
     <div class="pages">
         <a href="#main" class="skip-link">Skip to main content</a>
-        <!-- HOME -->
+        <!-- HOME — Less but better -->
         <main class="page active" id="page-home">
             <div id="main" tabindex="-1"></div>
-            <div class="home-header">
-                <div class="greeting-sub" id="greetSub"></div>
-                <div class="greeting-main" id="greetMain"></div>
-            </div>
 
-            <!-- Streak Card — 渐变光晕 -->
-            <div class="streak-card" aria-label="Current streak">
-                <div class="streak-info">
-                    <h3>Current Streak</h3>
-                    <span class="num" id="streakNum">0</span>
-                    <span class="unit">days</span>
+            <!-- Hero: Greeting + Daily Quote -->
+            <section class="home-hero" aria-label="Daily quote">
+                <div class="greeting">
+                    <div class="greeting-sub" id="greetSub">GOOD MORNING</div>
+                    <h1 class="greeting-main" id="greetMain">Hello.</h1>
                 </div>
-                <div class="streak-flame" aria-hidden="true">🔥</div>
-            </div>
 
-            <!-- Stats Grid — 图标 + 数值 + 趋势 -->
-            <div class="stats-grid">
-                <div class="stat-card">
-                    <div class="stat-card-icon indigo" aria-hidden="true">📘</div>
-                    <div class="stat-card-value">
-                        <span id="statKnown">0</span>
-                        <span class="stat-card-suffix">words</span>
+                <!-- Daily Quote Hero Card -->
+                <article class="quote-hero" id="homeQuoteHero" onclick="openQuoteModal()">
+                    <div class="quote-hero-bg" id="homeQuoteBg"></div>
+                    <div class="quote-hero-overlay"></div>
+                    <div class="quote-hero-content">
+                        <div class="quote-hero-mark" aria-hidden="true">"</div>
+                        <blockquote class="quote-hero-text" id="homeQuoteText">
+                            Loading today's quote...
+                        </blockquote>
+                        <div class="quote-hero-meta">
+                            <div class="quote-hero-author" id="homeQuoteAuthor">— </div>
+                            <div class="quote-hero-time" id="homeQuoteTime"></div>
+                        </div>
                     </div>
-                    <div class="stat-card-label">Total learned</div>
-                    <div class="stat-trend up" id="statKnownTrend">
-                        <span class="stat-trend-arrow">↑</span>
-                        <span id="statKnownTrendVal">0%</span>
-                    </div>
-                </div>
-                <div class="stat-card">
-                    <div class="stat-card-icon emerald" aria-hidden="true">🎯</div>
-                    <div class="stat-card-value">
-                        <span id="statToday">0</span>
-                        <span class="stat-card-suffix">today</span>
-                    </div>
-                    <div class="stat-card-label">New words</div>
-                    <div class="stat-trend up" id="statTodayTrend">
-                        <span class="stat-trend-arrow">↑</span>
-                        <span>Active</span>
-                    </div>
-                </div>
-                <div class="stat-card">
-                    <div class="stat-card-icon amber" aria-hidden="true">🔥</div>
-                    <div class="stat-card-value">
-                        <span id="statStreak">0</span>
-                        <span class="stat-card-suffix">days</span>
-                    </div>
-                    <div class="stat-card-label">Streak</div>
-                    <div class="stat-trend neutral" id="statStreakTrend">
-                        <span class="stat-trend-arrow">●</span>
-                        <span>Keep going</span>
-                    </div>
-                </div>
-                <div class="stat-card">
-                    <div class="stat-card-icon rose" aria-hidden="true">🏆</div>
-                    <div class="stat-card-value">
-                        <span id="statAch">0</span>
-                        <span class="stat-card-suffix">badges</span>
-                    </div>
-                    <div class="stat-card-label">Achievements</div>
-                    <div class="stat-trend up" id="statAchTrend">
-                        <span class="stat-trend-arrow">↑</span>
-                        <span>Unlock</span>
-                    </div>
-                </div>
-            </div>
+                </article>
+            </section>
 
-            <!-- Today's Progress Ring -->
-            <div class="section-title">Today's Progress<span class="section-title-meta" id="progressMeta">0 / 20</span></div>
-            <div class="progress-card">
-                <div class="ring-container">
-                    <svg class="ring-svg" viewBox="0 0 100 100" aria-hidden="true">
-                        <defs>
-                            <linearGradient id="ringGradient" x1="0%" y1="0%" x2="100%" y2="100%">
-                                <stop offset="0%" stop-color="var(--accent)"/>
-                                <stop offset="100%" stop-color="color-mix(in srgb, var(--accent) 60%, #EC4899)"/>
-                            </linearGradient>
-                        </defs>
-                        <circle class="ring-bg" cx="50" cy="50" r="42"/>
-                        <circle class="ring-fill" cx="50" cy="50" r="42" stroke-dasharray="264" stroke-dashoffset="264" id="ringFill"/>
-                    </svg>
-                    <div class="ring-text" id="ringText">0%</div>
-                </div>
-                <div class="progress-detail">
-                    <h4>Keep going!</h4>
-                    <p>Learn words every day to build your streak.</p>
-                    <div class="mini-stats">
-                        <div class="mini-stat">Today <b id="todayLearned">0</b></div>
-                        <div class="mini-stat">Known <b id="totalKnown">0</b></div>
+            <!-- Quick Actions: 学习入口 -->
+            <section class="quick-actions" aria-label="Quick actions">
+                <a href="vocab.html" class="action-tile" aria-label="Vocabulary">
+                    <div class="action-tile-icon" aria-hidden="true">📘</div>
+                    <div class="action-tile-info">
+                        <div class="action-tile-title">Vocabulary</div>
+                        <div class="action-tile-sub" id="vocabSub">Start learning</div>
                     </div>
+                    <svg class="action-tile-arrow" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M9 18l6-6-6-6"/></svg>
+                </a>
+
+                <a href="reading.html" class="action-tile" aria-label="Reading">
+                    <div class="action-tile-icon" aria-hidden="true">📖</div>
+                    <div class="action-tile-info">
+                        <div class="action-tile-title">Reading</div>
+                        <div class="action-tile-sub" id="readingSub">Explore articles</div>
+                    </div>
+                    <svg class="action-tile-arrow" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M9 18l6-6-6-6"/></svg>
+                </a>
+
+                <a href="quote.html" class="action-tile" aria-label="Quote">
+                    <div class="action-tile-icon" aria-hidden="true">✨</div>
+                    <div class="action-tile-info">
+                        <div class="action-tile-title">Daily Quote</div>
+                        <div class="action-tile-sub" id="quoteSub">Inspire yourself</div>
+                    </div>
+                    <svg class="action-tile-arrow" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M9 18l6-6-6-6"/></svg>
+                </a>
+            </section>
+
+            <!-- 轻量统计 - 仅 3 个数字 -->
+            <section class="home-stats" aria-label="Quick stats">
+                <div class="stat-mini">
+                    <div class="stat-mini-value" id="statKnownMini">0</div>
+                    <div class="stat-mini-label">Learned</div>
                 </div>
-            </div>
-
-            <!-- Weekly Activity -->
-            <div class="section-title">Weekly Activity</div>
-            <div class="chart-card">
-                <div class="chart-bars" id="chartBars"></div>
-            </div>
-
-            <!-- Sprint 1-1: 今日复习快捷入口 -->
-            <div class="review-shortcut" onclick="startReview()" role="button" tabindex="0" aria-label="Start today's review">
-                <div class="review-shortcut-icon" aria-hidden="true">🔄</div>
-                <div class="review-shortcut-info">
-                    <div class="review-shortcut-title">Today's Review</div>
-                    <div class="review-shortcut-sub"><b id="homeReviewCount">0</b> words to review</div>
+                <div class="stat-mini-divider" aria-hidden="true"></div>
+                <div class="stat-mini">
+                    <div class="stat-mini-value" id="statStreakMini">0</div>
+                    <div class="stat-mini-label">Day streak</div>
                 </div>
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M9 18l6-6-6-6"/></svg>
-            </div>
-
-            <!-- Sprint 2-6: 目标追踪 -->
-            <div id="homeGoals"></div>
-
-            <!-- Sprint 2-2: 词汇量测试 -->
-            <div class="vocab-test-shortcut" onclick="startVocabTest()" role="button" tabindex="0" aria-label="Start vocabulary test">
-                <div class="vocab-test-shortcut-icon" aria-hidden="true">🎓</div>
-                <div class="vocab-test-shortcut-info">
-                    <div class="vocab-test-shortcut-title">Vocabulary Test</div>
-                    <div class="vocab-test-shortcut-sub" id="vocabTestStatus">Take a 20-question adaptive test</div>
+                <div class="stat-mini-divider" aria-hidden="true"></div>
+                <div class="stat-mini">
+                    <div class="stat-mini-value" id="statReviewMini">0</div>
+                    <div class="stat-mini-label">To review</div>
                 </div>
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M9 18l6-6-6-6"/></svg>
-            </div>
-
-            <!-- Sprint 1-4: 学习热力图 -->
-            <div class="heatmap-card">
-                <div class="section-title" style="margin-bottom:0">Activity (Last 90 days)</div>
-                <div id="homeHeatmap"></div>
-            </div>
-
-            <!-- Sprint 1-5: 成就入口 -->
-            <div class="achievement-shortcut" onclick="renderAchievementWall()" role="button" tabindex="0" aria-label="View achievements">
-                <div class="achievement-shortcut-icon" aria-hidden="true">🏆</div>
-                <div class="achievement-shortcut-info">
-                    <div class="achievement-shortcut-title">Achievements</div>
-                    <div class="achievement-shortcut-sub"><b id="homeAchievementCount">0/0</b> unlocked</div>
-                </div>
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M9 18l6-6-6-6"/></svg>
-            </div>
+            </section>
 
             <button class="cta-btn" onclick="switchTab('vocab', this)">
-                Start Learning
+                Continue Learning
                 <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" aria-hidden="true"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
             </button>
         </main>
@@ -307,6 +242,15 @@
         <div class="page" id="page-settings">
             <div class="settings-page-inner">
                 <div class="settings-title">Settings</div>
+
+                <!-- Achievements (从主页迁移) -->
+                <div class="setting-group">
+                    <div class="setting-label">Achievements <span id="settingsAchCount" class="setting-count">0/0</span></div>
+                    <div class="achievements-mini" id="settingsAchievements">
+                        <div class="achievement-mini-empty">Loading achievements...</div>
+                    </div>
+                </div>
+
                 <div class="setting-group">
                     <div class="setting-label">Notebook <span id="notebookCount" class="notebook-count"></span></div>
                     <div class="notebook-toolbar" id="notebookToolbar" style="display:none">
@@ -322,6 +266,7 @@
                         <div class="notebook-list" id="notebookList"></div>
                     </div>
                 </div>
+
                 <div class="setting-group">
                     <div class="setting-label">Appearance</div>
                     <div class="theme-toggle">
@@ -329,6 +274,7 @@
                         <button class="theme-option" data-theme-val="dark" onclick="setTheme('dark')">🌙 Dark</button>
                     </div>
                 </div>
+
                 <div class="setting-group">
                     <div class="setting-label">Accent Color</div>
                     <div class="color-grid">
@@ -339,8 +285,17 @@
                         <div class="color-swatch swatch-cyan" data-color="cyan" onclick="setAccent('cyan')"></div>
                     </div>
                 </div>
+
+                <div class="setting-group">
+                    <div class="setting-label">Data</div>
+                    <div class="setting-actions">
+                        <button class="btn-secondary" onclick="exportProgress()">Export Progress</button>
+                        <button class="btn-secondary" onclick="clearCache()">Clear Cache</button>
+                    </div>
+                </div>
+
                 <div class="settings-info">
-                    CET-6 Immersive v3.0<br>
+                    CET-6 Immersive v5.0<br>
                     <span class="reset-link" onclick="resetAllData()">Reset All Progress</span>
                 </div>
             </div>
@@ -412,22 +367,22 @@
     </nav>
 
     <!-- 关键脚本: 优先加载 - 音频必须最早 -->
-    <script src="./js/audio.js?v=19"></script>
-    <script src="./js/env.js?v=19"></script>
-    <script src="./js/app.js?v=19"></script>
+    <script src="./js/audio.js?v=21"></script>
+    <script src="./js/env.js?v=21"></script>
+    <script src="./js/app.js?v=21"></script>
     <!-- 异步加载: 数据模型与功能模块 (defer 避免阻塞渲染) -->
-    <script defer src="./js/migrate.js?v=19"></script>
-    <script defer src="./js/srs.js?v=19"></script>
-    <script defer src="./js/toast.js?v=19"></script>
-    <script defer src="./js/achievements.js?v=19"></script>
-    <script defer src="./js/heatmap.js?v=19"></script>
-    <script defer src="./js/dictionary.js?v=19"></script>
-    <script defer src="./js/listening.js?v=19"></script>
-    <script defer src="./js/spelling.js?v=19"></script>
-    <script defer src="./js/difficulty.js?v=19"></script>
-    <script defer src="./js/reading-extras.js?v=19"></script>
-    <script defer src="./js/vocab-test.js?v=19"></script>
-    <script defer src="./js/goals.js?v=19"></script>
-    <script defer src="./js/index.js?v=19"></script>
+    <script defer src="./js/migrate.js?v=21"></script>
+    <script defer src="./js/srs.js?v=21"></script>
+    <script defer src="./js/toast.js?v=21"></script>
+    <script defer src="./js/achievements.js?v=21"></script>
+    <script defer src="./js/heatmap.js?v=21"></script>
+    <script defer src="./js/dictionary.js?v=21"></script>
+    <script defer src="./js/listening.js?v=21"></script>
+    <script defer src="./js/spelling.js?v=21"></script>
+    <script defer src="./js/difficulty.js?v=21"></script>
+    <script defer src="./js/reading-extras.js?v=21"></script>
+    <script defer src="./js/vocab-test.js?v=21"></script>
+    <script defer src="./js/goals.js?v=21"></script>
+    <script defer src="./js/index.js?v=21"></script>
 </body>
 </html>

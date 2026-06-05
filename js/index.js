@@ -85,83 +85,87 @@ function speak(word) {
     window.speechSynthesis.speak(u);
 }
 
-/* ===== HOME ===== */
-// 修复 1+3: Streak 计算 + 进度环更新
-// Sprint 1: 集成热力图、成就、复习入口
+/* ===== HOME — Less but better ===== */
 function initHome() {
+    // Greeting based on time
     const h = new Date().getHours();
     const greetEl = document.getElementById('greetSub');
     const mainEl = document.getElementById('greetMain');
-    if (greetEl) greetEl.textContent = h < 12 ? 'Good morning' : h < 18 ? 'Good afternoon' : 'Good evening';
-    if (mainEl) mainEl.innerHTML = `Level up your <span>English</span>`;
-
-    const streakEl = document.getElementById('streakNum');
-    const todayEl = document.getElementById('todayLearned');
-    const knownEl = document.getElementById('totalKnown');
-    if (streakEl) {
-        streakEl.textContent = state.streak || 0;
-        // 数字滚动动画
-        animateNumber(streakEl, state.streak || 0);
-    }
-    if (todayEl) todayEl.textContent = state.todayLearned || 0;
-    if (knownEl) knownEl.textContent = state.knownWords.length;
-
-    // Phase 6: 填充新统计卡片
-    const statKnown = document.getElementById('statKnown');
-    const statToday = document.getElementById('statToday');
-    const statStreak = document.getElementById('statStreak');
-    const statAch = document.getElementById('statAch');
-    if (statKnown) {
-        statKnown.textContent = state.knownWords.length;
-        animateNumber(statKnown, state.knownWords.length, 600);
-    }
-    if (statToday) {
-        statToday.textContent = state.todayLearned || 0;
-        animateNumber(statToday, state.todayLearned || 0, 500);
-    }
-    if (statStreak) {
-        statStreak.textContent = state.streak || 0;
-        animateNumber(statStreak, state.streak || 0, 700);
-    }
-    const achUnlocked = getUnlockedCount();
-    if (statAch) {
-        statAch.textContent = achUnlocked;
-        animateNumber(statAch, achUnlocked, 800);
+    if (greetEl) {
+        const tod = h < 5 ? 'evening' : h < 12 ? 'morning' : h < 18 ? 'afternoon' : 'evening';
+        const timeOfDay = h < 5 ? 'GOOD NIGHT' : h < 12 ? 'GOOD MORNING' : h < 18 ? 'GOOD AFTERNOON' : 'GOOD EVENING';
+        greetEl.textContent = timeOfDay;
+        const name = state.userName || '';
+        mainEl.textContent = name ? `Hello, ${name}.` : (tod === 'morning' ? 'Good morning.' : tod === 'afternoon' ? 'Good afternoon.' : 'Good evening.');
     }
 
-    // 计算今日进度比例
-    const dailyGoal = (state.goals && state.goals.dailyNewWords) || 20;
-    const todayProgress = state.todayLearned || 0;
-    const progressMeta = document.getElementById('progressMeta');
-    if (progressMeta) progressMeta.textContent = `${todayProgress} / ${dailyGoal}`;
+    // 3 个轻量统计数字
+    const knownMini = document.getElementById('statKnownMini');
+    const streakMini = document.getElementById('statStreakMini');
+    const reviewMini = document.getElementById('statReviewMini');
 
-    // 修复 3: 更新进度环
-    const total = allWords.length;
-    const known = state.knownWords.length;
-    const pct = total > 0 ? Math.min(100, Math.round((known / total) * 100)) : 0;
-    const circumference = 2 * Math.PI * 42; // ~263.89
-    const offset = circumference - (pct / 100) * circumference;
-    const ringFill = document.getElementById('ringFill');
-    const ringText = document.getElementById('ringText');
-    if (ringFill) {
-        ringFill.setAttribute('stroke-dasharray', circumference);
-        ringFill.setAttribute('stroke-dashoffset', offset);
+    if (knownMini) {
+        knownMini.textContent = state.knownWords.length;
+        animateNumber(knownMini, state.knownWords.length, 600);
     }
-    if (ringText) ringText.textContent = `${pct}%`;
+    if (streakMini) {
+        streakMini.textContent = state.streak || 0;
+        animateNumber(streakMini, state.streak || 0, 700);
+    }
+    if (reviewMini) {
+        const reviewCount = getTodayReviewWords().length;
+        reviewMini.textContent = reviewCount;
+    }
 
-    // Sprint 1-4: 渲染热力图
-    renderHeatmap('homeHeatmap');
+    // 加载今日 Daily Quote
+    loadDailyQuoteHero();
+}
 
-    // Sprint 1-5: 更新成就计数
-    const achCountEl = document.getElementById('homeAchievementCount');
-    if (achCountEl) achCountEl.textContent = `${achUnlocked}/${ACHIEVEMENTS.length}`;
+/* Daily Quote Hero - 在首页展示 */
+function loadDailyQuoteHero() {
+    const hero = document.getElementById('homeQuoteHero');
+    if (!hero || !window.allQuotes || window.allQuotes.length === 0) return;
 
-    // Sprint 1-1: 显示今日复习数
-    const reviewEl = document.getElementById('homeReviewCount');
-    if (reviewEl) reviewEl.textContent = getTodayReviewWords().length;
+    // 每日固定一条 (基于日期种子)
+    const today = new Date();
+    const seed = today.getFullYear() * 10000 + (today.getMonth() + 1) * 100 + today.getDate();
+    const quoteIdx = seed % window.allQuotes.length;
+    const q = window.allQuotes[quoteIdx];
 
-    // Sprint 2-6: 渲染目标进度
-    renderGoalsWidget('homeGoals');
+    const textEl = document.getElementById('homeQuoteText');
+    const authorEl = document.getElementById('homeQuoteAuthor');
+    const timeEl = document.getElementById('homeQuoteTime');
+    const bgEl = document.getElementById('homeQuoteBg');
+
+    if (textEl) textEl.textContent = q.en || q.text || '';
+    if (authorEl) authorEl.textContent = q.author ? `— ${q.author}` : '';
+
+    // 时间信息
+    if (timeEl) {
+        const h = today.getHours();
+        const m = today.getMinutes().toString().padStart(2, '0');
+        timeEl.textContent = `${h.toString().padStart(2, '0')}:${m}`;
+    }
+
+    // 背景图 (低饱和 + 模糊)
+    if (bgEl) {
+        const imgUrl = q.bg || q.image || getDefaultQuoteImage(q);
+        bgEl.style.backgroundImage = `url('${imgUrl}')`;
+    }
+}
+window.loadDailyQuoteHero = loadDailyQuoteHero;
+
+function getDefaultQuoteImage(quote) {
+    // 基于 quote id 选一张稳定图片
+    const idx = (quote.id || 0) % 5;
+    const images = [
+        'https://images.unsplash.com/photo-1481627834876-b7833e8f5570?w=800&q=70',  // 书房
+        'https://images.unsplash.com/photo-1455390582262-044cdead277a?w=800&q=70',  // 笔记本
+        'https://images.unsplash.com/photo-1503676260728-1c00da094a0b?w=800&q=70',  // 校园
+        'https://images.unsplash.com/photo-1481627834876-b7833e8f5570?w=800&q=70',  // 复古书桌
+        'https://images.unsplash.com/photo-1519682337058-a94d519337bc?w=800&q=70'   // 山间小路
+    ];
+    return images[idx] || images[0];
 }
 
 // 数字滚动动画
@@ -837,6 +841,9 @@ function highlightCet6Words(text) {
 
 /* ===== TAB SWITCHING ===== */
 function switchTab(tabName, el) {
+    // 页面切换前停止所有音频(单例管理)
+    if (window.AudioManager) window.AudioManager.stopAll();
+
     document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
     document.querySelectorAll('.tab-item').forEach(t => t.classList.remove('active'));
     const targetPage = document.getElementById(`page-${tabName}`);
@@ -849,7 +856,13 @@ function switchTab(tabName, el) {
         if (tabMap[tabName] !== undefined && tabs[tabMap[tabName]]) tabs[tabMap[tabName]].classList.add('active');
     }
     if (tabName === 'home') initHome();
-    if (tabName === 'settings') renderNotebook();
+    if (tabName === 'settings') {
+        renderNotebook();
+        // 渲染 Settings 页面成就墙(从主页迁移)
+        if (typeof renderSettingsAchievements === 'function') {
+            renderSettingsAchievements();
+        }
+    }
 }
 
 /* ===== INIT ===== */

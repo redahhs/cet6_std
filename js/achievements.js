@@ -34,3 +34,29 @@ function getUnlockedCount() {
     if (!state.achievements) return 0;
     return Object.values(state.achievements).filter(a => a.unlocked).length;
 }
+
+/* 渲染到 Settings 页面的简化成就墙 */
+function renderSettingsAchievements() {
+    const container = document.getElementById('settingsAchievements');
+    const countEl = document.getElementById('settingsAchCount');
+    if (!container) return;
+
+    if (!ACHIEVEMENTS.length) {
+        container.innerHTML = '<div class="achievement-mini-empty">No achievements available</div>';
+        return;
+    }
+
+    const unlockedCount = getUnlockedCount();
+    if (countEl) countEl.textContent = `${unlockedCount}/${ACHIEVEMENTS.length}`;
+
+    container.innerHTML = ACHIEVEMENTS.map(a => {
+        const unlocked = state.achievements?.[a.id]?.unlocked;
+        return `
+            <div class="achievement-mini-item ${unlocked ? '' : 'locked'}" title="${a.desc}" aria-label="${a.name}">
+                <div aria-hidden="true">${a.icon}</div>
+                <div class="ach-name">${a.name}</div>
+            </div>
+        `;
+    }).join('');
+}
+window.renderSettingsAchievements = renderSettingsAchievements;
