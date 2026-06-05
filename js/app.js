@@ -129,6 +129,10 @@
     document.addEventListener('click', (e) => {
       const link = e.target.closest('a');
       if (!link || !link.href || link.target === '_blank' || e.metaKey || e.ctrlKey) return;
+
+      // 已经由 inline handler 接管 (SPA 切换 / 模态),不再干预
+      if (e.defaultPrevented || link.dataset.spa === 'true' || link.hasAttribute('data-no-reload')) return;
+
       try {
         const url = new URL(link.href);
         if (url.origin !== window.location.origin) return;

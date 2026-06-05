@@ -69,7 +69,7 @@
     }
     </style>
 
-    <link rel="stylesheet" href="./css/index.css?v=22">
+    <link rel="stylesheet" href="./css/index.css?v=23">
     <link rel="preload" href="./data/words.json" as="fetch" crossorigin>
 </head>
 <body>
@@ -110,34 +110,25 @@
                 </article>
             </section>
 
-            <!-- Quick Actions: 学习入口 -->
-            <section class="quick-actions" aria-label="Quick actions">
-                <a href="vocab.html" class="action-tile" aria-label="Vocabulary" onclick="event.preventDefault(); switchTab('vocab', document.querySelectorAll('.tab-item')[1]);">
-                    <div class="action-tile-icon" aria-hidden="true">📘</div>
-                    <div class="action-tile-info">
-                        <div class="action-tile-title">Vocabulary</div>
-                        <div class="action-tile-sub" id="vocabSub">Start learning</div>
-                    </div>
-                    <svg class="action-tile-arrow" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M9 18l6-6-6-6"/></svg>
-                </a>
+            <!-- Quick Start - One Tap to Learn (降低操作复杂度) -->
+            <section class="quick-start" aria-label="Quick start">
+                <button class="cta-primary" onclick="switchTab('vocab', document.querySelectorAll('.tab-item')[1])">
+                    <span class="cta-primary-label">Continue Learning</span>
+                    <span class="cta-primary-meta" id="ctaMeta">0 words to review</span>
+                    <svg class="cta-primary-arrow" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" aria-hidden="true"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+                </button>
+            </section>
 
-                <a href="reading.html" class="action-tile" aria-label="Reading" onclick="event.preventDefault(); switchTab('reading', document.querySelectorAll('.tab-item')[2]);">
-                    <div class="action-tile-icon" aria-hidden="true">📖</div>
-                    <div class="action-tile-info">
-                        <div class="action-tile-title">Reading</div>
-                        <div class="action-tile-sub" id="readingSub">Explore articles</div>
-                    </div>
-                    <svg class="action-tile-arrow" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M9 18l6-6-6-6"/></svg>
-                </a>
-
-                <a href="quote.html" class="action-tile" aria-label="Quote" onclick="event.preventDefault(); switchTab('quote', document.querySelectorAll('.tab-item')[3]);">
-                    <div class="action-tile-icon" aria-hidden="true">✨</div>
-                    <div class="action-tile-info">
-                        <div class="action-tile-title">Daily Quote</div>
-                        <div class="action-tile-sub" id="quoteSub">Inspire yourself</div>
-                    </div>
-                    <svg class="action-tile-arrow" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M9 18l6-6-6-6"/></svg>
-                </a>
+            <!-- 最近学习 - 三个简单入口(替代原 3 个 Action Tile) -->
+            <section class="home-secondary" aria-label="Continue">
+                <button class="secondary-tile" data-tab="reading" onclick="switchTab('reading', document.querySelectorAll('.tab-item')[2])">
+                    <div class="secondary-tile-label">Reading</div>
+                    <div class="secondary-tile-sub" id="readingSub">Explore articles</div>
+                </button>
+                <button class="secondary-tile" data-tab="quote" onclick="switchTab('quote', document.querySelectorAll('.tab-item')[3])">
+                    <div class="secondary-tile-label">Daily Quote</div>
+                    <div class="secondary-tile-sub" id="quoteSub">Inspire yourself</div>
+                </button>
             </section>
 
             <!-- 轻量统计 - 仅 3 个数字 -->
@@ -157,11 +148,6 @@
                     <div class="stat-mini-label">To review</div>
                 </div>
             </section>
-
-            <button class="cta-btn" onclick="switchTab('vocab', this)">
-                Continue Learning
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" aria-hidden="true"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
-            </button>
         </main>
 
         <!-- VOCAB -->
@@ -191,17 +177,12 @@
             </div>
         </div>
 
-        <!-- READING -->
+        <!-- READING — Content First -->
         <div class="page" id="page-reading">
             <div id="reading-list-view">
                 <div class="reading-header">
-                    <h2>Reading Lab</h2>
-                    <p>Read in context. CET-6 words are highlighted.</p>
-                    <div class="reading-stats">
-                        <div class="reading-stat"><div class="num" id="readingTotal">0</div><div class="label">Articles</div></div>
-                        <div class="reading-stat"><div class="num" id="readingWords">0</div><div class="label">CET-6 Words</div></div>
-                        <div class="reading-stat"><div class="num" id="readingCoverage">0%</div><div class="label">Coverage</div></div>
-                    </div>
+                    <h2 class="reading-title">Reading</h2>
+                    <p class="reading-subtitle">Read in context. CET-6 words highlighted.</p>
                 </div>
                 <div class="article-list" id="articleList"></div>
             </div>
@@ -212,17 +193,22 @@
                 <div id="detailDifficulty"></div>
                 <div class="word-legend"><span class="cet6-word">word</span> = CET-6 vocabulary, tap to see meaning</div>
                 <div class="detail-body" id="detailBody"></div>
-                <button class="quiz-launch-btn" id="detailQuizBtn">📝 Take Comprehension Quiz</button>
+                <button class="quiz-launch-btn" id="detailQuizBtn">Take Comprehension Quiz</button>
             </div>
         </div>
 
-        <!-- QUOTE -->
+        <!-- QUOTE — Atmosphere + Motivation -->
         <div class="page" id="page-quote">
             <div class="quote-page-inner">
-                <div class="quote-card" id="quoteCard" onclick="openQuoteModal()">
+                <div class="quote-meta-top">
+                    <div class="quote-date" id="quoteDate">—</div>
+                    <div class="quote-status" id="quoteStatus">Today's Reflection</div>
+                </div>
+
+                <div class="quote-card" id="quoteCard">
                     <div class="quote-bg" id="qBg"></div>
                     <div class="quote-overlay"></div>
-                    <div class="magazine-label">Daily Inspiration</div>
+                    <div class="quote-mark-lg" aria-hidden="true">"</div>
                     <div class="quote-card-body">
                         <div class="quote-en" id="qEn"></div>
                         <div class="quote-divider"></div>
@@ -230,10 +216,24 @@
                         <div class="quote-source" id="qSrc"></div>
                     </div>
                 </div>
+
                 <div class="quote-actions">
-                    <button class="action-btn btn-collect" id="collectBtn" onclick="toggleCollect()"><span>Save</span></button>
-                    <button class="action-btn btn-speak-quote" onclick="speakQuote()"><svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M3 9v6h4l5 5V4L7 9H3z"/></svg></button>
-                    <button class="action-btn btn-refresh" onclick="loadRandomQuote()"><span>Next</span></button>
+                    <button class="action-btn btn-collect" id="collectBtn" onclick="toggleCollect()" aria-label="Save quote">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"/></svg>
+                        <span>Save</span>
+                    </button>
+                    <button class="action-btn btn-share" onclick="shareQuote()" aria-label="Share quote">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg>
+                        <span>Share</span>
+                    </button>
+                    <button class="action-btn btn-copy" onclick="copyQuote()" aria-label="Copy quote">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+                        <span>Copy</span>
+                    </button>
+                    <button class="action-btn btn-refresh" onclick="loadRandomQuote()" aria-label="Next quote">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M23 4v6h-6"/><path d="M1 20v-6h6"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/></svg>
+                        <span>Next</span>
+                    </button>
                 </div>
             </div>
         </div>
@@ -334,7 +334,7 @@
     <div class="quote-modal" id="achievementModal" onclick="if(event.target===event.currentTarget) document.getElementById('achievementModal').classList.remove('active')">
         <div class="quote-modal-content" onclick="event.stopPropagation()" style="max-height:80vh;display:flex;flex-direction:column">
             <div class="modal-body" style="margin-top:0;padding:24px 24px 0;flex:1;overflow:hidden;display:flex;flex-direction:column">
-                <h2 style="font-size:1.4rem;font-weight:800;margin-bottom:8px">🏆 Achievements</h2>
+                <h2 style="font-size:1.4rem;font-weight:800;margin-bottom:8px">Achievements</h2>
                 <p style="font-size:0.85rem;color:var(--text-2);margin-bottom:20px">Unlock badges as you learn</p>
                 <div id="achievementWall" style="flex:1;overflow-y:auto;padding-bottom:24px;display:grid;grid-template-columns:repeat(3,1fr);gap:12px"></div>
             </div>
@@ -367,22 +367,22 @@
     </nav>
 
     <!-- 关键脚本: 优先加载 - 音频必须最早 -->
-    <script src="./js/audio.js?v=22"></script>
-    <script src="./js/env.js?v=22"></script>
-    <script src="./js/app.js?v=22"></script>
+    <script src="./js/audio.js?v=23"></script>
+    <script src="./js/env.js?v=23"></script>
+    <script src="./js/app.js?v=23"></script>
     <!-- 异步加载: 数据模型与功能模块 (defer 避免阻塞渲染) -->
-    <script defer src="./js/migrate.js?v=22"></script>
-    <script defer src="./js/srs.js?v=22"></script>
-    <script defer src="./js/toast.js?v=22"></script>
-    <script defer src="./js/achievements.js?v=22"></script>
-    <script defer src="./js/heatmap.js?v=22"></script>
-    <script defer src="./js/dictionary.js?v=22"></script>
-    <script defer src="./js/listening.js?v=22"></script>
-    <script defer src="./js/spelling.js?v=22"></script>
-    <script defer src="./js/difficulty.js?v=22"></script>
-    <script defer src="./js/reading-extras.js?v=22"></script>
-    <script defer src="./js/vocab-test.js?v=22"></script>
-    <script defer src="./js/goals.js?v=22"></script>
-    <script defer src="./js/index.js?v=22"></script>
+    <script defer src="./js/migrate.js?v=23"></script>
+    <script defer src="./js/srs.js?v=23"></script>
+    <script defer src="./js/toast.js?v=23"></script>
+    <script defer src="./js/achievements.js?v=23"></script>
+    <script defer src="./js/heatmap.js?v=23"></script>
+    <script defer src="./js/dictionary.js?v=23"></script>
+    <script defer src="./js/listening.js?v=23"></script>
+    <script defer src="./js/spelling.js?v=23"></script>
+    <script defer src="./js/difficulty.js?v=23"></script>
+    <script defer src="./js/reading-extras.js?v=23"></script>
+    <script defer src="./js/vocab-test.js?v=23"></script>
+    <script defer src="./js/goals.js?v=23"></script>
+    <script defer src="./js/index.js?v=23"></script>
 </body>
 </html>

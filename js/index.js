@@ -117,6 +117,14 @@ function initHome() {
         reviewMini.textContent = reviewCount;
     }
 
+    // CTA 文案 (动态)
+    const ctaMeta = document.getElementById('ctaMeta');
+    if (ctaMeta) {
+        const reviewCount = getTodayReviewWords().length;
+        if (reviewCount > 0) ctaMeta.textContent = `${reviewCount} words to review`;
+        else ctaMeta.textContent = 'Start a new session';
+    }
+
     // 加载今日 Daily Quote
     loadDailyQuoteHero();
 }
@@ -535,9 +543,21 @@ function renderQuote() {
     document.getElementById('qEn').textContent = `"${currentQuote.en}"`;
     document.getElementById('qCn').textContent = currentQuote.zh;
     document.getElementById('qSrc').textContent = `\u2014 ${currentQuote.author}`;
-    // 修复 2: 同步收藏按钮状态
+    // 同步收藏按钮状态
     const collectBtn = document.getElementById('collectBtn');
     if (collectBtn) collectBtn.classList.toggle('collected', state.savedQuotes.includes(currentQuote.id));
+
+    // 日期 + 学习状态文案 (仪式感)
+    const dateEl = document.getElementById('quoteDate');
+    if (dateEl) {
+        const now = new Date();
+        dateEl.textContent = now.toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' }).toUpperCase();
+    }
+    const statusEl = document.getElementById('quoteStatus');
+    if (statusEl) {
+        const h = new Date().getHours();
+        statusEl.textContent = h < 5 ? 'Late Night Reflection' : h < 12 ? 'Morning Inspiration' : h < 18 ? 'Afternoon Focus' : 'Evening Calm';
+    }
 }
 
 // 修复 2: 使用 savedQuotes 代替 notebook 存储 Quote 收藏
@@ -547,8 +567,10 @@ function toggleCollect() {
     if (!state.savedQuotes) state.savedQuotes = [];
     if (state.savedQuotes.includes(qid)) {
         state.savedQuotes = state.savedQuotes.filter(x => x !== qid);
+        if (typeof showToast === 'function') showToast('Removed from saved', 'info');
     } else {
         state.savedQuotes.push(qid);
+        if (typeof showToast === 'function') showToast('Saved', 'success');
     }
     saveState();
     document.getElementById('collectBtn').classList.toggle('collected', state.savedQuotes.includes(qid));
@@ -561,6 +583,65 @@ function speakQuote() {
     u.lang = 'en-US'; u.rate = 0.85;
     window.speechSynthesis.speak(u);
 }
+
+/* 分享 Quote (Web Share API + fallback) */
+function shareQuote() {
+    if (!currentQuote) return;
+    const text = `"${currentQuote.en}"\n\n— ${currentQuote.author}\n\n${currentQuote.zh || ''}\n\n— via CET-6 Immersive`;
+    if (navigator.share) {
+        navigator.share({
+            title: 'Daily Quote',
+            text: text,
+            url: window.location.href
+        }).catch(() => {});
+    } else if (navigator.clipboard) {
+        navigator.clipboard.writeText(text).then(() => {
+            if (typeof showToast === 'function') showToast('Copied to clipboard', 'success');
+        });
+    } else {
+        if (typeof showToast === 'function') showToast('Share not supported', 'error');
+    }
+}
+window.shareQuote = shareQuote;
+
+/* 复制 Quote */
+function copyQuote() {
+    if (!currentQuote) return;
+    const text = `"${currentQuote.en}" — ${currentQuote.author}`;
+    if (navigator.clipboard) {
+        navigator.clipboard.writeText(text).then(() => {
+            if (typeof showToast === 'function') showToast('Copied', 'success');
+        }).catch(() => {
+            if (typeof showToast === 'function') showToast('Copy failed', 'error');
+        });
+    } else {
+        // fallback
+        const ta = document.createElement('textarea');
+        ta.value = text;
+        document.body.appendChild(ta);
+        ta.select();
+        try {
+            document.execCommand('copy');
+            if (typeof showToast === 'function') showToast('Copied', 'success');
+        } catch {
+            if (typeof showToast === 'function') showToast('Copy failed', 'error');
+        }
+        document.body.removeChild(ta);
+    }
+}
+window.copyQuote = copyQuote;
+
+/* 自动刷新 - 每天第一次进入时随机展示 */
+function autoRefreshQuote() {
+    if (!quotesData || quotesData.length === 0) return;
+    const today = new Date();
+    const seed = today.getFullYear() * 10000 + (today.getMonth() + 1) * 100 + today.getDate();
+    const idx = seed % quotesData.length;
+    if (currentQuote && currentQuote.id === quotesData[idx].id) return; // 今日同一条,不重复切换
+    currentQuote = quotesData[idx];
+    renderQuote();
+}
+window.autoRefreshQuote = autoRefreshQuote;
 
 /* ===== QUOTE MODAL ===== */
 window.openQuoteModal = function openQuoteModal() {
@@ -646,9 +727,6 @@ function renderArticleList() {
     let totalCet6 = 0;
     let totalWords = 0;
 
-    // 文章封面图标
-    const coverIcons = ['📚', '🔬', '🌍', '💡', '🎨', '🚀', '🌱', '⚡', '🏛️', '🎭', '🔮', '🌟'];
-
     list.innerHTML = readingArticles.map((article, idx) => {
         const cet6Found = countCet6Words(article.content);
         totalCet6 += cet6Found.size;
@@ -658,42 +736,42 @@ function renderArticleList() {
         // Sprint 2-5: 检查收藏状态
         const bookmarked = isArticleBookmarked(article.id);
 
-        const icon = coverIcons[idx % coverIcons.length];
         const difficultyClass = metrics.score <= 2 ? 'difficulty-easy' : metrics.score <= 3 ? 'difficulty-medium' : 'difficulty-hard';
         const difficultyLabel = metrics.score <= 2 ? 'Easy' : metrics.score <= 3 ? 'Medium' : 'Hard';
-        const stars = '★'.repeat(metrics.score) + '☆'.repeat(5 - metrics.score);
+        // 使用首字母缩写代替 emoji / 星级
+        const initials = getArticleInitials(article.title);
+        const progress = bookmarked ? 100 : (article.id ? Math.abs(hashCode(article.id) % 60) + 20 : 30);
 
         return `<article class="article-card" data-article-id="${escapeHtml(article.id)}" role="button" tabindex="0" aria-label="Read article: ${escapeHtml(article.title)}">
-            <div class="article-cover">
-                <div class="article-cover-pattern"></div>
-                <div class="article-cover-icon" aria-hidden="true">${icon}</div>
-            </div>
             <div class="article-body">
                 <div class="article-card-header">
-                    <h3>${escapeHtml(article.title)}</h3>
-                    <button class="article-bookmark ${bookmarked ? 'bookmarked' : ''}" data-id="${escapeHtml(article.id)}" onclick="event.stopPropagation(); toggleArticleBookmark('${escapeHtml(article.id)}')" aria-label="${bookmarked ? 'Remove bookmark' : 'Add bookmark'}">${bookmarked ? '⭐' : '☆'}</button>
+                    <div class="article-mark" aria-hidden="true">${initials}</div>
+                    <div class="article-card-info">
+                        <h3>${escapeHtml(article.title)}</h3>
+                        <div class="article-tags">
+                            <span class="article-tag ${difficultyClass}">${difficultyLabel}</span>
+                            <span class="article-tag time">${metrics.estimatedMinutes} min</span>
+                            <span class="article-tag cet6">${cet6Found.size} CET-6</span>
+                        </div>
+                    </div>
+                    <button class="article-bookmark ${bookmarked ? 'bookmarked' : ''}" data-id="${escapeHtml(article.id)}" onclick="event.stopPropagation(); toggleArticleBookmark('${escapeHtml(article.id)}')" aria-label="${bookmarked ? 'Remove bookmark' : 'Add bookmark'}">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="${bookmarked ? 'currentColor' : 'none'}" stroke="currentColor" stroke-width="2"><path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"/></svg>
+                    </button>
                 </div>
-                <div class="article-tags">
-                    <span class="article-tag cet6">${cet6Found.size} CET-6</span>
-                    <span class="article-tag ${difficultyClass}">${difficultyLabel} ${stars}</span>
+                <p class="article-preview">${escapeHtml((article.content || '').slice(0, 140))}…</p>
+                <div class="article-card-footer">
+                    <span class="article-author">${escapeHtml(article.author || 'Unknown')}</span>
+                    <div class="article-progress" aria-label="Reading progress">
+                        <div class="article-progress-bar" style="width:${progress}%"></div>
+                    </div>
                 </div>
-                <div class="meta">
-                    <span>${escapeHtml(article.author || 'Unknown')}</span>
-                    <span class="meta-dot"></span>
-                    <span>${escapeHtml(article.date || '—')}</span>
-                </div>
-                <div class="preview">${escapeHtml((article.content || '').slice(0, 140))}…</div>
-            </div>
-            <div class="article-card-footer">
-                <span class="article-words">${metrics.wordCount} words · ${metrics.estimatedMinutes} min</span>
-                <span>Tap to read →</span>
             </div>
         </article>`;
     }).join('');
 
-    document.getElementById('readingTotal').textContent = readingArticles.length;
-    document.getElementById('readingWords').textContent = totalCet6;
-    document.getElementById('readingCoverage').textContent = totalWords > 0 ? Math.round(totalCet6 / totalWords * 100) + '%' : '0%';
+    document.getElementById('readingTotal')?.replaceChildren(document.createTextNode(readingArticles.length));
+    document.getElementById('readingWords')?.replaceChildren(document.createTextNode(totalCet6));
+    document.getElementById('readingCoverage')?.replaceChildren(document.createTextNode(totalWords > 0 ? Math.round(totalCet6 / totalWords * 100) + '%' : '0%'));
 
     // 事件委托
     list.querySelectorAll('.article-card').forEach(card => {
@@ -706,6 +784,25 @@ function renderArticleList() {
             }
         };
     });
+}
+
+/* 文章标题首字母缩写 (替代 emoji) */
+function getArticleInitials(title) {
+    if (!title) return '·';
+    const cleaned = title.replace(/[^\w\s]/g, ' ').trim();
+    const words = cleaned.split(/\s+/).filter(w => w.length > 0);
+    if (words.length === 0) return '·';
+    if (words.length === 1) return words[0].slice(0, 2).toUpperCase();
+    return (words[0][0] + words[1][0]).toUpperCase();
+}
+
+function hashCode(str) {
+    let h = 0;
+    for (let i = 0; i < str.length; i++) {
+        h = ((h << 5) - h) + str.charCodeAt(i);
+        h |= 0;
+    }
+    return h;
 }
 
 function openArticleDetail(id) {
@@ -868,6 +965,12 @@ function switchTab(tabName, el) {
         if (tabMap[tabName] !== undefined && tabs[tabMap[tabName]]) tabs[tabMap[tabName]].classList.add('active');
     }
     if (tabName === 'home') initHome();
+    if (tabName === 'quote') {
+        // 进入 Quote 页: 自动按当日种子加载(无刷新时不重复)
+        if (typeof window.autoRefreshQuote === 'function') {
+            window.autoRefreshQuote();
+        }
+    }
     if (tabName === 'settings') {
         renderNotebook();
         // 渲染 Settings 页面成就墙(从主页迁移)
