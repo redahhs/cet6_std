@@ -69,28 +69,28 @@
   function bindGlobalLifecycle() {
     // 页面隐藏时停止所有音频
     document.addEventListener('visibilitychange', () => {
-      if (document.hidden && window.AudioManager) {
-        window.AudioManager.pauseAll();
+      if (document.hidden && window.AudioController) {
+        window.AudioController.pauseAll();
       }
     });
 
     // 页面卸载/隐藏时清理
     window.addEventListener('pagehide', () => {
-      if (window.AudioManager) window.AudioManager.stopAll();
+      if (window.AudioController) window.AudioController.stopAll();
     });
 
     // 移动端特有事件
     window.addEventListener('blur', () => {
-      if (window.AudioManager) window.AudioManager.pauseAll();
+      if (window.AudioController) window.AudioController.pauseAll();
     });
 
     // Capacitor / WebView 生命周期
     if (window.Capacitor) {
       document.addEventListener('pause', () => {
-        if (window.AudioManager) window.AudioManager.pauseAll();
+        if (window.AudioController) window.AudioController.pauseAll();
       });
       document.addEventListener('resume', () => {
-        if (window.AudioManager) window.AudioManager.resumeAll();
+        if (window.AudioController) window.AudioController.resumeAll();
       });
     }
   }
@@ -98,8 +98,8 @@
   function initAudioSystem() {
     // 首次用户交互后解锁 AudioContext (Chrome/Safari 限制)
     const unlock = () => {
-      if (window.AudioManager && typeof window.AudioManager.unlock === 'function') {
-        window.AudioManager.unlock();
+      if (window.AudioController && typeof window.AudioController.unlock === 'function') {
+        window.AudioController.unlock();
       }
       document.removeEventListener('touchstart', unlock);
       document.removeEventListener('click', unlock);
@@ -140,7 +140,7 @@
       e.preventDefault();
 
       // 切换前停止音频
-      if (window.AudioManager) window.AudioManager.stopAll();
+      if (window.AudioController) window.AudioController.stopAll();
 
       if (document.startViewTransition) {
         document.startViewTransition(() => { window.location.href = link.href; });
@@ -166,6 +166,6 @@
 
 // 兼容旧代码,保留 window.playAudio
 window.playAudio = function (text, lang = 'en-US') {
-  if (!window.AudioManager) return;
-  window.AudioManager.speak(text, lang);
+  if (!window.AudioController) return;
+  window.AudioController.speak(text, lang);
 };

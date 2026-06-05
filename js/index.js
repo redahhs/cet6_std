@@ -323,12 +323,12 @@ function renderCard() {
 
     container.innerHTML = '';
     if (displayWords.length === 0) {
-        container.innerHTML = '<div style="text-align:center;color:var(--text-2);padding:40px"><div style="font-size:3.5rem;margin-bottom:16px">\uD83D\uDCEE</div><h3>No words found</h3><p style="font-size:0.85rem;margin-top:8px">Try a different letter filter</p></div>';
+        container.innerHTML = '<div style="text-align:center;color:var(--text-2);padding:40px"><h3>No words found</h3><p style="font-size:0.85rem;margin-top:8px">Try a different letter filter</p></div>';
         controls.classList.remove('active');
         return;
     }
     if (state.currentIndex >= displayWords.length) {
-        container.innerHTML = '<div style="text-align:center;color:var(--text-2);padding:40px"><div style="font-size:3.5rem;margin-bottom:16px">\uD83C\uDF89</div><h3>All caught up!</h3></div>';
+        container.innerHTML = '<div style="text-align:center;color:var(--text-2);padding:40px"><h3>All caught up!</h3></div>';
         controls.classList.remove('active');
         return;
     }
@@ -336,27 +336,102 @@ function renderCard() {
     const isSaved = state.notebook.includes(w.word);
     const card = document.createElement('div');
     card.className = 'word-card';
+    // 使用 data 属性存储单词,供事件委托读取
+    card.dataset.word = w.word;
+    card.dataset.saved = isSaved ? '1' : '0';
     card.innerHTML = `
         <div class="word-en">${escapeHtml(w.word)}</div>
         <div class="word-meta">
             <div class="word-phonetic">${escapeHtml(w.pos)}</div>
-            <button class="speak-btn" aria-label="Listen to pronunciation"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M3 9v6h4l5 5V4L7 9H3z"/></svg></button>
-            <button class="save-btn ${isSaved ? 'saved' : ''}" aria-label="${isSaved ? 'Remove from' : 'Add to'} notebook"><svg viewBox="0 0 24 24"><path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"/></svg></button>
+            <button class="speak-btn" data-action="speak" data-word="${escapeHtml(w.word)}" aria-label="Listen to pronunciation"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M3 9v6h4l5 5V4L7 9H3z"/></svg></button>
+            <button class="save-btn ${isSaved ? 'saved' : ''}" data-action="save" data-word="${escapeHtml(w.word)}" aria-label="${isSaved ? 'Remove from' : 'Add to'} notebook"><svg viewBox="0 0 24 24"><path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"/></svg></button>
         </div>
         <div class="word-pos">${escapeHtml(w.pos)}</div>
         <div class="word-cn">${escapeHtml(w.meaning)}</div>
         <div class="word-example">"${escapeHtml(w.phrases.length > 0 ? w.phrases[0].phrase : '')}"</div>
         <div class="tap-hint">Tap to reveal</div>
     `;
-    card.addEventListener('click', () => { if (!isDetailVisible && !isAnimating) { card.classList.add('show-detail'); controls.classList.add('active'); isDetailVisible = true; } });
-
-    // 绑定 speak 和 toggleNotebook 按钮事件
-    const speakBtn = card.querySelector('.speak-btn');
-    if (speakBtn) speakBtn.addEventListener('click', (e) => { e.stopPropagation(); speak(w.word); });
-    const saveBtn = card.querySelector('.save-btn');
-    if (saveBtn) saveBtn.addEventListener('click', (e) => { e.stopPropagation(); toggleNotebook(w.word); });
-
+    // 不再为 card / speak-btn / save-btn 单独 addEventListener
+    // 所有事件由 _initCardEventDelegation 的委托监听器处理
     container.appendChild(card);
+}
+
+/* ===== 事件委托: WordCard 按钮绑定 ===== */
+/**
+ * 核心设计:
+ * - 只在 cardContainer 上绑定一次 click 监听器
+ * - 通过 event.target.closest() 判断点击目标
+ * - 使用 data-action 属性区分操作类型
+ * - 彻底避免 renderCard 时重复 addEventListener
+ *
+ * 操作类型:
+ * - data-action="speak" → 朗读单词
+ * - data-action="save"   → 收藏/取消收藏
+ * - 无 data-action       → 翻转卡片 (show-detail)
+ */
+let _cardDelegationBound = false; // 防止重复绑定
+
+function _initCardEventDelegation() {
+    if (_cardDelegationBound) return;
+    _cardDelegationBound = true;
+
+    const container = document.getElementById('cardContainer');
+    if (!container) return;
+
+    container.addEventListener('click', (e) => {
+        // 1. 检查是否点击了 speak 按钮
+        const speakBtn = e.target.closest('[data-action="speak"]');
+        if (speakBtn) {
+            e.stopPropagation();
+            const word = speakBtn.dataset.word;
+            if (word) speak(word);
+            return;
+        }
+
+        // 2. 检查是否点击了 save 按钮
+        const saveBtn = e.target.closest('[data-action="save"]');
+        if (saveBtn) {
+            e.stopPropagation();
+            const word = saveBtn.dataset.word;
+            if (word) toggleNotebook(word);
+            return;
+        }
+
+        // 3. 检查是否点击了卡片本身 (翻转)
+        const card = e.target.closest('.word-card');
+        if (card && !isDetailVisible && !isAnimating) {
+            card.classList.add('show-detail');
+            const controls = document.getElementById('controls');
+            if (controls) controls.classList.add('active');
+            isDetailVisible = true;
+        }
+    });
+}
+
+/* ===== 事件委托: Forgot/Know 按钮 ===== */
+/**
+ * Forgot/Know 按钮在 #controls 容器内,是固定的 DOM 元素
+ * 只需绑定一次,不需要在每次 renderCard 时重复绑定
+ */
+let _controlsBound = false;
+
+function _initControlsDelegation() {
+    if (_controlsBound) return;
+    _controlsBound = true;
+
+    const controls = document.getElementById('controls');
+    if (!controls) return;
+
+    controls.addEventListener('click', (e) => {
+        const forgotBtn = e.target.closest('.btn-forgot');
+        const knownBtn = e.target.closest('.btn-known');
+
+        if (forgotBtn) {
+            handleSwipe(false);
+        } else if (knownBtn) {
+            handleSwipe(true);
+        }
+    });
 }
 
 // 工具函数：HTML 转义
@@ -948,46 +1023,169 @@ function highlightCet6Words(text) {
     }).join('');
 }
 
-/* ===== TAB SWITCHING ===== */
-function switchTab(tabName, el) {
-    // 页面切换前停止所有音频(单例管理)
-    if (window.AudioManager) window.AudioManager.stopAll();
+/* ===== VIEW LIFECYCLE MANAGER ===== */
+/**
+ * 视图生命周期管理器
+ *
+ * 核心设计:
+ * 1. 每个视图注册 onLeave (离开清理) 和 onEnter (进入初始化) 钩子
+ * 2. switchTab 在切换时自动调用 onLeave → stopAll → onEnter
+ * 3. onLeave 负责: 清除定时器、移除事件监听、重置局部状态
+ * 4. onEnter 负责: 初始化视图、加载数据、绑定事件
+ *
+ * 注册方式: ViewLifecycle.register('vocab', { onLeave, onEnter })
+ */
+const ViewLifecycle = {
+    _registry: {},
+    _currentView: 'home',
 
-    document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
-    document.querySelectorAll('.tab-item').forEach(t => t.classList.remove('active'));
-    const targetPage = document.getElementById(`page-${tabName}`);
-    if (targetPage) targetPage.classList.add('active');
-    if (el) {
-        el.classList.add('active');
-    } else {
-        const tabs = document.querySelectorAll('.tab-item');
-        const tabMap = { home: 0, vocab: 1, reading: 2, quote: 3, settings: 4 };
-        if (tabMap[tabName] !== undefined && tabs[tabMap[tabName]]) tabs[tabMap[tabName]].classList.add('active');
-    }
-    if (tabName === 'home') initHome();
-    if (tabName === 'quote') {
-        // 进入 Quote 页: 自动按当日种子加载(无刷新时不重复)
-        if (typeof window.autoRefreshQuote === 'function') {
-            window.autoRefreshQuote();
+    /**
+     * 注册视图生命周期钩子
+     * @param {string} viewName — 视图名称 (与 page-${viewName} 对应)
+     * @param {object} hooks — { onLeave?: Function, onEnter?: Function }
+     */
+    register(viewName, hooks) {
+        this._registry[viewName] = {
+            onLeave: hooks.onLeave || null,
+            onEnter: hooks.onEnter || null
+        };
+    },
+
+    /**
+     * 切换视图 (替代原 switchTab)
+     * 执行顺序: onLeave(旧) → stopAll → 切换 DOM → onEnter(新)
+     */
+    switchTo(targetView, el) {
+        if (targetView === this._currentView) return; // 防止重复切换
+
+        const prevView = this._currentView;
+
+        // 1. 执行旧视图的 onLeave (清理)
+        this._callOnLeave(prevView);
+
+        // 2. 强制停止所有音频 (单例管理器)
+        if (window.AudioController) window.AudioController.stopAll();
+
+        // 3. 切换 DOM 可见性
+        document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+        document.querySelectorAll('.tab-item').forEach(t => t.classList.remove('active'));
+
+        const targetPage = document.getElementById(`page-${targetView}`);
+        if (targetPage) targetPage.classList.add('active');
+
+        if (el) {
+            el.classList.add('active');
+        } else {
+            const tabs = document.querySelectorAll('.tab-item');
+            const tabMap = { home: 0, vocab: 1, reading: 2, quote: 3, settings: 4 };
+            if (tabMap[targetView] !== undefined && tabs[tabMap[targetView]]) {
+                tabs[tabMap[targetView]].classList.add('active');
+            }
         }
-    }
-    if (tabName === 'settings') {
-        renderNotebook();
-        // 渲染 Settings 页面成就墙(从主页迁移)
-        if (typeof renderSettingsAchievements === 'function') {
-            renderSettingsAchievements();
+
+        // 4. 执行新视图的 onEnter (初始化)
+        this._callOnEnter(targetView);
+
+        // 5. 更新当前视图
+        this._currentView = targetView;
+    },
+
+    /**
+     * 调用视图的 onLeave 钩子
+     */
+    _callOnLeave(viewName) {
+        const hooks = this._registry[viewName];
+        if (hooks && hooks.onLeave) {
+            try {
+                hooks.onLeave();
+            } catch (e) {
+                console.warn(`[ViewLifecycle] onLeave("${viewName}") error:`, e);
+            }
         }
+    },
+
+    /**
+     * 调用视图的 onEnter 钩子
+     */
+    _callOnEnter(viewName) {
+        const hooks = this._registry[viewName];
+        if (hooks && hooks.onEnter) {
+            try {
+                hooks.onEnter();
+            } catch (e) {
+                console.warn(`[ViewLifecycle] onEnter("${viewName}") error:`, e);
+            }
+        }
+    },
+
+    /**
+     * 获取当前视图名
+     */
+    getCurrentView() {
+        return this._currentView;
     }
-    if (tabName !== 'vocab') {
-        // 离开 Vocab 页: 清理 listening / spelling 模式 (防事件泄漏)
+};
+window.ViewLifecycle = ViewLifecycle;
+
+/* ===== 注册各视图的生命周期钩子 ===== */
+
+// HOME
+ViewLifecycle.register('home', {
+    onEnter() { initHome(); },
+    onLeave() { /* Home 无需清理 */ }
+});
+
+// VOCAB
+ViewLifecycle.register('vocab', {
+    onEnter() { /* Vocab 在 loadWords 后自动渲染 */ },
+    onLeave() {
+        // 清理 Listening 模式
         if (typeof teardownListeningMode === 'function') teardownListeningMode();
+        // 清理 Spelling 模式
         if (typeof teardownSpellingMode === 'function') teardownSpellingMode();
-        // 清理 Reading 详情计时器
+        // 重置卡片动画状态
+        isAnimating = false;
+        isDetailVisible = false;
+    }
+});
+
+// READING
+ViewLifecycle.register('reading', {
+    onEnter() { /* Reading 在 loadReadingModule 后自动渲染 */ },
+    onLeave() {
+        // 清理文章详情计时器
         if (window._articleTimer) {
             clearInterval(window._articleTimer);
             window._articleTimer = null;
         }
     }
+});
+
+// QUOTE
+ViewLifecycle.register('quote', {
+    onEnter() {
+        // 进入 Quote 页: 自动按当日种子加载
+        if (typeof window.autoRefreshQuote === 'function') {
+            window.autoRefreshQuote();
+        }
+    },
+    onLeave() { /* Quote 无需特殊清理,音频由 stopAll 处理 */ }
+});
+
+// SETTINGS
+ViewLifecycle.register('settings', {
+    onEnter() {
+        renderNotebook();
+        if (typeof renderSettingsAchievements === 'function') {
+            renderSettingsAchievements();
+        }
+    },
+    onLeave() { /* Settings 无需清理 */ }
+});
+
+/* ===== TAB SWITCHING (兼容旧 API) ===== */
+function switchTab(tabName, el) {
+    ViewLifecycle.switchTo(tabName, el);
 }
 
 /* ===== INIT ===== */
@@ -1033,3 +1231,7 @@ function renderAchievementWall() {
 }
 
 loadState(); initHome(); loadWords(); loadRandomQuote(); loadReadingModule();
+
+// 初始化事件委托 (只绑定一次,防止重复绑定)
+_initCardEventDelegation();
+_initControlsDelegation();
