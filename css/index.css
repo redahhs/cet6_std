@@ -1610,6 +1610,8 @@ input, textarea { font-family: inherit; }
     border-color: transparent;
     box-shadow: 0 4px 12px -4px color-mix(in srgb, var(--accent) 50%, transparent);
 }
+/* 修复 Bug: 卡片详情展开时, 隐藏 mode-switcher (与 controls 互斥) */
+#page-vocab:has(.controls.active) .mode-switcher { display: none; }
 
 /* ==================== SPRINT 1: Listening Mode ==================== */
 .listening-mode { display: flex; flex-direction: column; align-items: center; padding: 32px 16px; }
