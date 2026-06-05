@@ -69,7 +69,7 @@
     }
     </style>
 
-    <link rel="stylesheet" href="./css/index.css?v=21">
+    <link rel="stylesheet" href="./css/index.css?v=22">
     <link rel="preload" href="./data/words.json" as="fetch" crossorigin>
 </head>
 <body>
@@ -112,7 +112,7 @@
 
             <!-- Quick Actions: 学习入口 -->
             <section class="quick-actions" aria-label="Quick actions">
-                <a href="vocab.html" class="action-tile" aria-label="Vocabulary">
+                <a href="vocab.html" class="action-tile" aria-label="Vocabulary" onclick="event.preventDefault(); switchTab('vocab', document.querySelectorAll('.tab-item')[1]);">
                     <div class="action-tile-icon" aria-hidden="true">📘</div>
                     <div class="action-tile-info">
                         <div class="action-tile-title">Vocabulary</div>
@@ -121,7 +121,7 @@
                     <svg class="action-tile-arrow" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M9 18l6-6-6-6"/></svg>
                 </a>
 
-                <a href="reading.html" class="action-tile" aria-label="Reading">
+                <a href="reading.html" class="action-tile" aria-label="Reading" onclick="event.preventDefault(); switchTab('reading', document.querySelectorAll('.tab-item')[2]);">
                     <div class="action-tile-icon" aria-hidden="true">📖</div>
                     <div class="action-tile-info">
                         <div class="action-tile-title">Reading</div>
@@ -130,7 +130,7 @@
                     <svg class="action-tile-arrow" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M9 18l6-6-6-6"/></svg>
                 </a>
 
-                <a href="quote.html" class="action-tile" aria-label="Quote">
+                <a href="quote.html" class="action-tile" aria-label="Quote" onclick="event.preventDefault(); switchTab('quote', document.querySelectorAll('.tab-item')[3]);">
                     <div class="action-tile-icon" aria-hidden="true">✨</div>
                     <div class="action-tile-info">
                         <div class="action-tile-title">Daily Quote</div>
@@ -367,22 +367,22 @@
     </nav>
 
     <!-- 关键脚本: 优先加载 - 音频必须最早 -->
-    <script src="./js/audio.js?v=21"></script>
-    <script src="./js/env.js?v=21"></script>
-    <script src="./js/app.js?v=21"></script>
+    <script src="./js/audio.js?v=22"></script>
+    <script src="./js/env.js?v=22"></script>
+    <script src="./js/app.js?v=22"></script>
     <!-- 异步加载: 数据模型与功能模块 (defer 避免阻塞渲染) -->
-    <script defer src="./js/migrate.js?v=21"></script>
-    <script defer src="./js/srs.js?v=21"></script>
-    <script defer src="./js/toast.js?v=21"></script>
-    <script defer src="./js/achievements.js?v=21"></script>
-    <script defer src="./js/heatmap.js?v=21"></script>
-    <script defer src="./js/dictionary.js?v=21"></script>
-    <script defer src="./js/listening.js?v=21"></script>
-    <script defer src="./js/spelling.js?v=21"></script>
-    <script defer src="./js/difficulty.js?v=21"></script>
-    <script defer src="./js/reading-extras.js?v=21"></script>
-    <script defer src="./js/vocab-test.js?v=21"></script>
-    <script defer src="./js/goals.js?v=21"></script>
-    <script defer src="./js/index.js?v=21"></script>
+    <script defer src="./js/migrate.js?v=22"></script>
+    <script defer src="./js/srs.js?v=22"></script>
+    <script defer src="./js/toast.js?v=22"></script>
+    <script defer src="./js/achievements.js?v=22"></script>
+    <script defer src="./js/heatmap.js?v=22"></script>
+    <script defer src="./js/dictionary.js?v=22"></script>
+    <script defer src="./js/listening.js?v=22"></script>
+    <script defer src="./js/spelling.js?v=22"></script>
+    <script defer src="./js/difficulty.js?v=22"></script>
+    <script defer src="./js/reading-extras.js?v=22"></script>
+    <script defer src="./js/vocab-test.js?v=22"></script>
+    <script defer src="./js/goals.js?v=22"></script>
+    <script defer src="./js/index.js?v=22"></script>
 </body>
 </html>

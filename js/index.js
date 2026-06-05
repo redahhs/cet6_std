@@ -124,13 +124,17 @@ function initHome() {
 /* Daily Quote Hero - 在首页展示 */
 function loadDailyQuoteHero() {
     const hero = document.getElementById('homeQuoteHero');
-    if (!hero || !window.allQuotes || window.allQuotes.length === 0) return;
+    // 兼容: index.js 内 quotesData 优先, 否则读 quote.js 暴露的 window.allQuotes
+    const quotes = (typeof quotesData !== 'undefined' && quotesData.length > 0)
+        ? quotesData
+        : (window.allQuotes || []);
+    if (!hero || !quotes || quotes.length === 0) return;
 
     // 每日固定一条 (基于日期种子)
     const today = new Date();
     const seed = today.getFullYear() * 10000 + (today.getMonth() + 1) * 100 + today.getDate();
-    const quoteIdx = seed % window.allQuotes.length;
-    const q = window.allQuotes[quoteIdx];
+    const quoteIdx = seed % quotes.length;
+    const q = quotes[quoteIdx];
 
     const textEl = document.getElementById('homeQuoteText');
     const authorEl = document.getElementById('homeQuoteAuthor');
@@ -497,7 +501,15 @@ async function loadRandomQuote() {
     if (quotesData.length === 0) {
         try {
             const res = await fetch('./data/quotes.json');
-            if (res.ok) quotesData = await res.json();
+            if (res.ok) {
+                quotesData = await res.json();
+                // 同步到全局,供 Home Hero 使用
+                window.allQuotes = quotesData;
+                // 触发 Home Hero 更新(数据已就绪)
+                if (typeof window.loadDailyQuoteHero === 'function') {
+                    window.loadDailyQuoteHero();
+                }
+            }
         } catch(e) {}
     }
     if (quotesData.length === 0) return;
