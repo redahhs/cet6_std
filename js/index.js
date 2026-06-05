@@ -443,8 +443,9 @@ function escapeHtml(str) {
 }
 
 // 修复 5: 动画期间切换 Tab 安全检查
+// 修复: 移除 !isDetailVisible 守卫 — 按钮始终可用, 不强制先点卡片
 function handleSwipe(isKnown) {
-    if (isAnimating || !isDetailVisible) return;
+    if (isAnimating) return;
     isAnimating = true;
     const card = document.querySelector('.word-card');
     if (!card) { isAnimating = false; return; }
