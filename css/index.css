@@ -91,15 +91,74 @@
     --tracking-widest:  0.1em;    /* caps 大标签 */
 }
 
-/* ----- 4. Elevation (Shadows) ----- */
+/* ----- 4. Elevation (Refined: Double Shadow + Border System) ----- */
+/*
+   设计哲学 (Apple/Linear):
+   - 浅色: 双层柔和阴影 (近 + 远) + 极细边框
+   - 深色: 不用黑色外阴影,改用极细亮色边框 + 微弱内阴影
+   - 透明度上限 0.10,绝对不出现 0.20+ 的纯黑
+*/
 :root {
-    --shadow-xs: 0 1px 2px rgba(0,0,0,0.04);
-    --shadow-sm: 0 2px 8px -2px rgba(0,0,0,0.08);
-    --shadow:    0 8px 30px -8px rgba(0,0,0,0.08);  /* 默认卡片 */
-    --shadow-md: 0 12px 32px -8px rgba(0,0,0,0.12); /* 浮起 */
-    --shadow-lg: 0 20px 50px -12px rgba(0,0,0,0.20); /* Modal */
-    --shadow-xl: 0 30px 70px -12px rgba(0,0,0,0.30); /* 弹窗 */
-    --shadow-glow: 0 12px 32px -8px color-mix(in srgb, var(--accent) 40%, transparent);
+    /* 基础 Border (Light: 几乎不可见) */
+    --border: 1px solid rgba(0, 0, 0, 0.05);
+    --border-strong: 1px solid rgba(0, 0, 0, 0.08);
+    --border-color: rgba(0, 0, 0, 0.05);
+    --border-color-strong: rgba(0, 0, 0, 0.08);
+
+    /* 双层阴影 - Micro (小元素/微悬浮) */
+    --shadow-xs:
+        0 1px 2px rgba(0, 0, 0, 0.04),    /* 硬边近影 */
+        0 1px 1px rgba(0, 0, 0, 0.02);    /* 环境散射 */
+
+    /* 双层阴影 - Small (按钮/小卡片) */
+    --shadow-sm:
+        0 1px 2px rgba(0, 0, 0, 0.05),    /* 硬边近影 */
+        0 4px 8px rgba(0, 0, 0, 0.04);    /* 柔和远影 */
+
+    /* 双层阴影 - Default (默认卡片) */
+    --shadow:
+        0 1px 2px rgba(0, 0, 0, 0.04),    /* 硬边近影 */
+        0 8px 24px rgba(0, 0, 0, 0.06);   /* 柔和远影 */
+
+    /* 双层阴影 - Medium (浮起卡片) */
+    --shadow-md:
+        0 2px 4px rgba(0, 0, 0, 0.04),    /* 硬边近影 */
+        0 12px 32px rgba(0, 0, 0, 0.08);  /* 柔和远影 */
+
+    /* 双层阴影 - Large (Modal) */
+    --shadow-lg:
+        0 4px 8px rgba(0, 0, 0, 0.04),    /* 硬边近影 */
+        0 24px 56px rgba(0, 0, 0, 0.10);  /* 柔和远影 */
+
+    /* 双层阴影 - XL (Drawer/Full-screen) */
+    --shadow-xl:
+        0 8px 16px rgba(0, 0, 0, 0.05),    /* 硬边近影 */
+        0 32px 80px rgba(0, 0, 0, 0.10);   /* 柔和远影 */
+
+    /* 顶部浮起 (Sticky/Header) */
+    --shadow-up:
+        0 -1px 2px rgba(0, 0, 0, 0.04),
+        0 -8px 24px rgba(0, 0, 0, 0.06);
+
+    /* 内阴影 (Inputs, Dark Mode 替代) */
+    --shadow-inner: inset 0 1px 2px rgba(0, 0, 0, 0.04);
+    --shadow-inner-strong: inset 0 1px 3px rgba(0, 0, 0, 0.06);
+
+    /* Accent Glow (彩色阴影) - 透明度严格控制 */
+    --shadow-glow:
+        0 1px 2px color-mix(in srgb, var(--accent) 10%, transparent),
+        0 8px 32px color-mix(in srgb, var(--accent) 20%, transparent);
+
+    /* 焦点环 (用于键盘可达性) */
+    --shadow-focus: 0 0 0 3px color-mix(in srgb, var(--accent) 30%, transparent);
+
+    /* 边框 + 微阴影 (推荐组合) */
+    --surface-bordered:
+        var(--border),
+        var(--shadow-xs);
+    --surface-bordered-hover:
+        var(--border-strong),
+        var(--shadow-sm);
 }
 
 /* ----- 5. Z-Index Scale ----- */
@@ -177,16 +236,20 @@
     --text-3:        #9CA3AF;  /* 辅助文本，仅做装饰 */
     --text-on-accent:#FFFFFF;
 
-    --border:        rgba(0,0,0,0.06);
-    --border-strong: rgba(0,0,0,0.12);
-    --shadow-color:  rgba(0,0,0,0.08);
+    /* 边框颜色 (单一来源) */
+    --border-color:  rgba(0, 0, 0, 0.05);   /* 极细边框 (Apple 风格) */
+    --border-color-strong: rgba(0, 0, 0, 0.09);
+
+    /* 完整 border 简写 (推荐直接使用) */
+    --border:        1px solid var(--border-color);
+    --border-strong: 1px solid var(--border-color-strong);
 
     --overlay:       rgba(255,255,255,0.92);
     --modal-bg:      rgba(255,255,255,1);
 }
 
 /* ============================================
-   Dark Theme
+   Dark Theme — 不用黑色外阴影
    ============================================ */
 [data-theme="dark"] {
     --accent:        #818CF8;  /* 5.21:1 on dark */
@@ -212,9 +275,60 @@
     --text-3:        #6B7280;  /* 4.83:1 */
     --text-on-accent:#FFFFFF;
 
-    --border:        rgba(255,255,255,0.08);
-    --border-strong: rgba(255,255,255,0.15);
-    --shadow-color:  rgba(0,0,0,0.4);
+    /* 极细亮色边框 - 替代深色阴影 */
+    --border-color:  rgba(255, 255, 255, 0.06);
+    --border-color-strong: rgba(255, 255, 255, 0.10);
+    --border:        1px solid var(--border-color);
+    --border-strong: 1px solid var(--border-color-strong);
+
+    /* 深色模式: 用内阴影 + 极弱纯黑替代传统外阴影 */
+    --shadow-xs:
+        inset 0 1px 0 rgba(255, 255, 255, 0.02),
+        inset 0 1px 2px rgba(0, 0, 0, 0.10);
+
+    --shadow-sm:
+        inset 0 1px 0 rgba(255, 255, 255, 0.03),
+        0 1px 2px rgba(0, 0, 0, 0.20);
+
+    --shadow:
+        inset 0 1px 0 rgba(255, 255, 255, 0.04),
+        0 1px 3px rgba(0, 0, 0, 0.30),
+        0 8px 24px rgba(0, 0, 0, 0.20);
+
+    --shadow-md:
+        inset 0 1px 0 rgba(255, 255, 255, 0.05),
+        0 2px 4px rgba(0, 0, 0, 0.30),
+        0 12px 32px rgba(0, 0, 0, 0.25);
+
+    --shadow-lg:
+        inset 0 1px 0 rgba(255, 255, 255, 0.06),
+        0 4px 8px rgba(0, 0, 0, 0.30),
+        0 24px 56px rgba(0, 0, 0, 0.40);
+
+    --shadow-xl:
+        inset 0 1px 0 rgba(255, 255, 255, 0.06),
+        0 8px 16px rgba(0, 0, 0, 0.40),
+        0 32px 80px rgba(0, 0, 0, 0.50);
+
+    --shadow-up:
+        inset 0 1px 0 rgba(255, 255, 255, 0.04),
+        0 -8px 24px rgba(0, 0, 0, 0.20);
+
+    --shadow-inner: inset 0 1px 2px rgba(0, 0, 0, 0.20);
+    --shadow-inner-strong: inset 0 1px 3px rgba(0, 0, 0, 0.30);
+
+    --shadow-glow:
+        0 0 0 1px color-mix(in srgb, var(--accent) 30%, transparent),
+        0 8px 32px color-mix(in srgb, var(--accent) 25%, transparent);
+
+    --shadow-focus: 0 0 0 3px color-mix(in srgb, var(--accent) 40%, transparent);
+
+    --surface-bordered:
+        var(--border),
+        var(--shadow-xs);
+    --surface-bordered-hover:
+        var(--border-strong),
+        var(--shadow-sm);
 
     --overlay:       rgba(11,14,20,0.92);
     --modal-bg:      rgba(26,29,39,1);
@@ -261,20 +375,51 @@ img { max-width: 100%; display: block; }
 button { font-family: inherit; cursor: pointer; border: none; background: none; }
 input, textarea { font-family: inherit; }
 
-/* TAB BAR */
+/* TAB BAR — Safe Area 全适配(支持全面屏/小米/三星/华为) */
 .tab-bar {
-    height: var(--nav-h);
+    /* 高度 = 内容区 + Safe Area,使用 max() 兜底 16px */
+    height: calc(var(--nav-h) + env(safe-area-inset-bottom, 0px));
+    min-height: var(--nav-h);
+    padding-bottom: env(safe-area-inset-bottom, 16px);
+
     background: var(--overlay);
+    /* 毛玻璃增强 - 跨浏览器兼容 */
     backdrop-filter: blur(24px) saturate(180%);
     -webkit-backdrop-filter: blur(24px) saturate(180%);
-    border-top: 1px solid var(--border);
+
+    /* 顶部极细边框 + 向上发散阴影 (Sticky 风) */
+    border-top: 1px solid var(--border-color);
+    box-shadow: var(--shadow-up);
+
     display: flex;
     justify-content: space-around;
-    align-items: center;
-    padding-bottom: env(safe-area-inset-bottom);
+    align-items: flex-start;  /* 改成 flex-start 让 tab 按钮在 safe area 上方 */
+    padding-top: var(--space-2);
     z-index: 100;
     flex-shrink: 0;
-    position: relative;
+
+    /* 关键: fixed 定位 + 适配 Safe Area */
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    /* 移动端键盘弹出时,保证不被覆盖 */
+    transform: translateZ(0);
+    -webkit-transform: translateZ(0);
+}
+
+/* 当 PWA 独立模式时,顶部安全区预留 */
+.is-ios-standalone .tab-bar {
+    /* iOS 全面屏手势条额外间距 */
+    padding-bottom: max(env(safe-area-inset-bottom, 0px), 16px);
+}
+
+/* 横屏适配 - 高度更紧凑 */
+@media (orientation: landscape) and (max-height: 500px) {
+    .tab-bar {
+        height: calc(60px + env(safe-area-inset-bottom, 0px));
+        min-height: 60px;
+    }
 }
 
 /* Tab Bar 顶部装饰线 */
@@ -375,6 +520,8 @@ input, textarea { font-family: inherit; }
     overflow-x: hidden;
     -webkit-overflow-scrolling: touch;
     scroll-behavior: smooth;
+    /* 关键: 留出底部 Tab Bar + Safe Area 空间 */
+    padding-bottom: calc(var(--nav-h) + env(safe-area-inset-bottom, 0px) + 16px);
 }
 
 .page {
@@ -477,19 +624,21 @@ input, textarea { font-family: inherit; }
 /* Streak Card — 高端毛玻璃 + 渐变光晕 */
 .streak-card {
     background: linear-gradient(135deg, var(--accent) 0%, var(--accent-dark) 50%, color-mix(in srgb, var(--accent-dark) 70%, #1E1B4B) 100%);
-    border-radius: 24px;
-    padding: 24px 28px;
+    border-radius: var(--radius-lg);
+    padding: var(--space-6) var(--space-8);
     color: white;
-    margin-bottom: 24px;
+    margin-bottom: var(--space-6);
     display: flex;
     align-items: center;
     justify-content: space-between;
+    /* 彩色双层阴影 + 顶部高光 (Apple 风格渐变卡片) */
     box-shadow:
-        0 12px 32px -8px color-mix(in srgb, var(--accent) 40%, transparent),
-        inset 0 1px 0 rgba(255, 255, 255, 0.15);
+        0 1px 2px color-mix(in srgb, var(--accent) 20%, transparent),
+        0 12px 32px color-mix(in srgb, var(--accent) 25%, transparent),
+        inset 0 1px 0 rgba(255, 255, 255, 0.12);
     position: relative;
     overflow: hidden;
-    transition: transform 0.3s var(--ease-emphasized), box-shadow 0.3s ease;
+    transition: transform var(--transition-base), box-shadow var(--transition-base);
 }
 
 /* 卡片顶部高光 */
@@ -570,20 +719,26 @@ input, textarea { font-family: inherit; }
 
 .stat-card {
     background: var(--surface);
-    border-radius: 20px;
-    padding: 18px;
+    border-radius: var(--radius-md);
+    padding: var(--space-5);
+    /* 边框 + 微阴影 (推荐组合) */
     box-shadow: var(--shadow);
+    border: 1px solid var(--border-color);
     display: flex;
     flex-direction: column;
-    gap: 8px;
+    gap: var(--space-2);
     position: relative;
     overflow: hidden;
-    transition: transform 0.25s var(--ease-emphasized), box-shadow 0.25s ease;
+    transition:
+        transform var(--transition-base),
+        box-shadow var(--transition-base),
+        border-color var(--transition-base);
 }
 
 .stat-card:hover {
     transform: translateY(-2px);
     box-shadow: var(--shadow-md);
+    border-color: var(--border-color-strong);
 }
 
 .stat-card-icon {
@@ -693,19 +848,25 @@ input, textarea { font-family: inherit; }
 
 .progress-card {
     background: var(--surface);
-    border-radius: 20px;
-    padding: 24px;
+    border-radius: var(--radius-md);
+    padding: var(--space-6);
+    /* 边框 + 双层阴影 (推荐组合) */
     box-shadow: var(--shadow);
+    border: 1px solid var(--border-color);
     display: flex;
     align-items: center;
-    gap: 24px;
-    margin-bottom: 24px;
-    transition: transform 0.25s var(--ease-emphasized), box-shadow 0.25s ease;
+    gap: var(--space-6);
+    margin-bottom: var(--space-6);
+    transition:
+        transform var(--transition-base),
+        box-shadow var(--transition-base),
+        border-color var(--transition-base);
 }
 
 .progress-card:hover {
     transform: translateY(-2px);
     box-shadow: var(--shadow-md);
+    border-color: var(--border-color-strong);
 }
 
 .ring-container {
@@ -771,10 +932,12 @@ input, textarea { font-family: inherit; }
 
 .chart-card {
     background: var(--surface);
-    border-radius: 20px;
-    padding: 22px;
+    border-radius: var(--radius-md);
+    padding: var(--space-5);
+    /* 边框 + 双层阴影 */
     box-shadow: var(--shadow);
-    margin-bottom: 24px;
+    border: 1px solid var(--border-color);
+    margin-bottom: var(--space-6);
 }
 .chart-bars {
     display: flex;
@@ -879,7 +1042,7 @@ input, textarea { font-family: inherit; }
 
 /* VOCAB MODULE */
 .vocab-header { margin-bottom: 24px; }
-.sort-control { display: flex; background: var(--surface); border-radius: 14px; padding: 4px; box-shadow: var(--shadow); margin-bottom: 12px; }
+.sort-control { display: flex; background: var(--surface); border-radius: var(--radius); padding: 4px; box-shadow: var(--shadow-xs); border: 1px solid var(--border-color); margin-bottom: var(--space-3); }
 .sort-btn { flex: 1; padding: 12px; border: none; background: transparent; font-size: 0.8rem; font-weight: 600; color: var(--text-2); cursor: pointer; border-radius: 10px; transition: all 0.25s var(--ease-emphasized); min-height: 44px; }
 .sort-btn.active { background: var(--accent); color: white; box-shadow: 0 4px 12px -4px color-mix(in srgb, var(--accent) 50%, transparent); }
 
@@ -898,10 +1061,9 @@ input, textarea { font-family: inherit; }
     height: 100%;
     background: var(--surface);
     border-radius: var(--radius-xl);
-    box-shadow:
-        0 12px 32px -8px rgba(0, 0, 0, 0.15),
-        0 4px 12px -4px rgba(0, 0, 0, 0.08),
-        inset 0 1px 0 rgba(255, 255, 255, 0.5);
+    /* 双层阴影 + 极细边框 (Apple/Linear 风格) */
+    box-shadow: var(--shadow);
+    border: 1px solid var(--border-color);
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -913,9 +1075,9 @@ input, textarea { font-family: inherit; }
     transform-style: preserve-3d;
     transition:
         transform 0.5s var(--ease-out),
-        box-shadow var(--transition-base);
+        box-shadow var(--transition-base),
+        border-color var(--transition-base);
     backface-visibility: hidden;
-    border: 1px solid var(--border);
 }
 
 /* 卡片装饰光晕（角落） */
@@ -951,10 +1113,9 @@ input, textarea { font-family: inherit; }
 }
 
 .card-container:hover .word-card {
-    box-shadow:
-        0 20px 50px -10px color-mix(in srgb, var(--accent) 25%, transparent),
-        0 8px 20px -6px rgba(0, 0, 0, 0.12),
-        inset 0 1px 0 rgba(255, 255, 255, 0.6);
+    /* 悬停: 升级到 medium 阴影 + 边框 */
+    box-shadow: var(--shadow-md);
+    border-color: var(--border-color-strong);
 }
 
 .word-en {
@@ -1134,13 +1295,20 @@ input, textarea { font-family: inherit; }
         filter var(--transition-fast);
     position: relative;
     overflow: hidden;
-    box-shadow: 0 2px 8px -2px rgba(0, 0, 0, 0.18);
+    /* 双层柔和阴影 + 顶部高光 */
+    box-shadow:
+        0 1px 2px rgba(0, 0, 0, 0.06),
+        0 4px 8px rgba(0, 0, 0, 0.06),
+        inset 0 1px 0 rgba(255, 255, 255, 0.10);
     -webkit-tap-highlight-color: transparent;
     will-change: transform;
 }
 .btn:hover {
     transform: translateY(-1px);
-    box-shadow: 0 8px 20px -4px rgba(0, 0, 0, 0.25);
+    box-shadow:
+        0 1px 2px rgba(0, 0, 0, 0.08),
+        0 8px 16px rgba(0, 0, 0, 0.10),
+        inset 0 1px 0 rgba(255, 255, 255, 0.12);
     /* 微妙变亮: 5% 白色叠加 */
     filter: brightness(1.05);
 }
@@ -1176,8 +1344,10 @@ input, textarea { font-family: inherit; }
     align-items: center;
     justify-content: center;
     gap: var(--space-2);
+    /* 双层柔和阴影 + 顶部高光 (深色按钮) */
     box-shadow:
-        0 4px 12px -2px rgba(0, 0, 0, 0.18),
+        0 1px 2px rgba(0, 0, 0, 0.10),
+        0 6px 16px rgba(0, 0, 0, 0.08),
         inset 0 1px 0 rgba(255, 255, 255, 0.08);
     transition:
         transform var(--transition-fast),
@@ -1191,22 +1361,25 @@ input, textarea { font-family: inherit; }
 .btn-primary:hover {
     transform: translateY(-1px);
     box-shadow:
-        0 10px 24px -4px rgba(0, 0, 0, 0.3),
-        inset 0 1px 0 rgba(255, 255, 255, 0.12);
+        0 2px 4px rgba(0, 0, 0, 0.10),
+        0 12px 24px rgba(0, 0, 0, 0.10),
+        inset 0 1px 0 rgba(255, 255, 255, 0.10);
     filter: brightness(1.05);
 }
 .btn-primary:active {
     transform: scale(0.985) translateY(0);
-    box-shadow: 0 2px 6px -2px rgba(0, 0, 0, 0.2);
+    box-shadow:
+        0 1px 2px rgba(0, 0, 0, 0.08),
+        inset 0 1px 0 rgba(255, 255, 255, 0.05);
     filter: brightness(0.94);
     transition-duration: 80ms;
 }
 
-/* 次按钮 (Secondary) — 用于次要操作 */
+/* 次按钮 (Secondary) — 浅色风格,边框+微阴影 */
 .btn-secondary {
     width: 100%;
     padding: var(--space-4) var(--space-6);
-    border: 1px solid var(--border);
+    border: 1px solid var(--border-color);
     border-radius: var(--radius);
     background: var(--surface);
     color: var(--text-1);
@@ -1288,7 +1461,20 @@ input, textarea { font-family: inherit; }
 /* QUOTE MODAL */
 .quote-modal { position: fixed; inset: 0; z-index: 200; display: flex; align-items: center; justify-content: center; background: rgba(0,0,0,0); backdrop-filter: blur(0px); pointer-events: none; visibility: hidden; transition: background 0.4s ease, backdrop-filter 0.4s ease, visibility 0s 0.4s; }
 .quote-modal.active { background: rgba(0,0,0,0.7); backdrop-filter: blur(20px); pointer-events: auto; visibility: visible; transition: background 0.4s ease, backdrop-filter 0.4s ease, visibility 0s; }
-.quote-modal-content { width: 92%; max-width: 400px; background: var(--surface); border-radius: 28px; overflow: hidden; transform: scale(0.85) translateY(40px); opacity: 0; transition: all 0.45s cubic-bezier(0.16, 1, 0.3, 1); position: relative; }
+.quote-modal-content {
+    width: 92%;
+    max-width: 400px;
+    background: var(--surface);
+    border-radius: var(--radius-xl);
+    overflow: hidden;
+    transform: scale(0.85) translateY(40px);
+    opacity: 0;
+    transition: all 0.45s var(--ease-out);
+    position: relative;
+    /* Modal: 双层柔和阴影 + 极细边框 */
+    box-shadow: var(--shadow-lg);
+    border: 1px solid var(--border-color);
+}
 .quote-modal.active .quote-modal-content { transform: scale(1) translateY(0); opacity: 1; }
 .modal-img-wrap { position: relative; width: 100%; aspect-ratio: 16/10; overflow: hidden; }
 .modal-img { width: 100%; height: 100%; object-fit: cover; }
@@ -1617,10 +1803,15 @@ input, textarea { font-family: inherit; }
 /* Article Card — 封面图 + 摘要 + 标签 + 浮起 */
 .article-card {
     background: var(--surface);
-    border-radius: 20px;
+    border-radius: var(--radius-md);
+    /* 边框 + 双层阴影 */
     box-shadow: var(--shadow);
+    border: 1px solid var(--border-color);
     cursor: pointer;
-    transition: transform 0.3s var(--ease-emphasized), box-shadow 0.3s ease;
+    transition:
+        transform var(--transition-base),
+        box-shadow var(--transition-base),
+        border-color var(--transition-base);
     overflow: hidden;
     position: relative;
     display: flex;
@@ -2453,4 +2644,63 @@ button, a, [role="button"], input[type="checkbox"], input[type="radio"] {
 @media print {
     .tab-bar, .cta-btn, .quote-modal { display: none !important; }
     body { background: white; color: black; }
+}
+
+/* ============================================
+   MOBILE-FIRST OPTIMIZATIONS
+   ============================================ */
+
+/* 高 DPI 屏优化 */
+@media (-webkit-min-device-pixel-ratio: 2), (min-resolution: 192dpi) {
+    body { text-rendering: optimizeLegibility; -webkit-font-smoothing: subpixel-antialiased; }
+}
+
+/* iOS 输入框防缩放 */
+@supports (-webkit-touch-callout: none) {
+    input, textarea, select { font-size: 16px !important; }
+}
+
+/* 防止移动端按钮长按高亮 */
+* {
+    -webkit-tap-highlight-color: transparent;
+    -webkit-touch-callout: none;
+}
+
+/* 允许长按选中文本(单词卡片除外) */
+p, .detail-body, .word-example {
+    -webkit-user-select: text;
+    user-select: text;
+}
+
+/* 小屏优化 (< 360px) */
+@media (max-width: 360px) {
+    :root {
+        --space-4: 14px;
+        --space-6: 20px;
+        --space-8: 24px;
+        --text-base: 0.875rem;
+    }
+    .greeting-main { font-size: var(--text-3xl); }
+    .word-en { font-size: 2.5rem; }
+}
+
+/* 超大屏 (iPad Pro / 桌面) */
+@media (min-width: 1024px) {
+    body {
+        max-width: 480px;  /* 限制为手机宽度,居中显示 */
+        margin: 0 auto;
+        box-shadow: 0 0 80px rgba(0, 0, 0, 0.10);
+    }
+    .app-skeleton { max-width: 480px; left: 50%; transform: translateX(-50%); }
+}
+
+/* 防止 iOS Safari URL bar 抖动 */
+@supports (height: 100dvh) {
+    body { height: 100dvh; }
+    .pages { height: 100dvh; }
+}
+
+/* 防止 iOS 输入时页面偏移 */
+@supports (-webkit-touch-callout: none) {
+    body { position: fixed; width: 100%; }
 }
