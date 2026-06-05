@@ -20,6 +20,7 @@ function startSpellingMode() {
 }
 
 function nextSpellingRound() {
+    if (!spellingState.active) return; // 切页后失效
     if (spellingState.total >= 10) {
         finishSpellingMode();
         return;
@@ -94,20 +95,28 @@ function finishSpellingMode() {
     const container = document.getElementById('cardContainer');
     if (container) {
         container.innerHTML = `<div style="text-align:center;padding:40px">
-            <div style="font-size:3.5rem;margin-bottom:16px">✍️</div>
             <h3>Spelling Test Complete!</h3>
             <p style="font-size:1.1rem;margin-top:12px;color:var(--accent);font-weight:700">${spellingState.score} / ${spellingState.total}</p>
             <button class="cta-btn" style="margin-top:24px" onclick="startSpellingMode()">Try Again</button>
             <button class="action-btn" style="margin-top:12px" onclick="exitSpellingMode()">Exit</button>
         </div>`;
     }
-    showToast(`Spelling: ${spellingState.score}/${spellingState.total}`, 'info');
+    if (typeof showToast === 'function') showToast(`Spelling: ${spellingState.score}/${spellingState.total}`, 'info');
     state.reviewCount = (state.reviewCount || 0) + spellingState.total;
     saveState();
-    checkAchievements();
+    if (typeof checkAchievements === 'function') checkAchievements();
 }
 
 function exitSpellingMode() {
     spellingState.active = false;
     renderCard();
 }
+
+/* 切页时清理 - input + setTimeout 全部释放 */
+function teardownSpellingMode() {
+    spellingState.active = false;
+    spellingState.currentWord = null;
+    // input 在 DOM 销毁时自动释放,无需手动 removeEventListener
+    // 但需要让所有 setTimeout 失效 — 用 active 标记位
+}
+window.teardownSpellingMode = teardownSpellingMode;

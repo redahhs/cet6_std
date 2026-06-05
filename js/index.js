@@ -978,6 +978,16 @@ function switchTab(tabName, el) {
             renderSettingsAchievements();
         }
     }
+    if (tabName !== 'vocab') {
+        // 离开 Vocab 页: 清理 listening / spelling 模式 (防事件泄漏)
+        if (typeof teardownListeningMode === 'function') teardownListeningMode();
+        if (typeof teardownSpellingMode === 'function') teardownSpellingMode();
+        // 清理 Reading 详情计时器
+        if (window._articleTimer) {
+            clearInterval(window._articleTimer);
+            window._articleTimer = null;
+        }
+    }
 }
 
 /* ===== INIT ===== */

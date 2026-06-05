@@ -20,6 +20,7 @@ function startListeningMode() {
 }
 
 function nextListeningRound() {
+    if (!listeningState.active) return; // 切页后失效
     if (listeningState.total >= 10) {
         finishListeningMode();
         return;
@@ -92,20 +93,28 @@ function finishListeningMode() {
     const container = document.getElementById('cardContainer');
     if (container) {
         container.innerHTML = `<div style="text-align:center;padding:40px">
-            <div style="font-size:3.5rem;margin-bottom:16px">🎉</div>
             <h3>Listening Test Complete!</h3>
             <p style="font-size:1.1rem;margin-top:12px;color:var(--accent);font-weight:700">${listeningState.score} / ${listeningState.total}</p>
             <button class="cta-btn" style="margin-top:24px" onclick="startListeningMode()">Try Again</button>
             <button class="action-btn" style="margin-top:12px" onclick="exitListeningMode()">Exit</button>
         </div>`;
     }
-    showToast(`Listening: ${listeningState.score}/${listeningState.total}`, 'info');
+    if (typeof showToast === 'function') showToast(`Listening: ${listeningState.score}/${listeningState.total}`, 'info');
     state.reviewCount = (state.reviewCount || 0) + listeningState.total;
     saveState();
-    checkAchievements();
+    if (typeof checkAchievements === 'function') checkAchievements();
 }
 
 function exitListeningMode() {
     listeningState.active = false;
     renderCard();
 }
+
+/* 切页时清理 - 防止 setTimeout 继续触发 */
+function teardownListeningMode() {
+    listeningState.active = false;
+    listeningState.currentWord = null;
+    // 取消 TTS
+    if (window.speechSynthesis) window.speechSynthesis.cancel();
+}
+window.teardownListeningMode = teardownListeningMode;
