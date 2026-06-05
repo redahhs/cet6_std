@@ -1079,13 +1079,12 @@ input, textarea { font-family: inherit; }
 .word-card::before {
     content: '';
     position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    height: 25%;
-    background: linear-gradient(180deg, color-mix(in srgb, var(--accent) 3%, transparent) 0%, transparent 100%);
+    /* 修复: inset:0 + 继承父级 border-radius, 顶部圆角连续无裁切 */
+    inset: 0;
+    background: linear-gradient(180deg, color-mix(in srgb, var(--accent) 3%, transparent) 0%, transparent 25%);
     pointer-events: none;
-    border-radius: var(--radius-xl) var(--radius-xl) 0 0;
+    border-radius: inherit;
+    z-index: 0;
 }
 
 /* 顶部弹性留白 — 推单词到视觉中心 (30-40% 高度) */
@@ -1294,9 +1293,13 @@ input, textarea { font-family: inherit; }
 .controls {
     flex-shrink: 0;
     display: flex;
-    gap: var(--space-3);
+    /* 修复: 固定 gap:12px 防止小屏按钮挤在一起 */
+    gap: 12px;
+    align-items: center;
     width: 100%;
     max-width: 400px;
+    /* 修复: 刘海屏/底部安全区 */
+    padding-bottom: max(16px, env(safe-area-inset-bottom, 0px));
     opacity: 0;
     pointer-events: none;
     transition: opacity var(--transition-base);
@@ -1306,8 +1309,11 @@ input, textarea { font-family: inherit; }
    BUTTONS — Apple/Linear 风格微交互
    ============================================ */
 .btn {
-    flex: 1;
-    padding: var(--space-4) var(--space-6);
+    /* 修复: flex 响应式 + 最小宽度:0 防止内容撑爆 */
+    flex: 1 1 0;
+    min-width: 0;
+    /* 修复: 响应式 padding, 小屏紧凑 */
+    padding: var(--space-3) var(--space-4);
     border: none;
     border-radius: var(--radius);
     font-family: inherit;
@@ -1316,7 +1322,8 @@ input, textarea { font-family: inherit; }
     letter-spacing: var(--tracking-tight);
     color: white;
     cursor: pointer;
-    min-height: 56px;
+    /* 修复: min-height:52px 而非 56px, 小屏更紧凑 */
+    min-height: 52px;
     transition:
         transform var(--transition-fast),
         box-shadow var(--transition-fast),
@@ -1327,6 +1334,8 @@ input, textarea { font-family: inherit; }
     box-shadow: var(--shadow);
     -webkit-tap-highlight-color: transparent;
     will-change: transform;
+    text-align: center;
+    white-space: nowrap;
 }
 .btn:hover {
     transform: translateY(-1px);
@@ -2958,6 +2967,9 @@ p, .detail-body, .word-example {
     .quote-mark-lg { font-size: 3.5rem; }
     /* Action 按钮: 小屏更小 */
     .action-btn { font-size: 0.65rem; min-height: 52px; }
+    /* Forget/Know 按钮: 极小屏更紧凑 */
+    .btn { padding: 10px 12px; min-height: 48px; font-size: 0.875rem; }
+    .controls { gap: 8px; }
 }
 
 /* 超大屏 (iPad Pro / 桌面) */
